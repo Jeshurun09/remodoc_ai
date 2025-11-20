@@ -1,0 +1,191 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("MONGODB_URL")
+}
+
+enum UserRole {
+  PATIENT
+  DOCTOR
+  ADMIN
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum UrgencyLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum DoctorVerificationStatus {
+  PENDING
+  VERIFIED
+  REJECTED
+}
+
+model User {
+  id        String   @id @default(cuid()) @map("_id")
+  email     String   @unique
+  password  String
+  name      String
+  role      UserRole @default(PATIENT)
+  phone     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Relations
+  patientProfile   PatientProfile?
+  doctorProfile    DoctorProfile?
+  sentMessages     Message[]      @relation("SentMessages")
+  receivedMessages Message[]      @relation("ReceivedMessages")
+  aiLogs           AILog[]
+}
+
+model PatientProfile {
+  id        String   @id @default(cuid()) @map("_id")
+  userId    String   @unique
+  dob       DateTime?
+  address   String?
+  emergencyContact String?
+  emergencyPhone   String?
+  bloodType String?
+  allergies String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user        User          @relation(fields: [userId], references: [id])
+  appointments Appointment[]
+  symptoms    SymptomReport[]
+}
+
+model DoctorProfile {
+  id              String                  @id @default(cuid()) @map("_id")
+  userId          String                  @unique
+  licenseNumber   String                  @unique
+  specialization  String
+  yearsExperience Int
+  hospital        String?
+  verificationStatus DoctorVerificationStatus @default(PENDING)
+  verifiedAt      DateTime?
+  verifiedBy      String? // Admin ID
+  createdAt       DateTime                @default(now())
+  updatedAt       DateTime                @updatedAt
+
+  user         User          @relation(fields: [userId], references: [id])
+  appointments Appointment[]
+  prescriptions Prescription[]
+}
+
+model Hospital {
+  id          String   @id @default(cuid()) @map("_id")
+  name        String
+  address     String
+  city        String
+  state       String
+  zipCode     String
+  phone       String
+  latitude    Float
+  longitude   Float
+  specialties String   // JSON array of specialties
+  emergency   Boolean  @default(false)
+  active      Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model SymptomReport {
+  id            String       @id @default(cuid()) @map("_id")
+  patientId     String
+  symptoms      String       // Text description
+  imageUrl      String?      // URL to uploaded image
+  audioUrl      String?      // URL to audio recording
+  aiAnalysis    String?      // JSON string of AI response
+  likelyConditions String    // JSON array of conditions
+  urgency       UrgencyLevel
+  careAdvice    String?
+  locationLat   Float?
+  locationLng   Float?
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+
+  patient PatientProfile @relation(fields: [patientId], references: [id])
+  appointments Appointment[]
+}
+
+model Appointment {
+  id          String            @id @default(cuid()) @map("_id")
+  patientId   String
+  doctorId    String?
+  symptomReportId String?
+  status      AppointmentStatus @default(PENDING)
+  scheduledAt DateTime?
+  notes       String?
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+
+  patient      PatientProfile   @relation(fields: [patientId], references: [id])
+  doctor       DoctorProfile?   @relation(fields: [doctorId], references: [id])
+  symptomReport SymptomReport?  @relation(fields: [symptomReportId], references: [id])
+}
+
+model Prescription {
+  id          String   @id @default(cuid()) @map("_id")
+  doctorId   String
+  patientId  String
+  medication String
+  dosage     String
+  instructions String
+  startDate  DateTime
+  endDate    DateTime?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  doctor DoctorProfile @relation(fields: [doctorId], references: [id])
+}
+
+model Message {
+  id         String   @id @default(cuid()) @map("_id")
+  senderId   String
+  receiverId String
+  content    String
+  read       Boolean  @default(false)
+  createdAt  DateTime @default(now())
+
+  sender   User @relation("SentMessages", fields: [senderId], references: [id])
+  receiver User @relation("ReceivedMessages", fields: [receiverId], references: [id])
+}
+
+model AILog {
+  id          String   @id @default(cuid()) @map("_id")
+  userId      String
+  inputType   String   // "text", "image", "voice"
+  input       String   // Input data
+  output      String   // AI response
+  model       String   @default("gemini-pro")
+  tokensUsed  Int?
+  latency     Int?     // milliseconds
+  createdAt   DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model SystemConfig {
+  id        String   @id @default(cuid()) @map("_id")
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+  updatedBy String?   // Admin ID
+}
