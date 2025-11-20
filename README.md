@@ -1,14 +1,15 @@
 # RemoDoc - AI-Powered Telehealth Platform
 
-RemoDoc is an AI-powered telehealth web application that combines Gemini AI and Google Maps to deliver smart symptom checking, location-based care, and secure medical workflows.
+RemoDoc is an AI-powered telehealth web application that combines Gemini AI and Leaflet-powered maps (OpenStreetMap) to deliver smart symptom checking, location-based care, secure medical workflows, email-based account verification, and automated SMS reminders.
 
 ## Features
 
 ### 🩺 Patients Module
 - **Symptom Input**: Text, voice, or image input for symptoms
 - **AI Triage**: Gemini AI analyzes symptoms and provides likely conditions, urgency levels, and care advice
-- **Hospital Maps**: Find nearby hospitals with Google Maps integration
-- **Appointments**: Schedule and manage medical appointments
+- **Hospital Maps**: Find nearby hospitals with Leaflet + OpenStreetMap integration
+- **Appointments**: Schedule and manage medical appointments (email verification required to activate accounts)
+- **SMS Reminders**: Automatic Twilio reminders for upcoming appointments
 - **Offline Access**: Service worker and IndexedDB caching for offline functionality
 - **Emergency Beacon**: SMS-based emergency alert system
 
@@ -18,6 +19,7 @@ RemoDoc is an AI-powered telehealth web application that combines Gemini AI and 
 - **Chat Interface**: Communicate with patients
 - **Prescriptions**: Create and manage prescriptions
 - **AI Feedback**: Review AI-generated symptom analyses
+- **Appointment Reminders**: Receive Twilio SMS reminders for scheduled visits
 
 ### 🧠 Gemini AI Integration
 - Processes text and image data
@@ -26,8 +28,8 @@ RemoDoc is an AI-powered telehealth web application that combines Gemini AI and 
 - Logs all AI interactions for monitoring
 
 ### 🗺️ Maps Integration
-- Google Maps for hospital discovery
-- Directions and emergency routing
+- Leaflet with OpenStreetMap tiles for hospital discovery
+- Directions links powered by OpenStreetMap
 - Location-based hospital recommendations
 
 ### 🧑‍💼 Admin Dashboard
@@ -47,10 +49,10 @@ RemoDoc is an AI-powered telehealth web application that combines Gemini AI and 
 - **Framework**: Next.js 16 (App Router)
 - **Language**: TypeScript
 - **Styling**: Tailwind CSS
-- **Database**: SQLite with Prisma ORM
+- **Database**: MongoDB (via Prisma ORM)
 - **Authentication**: NextAuth.js
 - **AI**: Google Gemini AI
-- **Maps**: Google Maps API
+- **Maps**: Leaflet + OpenStreetMap
 - **SMS**: Twilio
 
 ## Getting Started
@@ -58,9 +60,10 @@ RemoDoc is an AI-powered telehealth web application that combines Gemini AI and 
 ### Prerequisites
 
 - Node.js 18+ and npm
+- MongoDB 6.x+ (local instance or Atlas cluster)
 - Google Gemini API key
-- Google Maps API key (optional, for maps functionality)
-- Twilio account (optional, for SMS emergency beacon)
+- SMTP credentials (for sending verification emails)
+- Twilio account (for SMS emergency beacon + appointment reminders)
 
 ### Installation
 
@@ -75,32 +78,16 @@ npm install
 ```
 
 3. Set up environment variables:
-Create a `.env` file in the root directory:
-```env
-# Database
-DATABASE_URL="file:./dev.db"
+Copy `env.example` to `.env.local` (or `.env`) and fill in the placeholders. Required values now include the database connection (`MONGODB_URL`), SMTP credentials (`SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM`), and Twilio credentials (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`).
 
-# NextAuth
-NEXTAUTH_URL="http://localhost:3000"
-NEXTAUTH_SECRET="your-secret-key-change-in-production"
-
-# Google Gemini AI
-GEMINI_API_KEY="your-gemini-api-key-here"
-
-# Google Maps
-NEXT_PUBLIC_GOOGLE_MAPS_API_KEY="your-google-maps-api-key-here"
-
-# Twilio (for SMS)
-TWILIO_ACCOUNT_SID="your-twilio-account-sid"
-TWILIO_AUTH_TOKEN="your-twilio-auth-token"
-TWILIO_PHONE_NUMBER="your-twilio-phone-number"
-```
-
-4. Set up the database:
+4. Sync the Prisma schema with MongoDB and seed mock data:
 ```bash
 npx prisma generate
 npx prisma db push
+npm run db:seed
 ```
+
+   The seed script automatically falls back to MongoDB's Node driver when Prisma transactions are unavailable (e.g. on a standalone instance).
 
 5. Run the development server:
 ```bash
@@ -127,7 +114,7 @@ remodoc/
 │   ├── prisma.ts         # Prisma client
 │   ├── auth.ts           # NextAuth configuration
 │   ├── gemini.ts         # Gemini AI integration
-│   ├── maps.ts           # Google Maps utilities
+│   ├── maps.ts           # Geospatial utilities
 │   ├── sms.ts            # Twilio SMS integration
 │   └── offline.ts        # Offline storage utilities
 ├── prisma/
@@ -144,17 +131,18 @@ remodoc/
 2. Use the Symptom Checker to input symptoms (text, voice, or image)
 3. Review AI analysis and recommendations
 4. Find nearby hospitals using the map
-5. Schedule appointments with doctors
+5. Schedule appointments with doctors (automatic SMS reminders go out once scheduled)
 6. Access emergency beacon for urgent situations
 
 ### For Doctors
 
-1. Register with license number and specialization
+1. Register with license number and specialization (verify email to activate account)
 2. Wait for admin verification
 3. Access patient cases and symptom reports
 4. Review AI analyses and provide feedback
 5. Create prescriptions
 6. Communicate with patients via chat
+7. Receive SMS reminders for confirmed appointments
 
 ### For Admins
 
@@ -167,7 +155,8 @@ remodoc/
 ## API Endpoints
 
 ### Authentication
-- `POST /api/auth/register` - User registration
+- `POST /api/auth/register` - User registration (sends verification code via email)
+- `POST /api/auth/verify` - Verify email with a code
 - `POST /api/auth/[...nextauth]` - NextAuth endpoints
 
 ### Symptoms
@@ -200,10 +189,12 @@ remodoc/
 
 ## Development
 
-### Database Migrations
+### Database Schema Updates
+
+MongoDB models are managed via Prisma's `db push` (Prisma Migrate is not supported for MongoDB yet). After updating `schema.prisma`, run:
 
 ```bash
-npx prisma migrate dev
+npx prisma db push
 ```
 
 ### Generate Prisma Client

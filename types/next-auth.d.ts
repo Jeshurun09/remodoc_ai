@@ -7,6 +7,7 @@ declare module 'next-auth' {
       email: string
       name: string
       role: string
+      isVerified?: boolean
     }
   }
 
@@ -15,6 +16,7 @@ declare module 'next-auth' {
     email: string
     name: string
     role: string
+    isVerified?: boolean
     doctorProfile?: any
     patientProfile?: any
   }
@@ -24,6 +26,7 @@ declare module 'next-auth/jwt' {
   interface JWT {
     id: string
     role: string
+    isVerified?: boolean
   }
 }
 

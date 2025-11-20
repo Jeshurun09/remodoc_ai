@@ -88,7 +88,8 @@ async function createUsers() {
       email: 'admin@remodoc.app',
       password,
       role: UserRole.ADMIN,
-      phone: '+15555550100'
+      phone: '+15555550100',
+      isVerified: true
     }
   })
 
@@ -99,6 +100,7 @@ async function createUsers() {
       password,
       role: UserRole.PATIENT,
       phone: '+15555550101',
+      isVerified: true,
       patientProfile: {
         create: {
           dob: new Date('1993-04-15'),
@@ -122,6 +124,7 @@ async function createUsers() {
       password,
       role: UserRole.DOCTOR,
       phone: '+15555550102',
+      isVerified: true,
       doctorProfile: {
         create: {
           licenseNumber: 'DOC-44321',
@@ -309,6 +312,7 @@ async function seedViaMongoClient() {
       name: 'Amelia Admin',
       role: 'ADMIN',
       phone: '+15555550100',
+      isVerified: true,
       createdAt: new Date(),
       updatedAt: new Date()
     }
@@ -320,6 +324,7 @@ async function seedViaMongoClient() {
       name: 'Peter Patient',
       role: 'PATIENT',
       phone: '+15555550101',
+      isVerified: true,
       createdAt: new Date(),
       updatedAt: new Date()
     }
@@ -331,6 +336,7 @@ async function seedViaMongoClient() {
       name: 'Derek Doctor',
       role: 'DOCTOR',
       phone: '+15555550102',
+      isVerified: true,
       createdAt: new Date(),
       updatedAt: new Date()
     }

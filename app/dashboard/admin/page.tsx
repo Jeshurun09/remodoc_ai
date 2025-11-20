@@ -1,6 +1,6 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
@@ -39,12 +39,12 @@ export default function AdminDashboard() {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-gray-700">{session.user.name}</span>
-              <Link
-                href="/api/auth/signout"
+              <button
+                onClick={() => signOut({ callbackUrl: '/login' })}
                 className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900"
               >
                 Sign Out
-              </Link>
+              </button>
             </div>
           </div>
         </div>

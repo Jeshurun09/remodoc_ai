@@ -1,7 +1,11 @@
 'use client'
 
-import { useState, useEffect } from 'react'
-import { LoadScript, GoogleMap, Marker, InfoWindow } from '@react-google-maps/api'
+import { useState, useEffect, useMemo } from 'react'
+import { MapContainer, TileLayer, Marker, Popup, CircleMarker, useMap } from 'react-leaflet'
+import type { LatLngExpression, DivIcon } from 'leaflet'
+import L from 'leaflet'
+import 'leaflet/dist/leaflet.css'
+
 import { getDirectionsUrl } from '@/lib/maps'
 
 interface HospitalMapProps {
@@ -20,16 +24,43 @@ interface Hospital {
   distance?: number
 }
 
-const mapContainerStyle = {
-  width: '100%',
-  height: '500px'
+const createMarkerIcon = (color: string): DivIcon =>
+  L.divIcon({
+    html: `<span style="
+      background:${color};
+      width:1.5rem;
+      height:1.5rem;
+      display:inline-block;
+      border-radius:9999px;
+      border:2px solid white;
+      box-shadow:0 2px 6px rgba(0,0,0,0.2);
+    "></span>`,
+    className: '',
+    iconSize: [24, 24],
+    iconAnchor: [12, 12],
+    popupAnchor: [0, -12]
+  })
+
+function RecenterMap({ center }: { center: LatLngExpression }) {
+  const map = useMap()
+
+  useEffect(() => {
+    map.setView(center)
+  }, [center, map])
+
+  return null
 }
 
 export default function HospitalMap({ location }: HospitalMapProps) {
   const [hospitals, setHospitals] = useState<Hospital[]>([])
-  const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null)
   const [loading, setLoading] = useState(false)
   const [emergencyOnly, setEmergencyOnly] = useState(false)
+
+  const userPosition: LatLngExpression | null = location ? [location.lat, location.lng] : null
+  const defaultCenter: LatLngExpression = userPosition ?? [37.7749, -122.4194]
+
+  const emergencyIcon = useMemo(() => createMarkerIcon('#dc2626'), [])
+  const standardIcon = useMemo(() => createMarkerIcon('#16a34a'), [])
 
   useEffect(() => {
     if (location) {
@@ -55,8 +86,6 @@ export default function HospitalMap({ location }: HospitalMapProps) {
       setLoading(false)
     }
   }
-
-  const center = location || { lat: 37.7749, lng: -122.4194 }
 
   return (
     <div className="space-y-4">
@@ -90,79 +119,60 @@ export default function HospitalMap({ location }: HospitalMapProps) {
         </div>
       )}
 
-      {process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY ? (
-        <LoadScript googleMapsApiKey={process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY}>
-          <GoogleMap
-            mapContainerStyle={mapContainerStyle}
-            center={center}
-            zoom={location ? 12 : 8}
-          >
-            {location && (
-              <Marker
-                position={location}
-                title="Your Location"
-                icon={{
-                  url: 'http://maps.google.com/mapfiles/ms/icons/blue-dot.png'
-                }}
-              />
-            )}
-            {hospitals.map((hospital) => (
-              <Marker
-                key={hospital.id}
-                position={{ lat: hospital.latitude, lng: hospital.longitude }}
-                title={hospital.name}
-                onClick={() => setSelectedHospital(hospital)}
-                icon={{
-                  url: hospital.emergency
-                    ? 'http://maps.google.com/mapfiles/ms/icons/red-dot.png'
-                    : 'http://maps.google.com/mapfiles/ms/icons/green-dot.png'
-                }}
-              />
-            ))}
-            {selectedHospital && (
-              <InfoWindow
-                position={{
-                  lat: selectedHospital.latitude,
-                  lng: selectedHospital.longitude
-                }}
-                onCloseClick={() => setSelectedHospital(null)}
-              >
-                <div className="p-2">
-                  <h3 className="font-bold text-lg mb-2">{selectedHospital.name}</h3>
-                  <p className="text-sm text-gray-600 mb-2">{selectedHospital.address}</p>
-                  <p className="text-sm text-gray-600 mb-2">Phone: {selectedHospital.phone}</p>
-                  {selectedHospital.emergency && (
+      <div className="w-full h-[500px] rounded-lg overflow-hidden">
+        <MapContainer
+          center={defaultCenter}
+          zoom={location ? 12 : 7}
+          className="h-full w-full"
+          scrollWheelZoom
+        >
+          <RecenterMap center={defaultCenter} />
+          <TileLayer
+            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+          />
+
+          {userPosition && (
+            <CircleMarker center={userPosition} pathOptions={{ color: '#2563eb' }} radius={10}>
+              <Popup>You are here</Popup>
+            </CircleMarker>
+          )}
+
+          {hospitals.map((hospital) => (
+            <Marker
+              key={hospital.id}
+              position={[hospital.latitude, hospital.longitude]}
+              icon={hospital.emergency ? emergencyIcon : standardIcon}
+            >
+              <Popup>
+                <div className="p-1">
+                  <h3 className="font-bold text-base mb-1">{hospital.name}</h3>
+                  <p className="text-sm text-gray-600 mb-1">{hospital.address}</p>
+                  <p className="text-sm text-gray-600 mb-1">Phone: {hospital.phone}</p>
+                  {hospital.emergency && (
                     <span className="inline-block bg-red-100 text-red-800 text-xs px-2 py-1 rounded mb-2">
                       Emergency Services
                     </span>
                   )}
-                  <div className="mt-2">
-                    <a
-                      href={getDirectionsUrl(
-                        selectedHospital.latitude,
-                        selectedHospital.longitude,
-                        location?.lat,
-                        location?.lng
-                      )}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-                    >
-                      Get Directions →
-                    </a>
-                  </div>
+                  <a
+                    href={getDirectionsUrl(
+                      hospital.latitude,
+                      hospital.longitude,
+                      location?.lat,
+                      location?.lng
+                    )}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+                  >
+                    Get Directions →
+                  </a>
                 </div>
-              </InfoWindow>
-            )}
-          </GoogleMap>
-        </LoadScript>
-      ) : (
-        <div className="bg-gray-100 rounded-lg p-8 text-center">
-          <p className="text-gray-600">
-            Google Maps API key not configured. Please add NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to your .env file.
-          </p>
-        </div>
-      )}
+              </Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+      </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
         {hospitals.slice(0, 6).map((hospital) => (

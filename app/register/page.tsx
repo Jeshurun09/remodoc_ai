@@ -45,7 +45,27 @@ export default function RegisterPage() {
         return
       }
 
-      router.push('/login')
+      const normalizedEmail = formData.email.trim().toLowerCase()
+      if (typeof window !== 'undefined') {
+        sessionStorage.setItem(
+            'remodocPendingCredentials',
+            JSON.stringify({
+              email: normalizedEmail,
+              password: formData.password
+            })
+        )
+      }
+      setFormData({
+        name: '',
+        email: '',
+        password: '',
+        confirmPassword: '',
+        role: 'PATIENT',
+        phone: '',
+        licenseNumber: '',
+        specialization: ''
+      })
+      router.push(`/verify?email=${encodeURIComponent(normalizedEmail)}`)
     } catch (err) {
       setError('An error occurred. Please try again.')
     } finally {

@@ -1,9 +1,10 @@
 'use client'
 
+'use client'
+
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
-import Link from 'next/link'
 
 export default function DashboardPage() {
   const { data: session, status } = useSession()
@@ -11,36 +12,27 @@ export default function DashboardPage() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login')
+      router.replace('/login')
+      return
     }
-  }, [status, router])
 
-  if (status === 'loading') {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-xl">Loading...</div>
-      </div>
-    )
-  }
-
-  if (!session) return null
-
-  const role = session.user.role
-
-  if (role === 'PATIENT') {
-    router.push('/dashboard/patient')
-    return null
-  } else if (role === 'DOCTOR') {
-    router.push('/dashboard/doctor')
-    return null
-  } else if (role === 'ADMIN') {
-    router.push('/dashboard/admin')
-    return null
-  }
+    if (status === 'authenticated' && session?.user?.role) {
+      const role = session.user.role
+      if (role === 'PATIENT') {
+        router.replace('/dashboard/patient')
+      } else if (role === 'DOCTOR') {
+        router.replace('/dashboard/doctor')
+      } else if (role === 'ADMIN') {
+        router.replace('/dashboard/admin')
+      }
+    }
+  }, [status, session?.user?.role, router, session?.user])
 
   return (
     <div className="min-h-screen flex items-center justify-center">
-      <div className="text-xl">Redirecting...</div>
+      <div className="text-xl">
+        {status === 'loading' ? 'Loading…' : 'Redirecting…'}
+      </div>
     </div>
   )
 }

@@ -1,13 +1,22 @@
 'use client'
 
-import { useSession } from 'next-auth/react'
+import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import dynamic from 'next/dynamic'
 import SymptomChecker from '@/components/patient/SymptomChecker'
-import HospitalMap from '@/components/patient/HospitalMap'
 import AppointmentsList from '@/components/patient/AppointmentsList'
 import EmergencyBeacon from '@/components/patient/EmergencyBeacon'
+
+const HospitalMap = dynamic(() => import('@/components/patient/HospitalMap'), {
+  ssr: false,
+  loading: () => (
+    <div className="h-[500px] flex items-center justify-center bg-gray-100 rounded-lg">
+      <p className="text-gray-600">Loading map…</p>
+    </div>
+  )
+})
 
 export default function PatientDashboard() {
   const { data: session, status } = useSession()
@@ -55,12 +64,12 @@ export default function PatientDashboard() {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-gray-700">{session.user.name}</span>
-              <Link
-                href="/api/auth/signout"
+              <button
+                onClick={() => signOut({ callbackUrl: '/login' })}
                 className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900"
               >
                 Sign Out
-              </Link>
+              </button>
             </div>
           </div>
         </div>

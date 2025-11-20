@@ -15,8 +15,8 @@ export async function findNearestHospitals(
   radius: number = 5000, // 5km default
   emergencyOnly: boolean = false
 ): Promise<HospitalLocation[]> {
-  // This would typically use Google Places API
-  // For now, we'll use the database
+  // Typically this would call out to a geocoding/places service.
+  // For now, we'll query the database and compute distances locally.
   const { prisma } = await import('./prisma')
   
   const hospitals = await prisma.hospital.findMany({
@@ -79,9 +79,10 @@ export function getDirectionsUrl(
   originLat?: number,
   originLng?: number
 ): string {
-  if (originLat && originLng) {
-    return `https://www.google.com/maps/dir/${originLat},${originLng}/${destinationLat},${destinationLng}`
+  if (originLat != null && originLng != null) {
+    return `https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${originLat},${originLng};${destinationLat},${destinationLng}`
   }
-  return `https://www.google.com/maps/dir/?api=1&destination=${destinationLat},${destinationLng}`
+
+  return `https://www.openstreetmap.org/?mlat=${destinationLat}&mlon=${destinationLng}#map=16/${destinationLat}/${destinationLng}`
 }
 

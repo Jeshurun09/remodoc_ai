@@ -28,6 +28,10 @@ export const authOptions: NextAuthOptions = {
           return null
         }
 
+        if (!user.isVerified) {
+          throw new Error('Please verify your email before signing in.')
+        }
+
         const isValid = await bcrypt.compare(credentials.password, user.password)
 
         if (!isValid) {
@@ -39,6 +43,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           name: user.name,
           role: user.role,
+          isVerified: user.isVerified,
           doctorProfile: user.doctorProfile,
           patientProfile: user.patientProfile
         }
@@ -50,6 +55,7 @@ export const authOptions: NextAuthOptions = {
       if (user) {
         token.role = user.role
         token.id = user.id
+        token.isVerified = user.isVerified
       }
       return token
     },
@@ -57,6 +63,7 @@ export const authOptions: NextAuthOptions = {
       if (session.user) {
         session.user.role = token.role as string
         session.user.id = token.id as string
+        session.user.isVerified = token.isVerified as boolean
       }
       return session
     }
