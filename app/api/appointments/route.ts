@@ -62,7 +62,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json()
-    const { symptomReportId, doctorId, scheduledAt } = body
+    const { symptomReportId, doctorId, scheduledAt, notes } = body
 
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
@@ -73,12 +73,20 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: 'Patient profile not found' }, { status: 404 })
     }
 
+    if (doctorId) {
+      const doctor = await prisma.doctorProfile.findUnique({ where: { id: doctorId } })
+      if (!doctor) {
+        return NextResponse.json({ error: 'Selected doctor not found' }, { status: 404 })
+      }
+    }
+
     const appointment = await prisma.appointment.create({
       data: {
         patientId: user.patientProfile.id,
         doctorId: doctorId || null,
         symptomReportId: symptomReportId || null,
         scheduledAt: scheduledAt ? new Date(scheduledAt) : null,
+        notes: notes || null,
         status: 'PENDING'
       },
       include: {

@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
+import Link from 'next/link'
+import { useTheme } from '@/components/theme/ThemeProvider'
 
 export default function LoginPage() {
   const [email, setEmail] = useState('')
@@ -10,6 +12,11 @@ export default function LoginPage() {
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const { isDark, setTheme } = useTheme()
+
+  const toggleTheme = () => {
+    setTheme(isDark ? 'light' : 'dark')
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -36,11 +43,24 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8 text-black">
-        <div className="text-center mb-8 text-black">
-          <h1 className="text-3xl font-bold text-black">RemoDoc</h1>
-          <p className="text-black mt-2">AI-Powered Telehealth Platform</p>
+    <div className="page-shell flex items-center justify-center relative">
+      <button
+        onClick={toggleTheme}
+        className={`absolute top-4 right-4 px-4 py-2 border rounded-lg text-lg transition-all duration-200 ${
+          isDark 
+            ? 'border-white/40 hover:bg-white/10 text-yellow-400 hover:text-yellow-300' 
+            : 'border-gray-300 hover:bg-gray-100 text-yellow-500 hover:text-yellow-600'
+        }`}
+        title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      >
+        {isDark ? '🌙' : '☀️'}
+      </button>
+      <div className="max-w-md w-full surface rounded-lg shadow-xl p-8">
+        <div className="text-center mb-8">
+          <Link href="/" className="text-3xl font-bold text-green-600 hover:opacity-80 cursor-pointer inline-block">
+            RemoDoc
+          </Link>
+          <p className="mt-2 text-[var(--foreground)]/80">AI-Powered Telehealth Platform</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
@@ -51,7 +71,7 @@ export default function LoginPage() {
           )}
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-black mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-[var(--foreground)] mb-2">
               Email
             </label>
             <input
@@ -66,7 +86,7 @@ export default function LoginPage() {
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-black mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-[var(--foreground)] mb-2">
               Password
             </label>
             <input
@@ -89,10 +109,10 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <div className="mt-6 text-center text-black">
-          <p className="text-sm text-black">
+        <div className="mt-6 text-center text-[var(--foreground)]">
+          <p className="text-sm">
             Don't have an account?{' '}
-            <a href="/register" className="text-black hover:text-gray-800 font-medium">
+            <a href="/register" className="text-blue-600 hover:text-blue-700 font-medium">
               Register
             </a>
           </p>

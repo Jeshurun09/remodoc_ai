@@ -91,8 +91,8 @@ export default function HospitalMap({ location }: HospitalMapProps) {
     <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Find Hospitals</h2>
-          <p className="text-gray-600">Locate nearby hospitals and medical facilities</p>
+          <h2 className="text-2xl font-bold text-cyan-500 mb-2">Find Hospitals</h2>
+          <p className="text-cyan-500">Locate nearby hospitals and medical facilities</p>
         </div>
         <label className="flex items-center space-x-2">
           <input
@@ -101,7 +101,7 @@ export default function HospitalMap({ location }: HospitalMapProps) {
             onChange={(e) => setEmergencyOnly(e.target.checked)}
             className="rounded"
           />
-          <span className="text-sm text-gray-700">Emergency only</span>
+          <span className="text-sm text-cyan-500">Emergency only</span>
         </label>
       </div>
 
@@ -115,7 +115,7 @@ export default function HospitalMap({ location }: HospitalMapProps) {
 
       {loading && (
         <div className="text-center py-8">
-          <p className="text-gray-600">Loading hospitals...</p>
+          <p className="text-cyan-500">Loading hospitals...</p>
         </div>
       )}
 
@@ -181,17 +181,17 @@ export default function HospitalMap({ location }: HospitalMapProps) {
             className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-md transition-shadow"
           >
             <div className="flex items-start justify-between mb-2">
-              <h3 className="font-semibold text-gray-900">{hospital.name}</h3>
+              <h3 className="font-semibold text-cyan-500">{hospital.name}</h3>
               {hospital.emergency && (
                 <span className="bg-red-100 text-red-800 text-xs px-2 py-1 rounded">
                   Emergency
                 </span>
               )}
             </div>
-            <p className="text-sm text-gray-600 mb-2">{hospital.address}</p>
-            <p className="text-sm text-gray-600 mb-2">Phone: {hospital.phone}</p>
+            <p className="text-sm text-cyan-500 mb-2">{hospital.address}</p>
+            <p className="text-sm text-cyan-500 mb-2">Phone: {hospital.phone}</p>
             {hospital.distance && (
-              <p className="text-sm text-gray-500 mb-2">
+              <p className="text-sm text-cyan-500 mb-2">
                 {Math.round(hospital.distance / 1000)} km away
               </p>
             )}

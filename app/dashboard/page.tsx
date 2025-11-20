@@ -1,7 +1,5 @@
 'use client'
 
-'use client'
-
 import { useSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useEffect } from 'react'
@@ -29,7 +27,7 @@ export default function DashboardPage() {
   }, [status, session?.user?.role, router, session?.user])
 
   return (
-    <div className="min-h-screen flex items-center justify-center">
+    <div className="page-shell flex items-center justify-center">
       <div className="text-xl">
         {status === 'loading' ? 'Loading…' : 'Redirecting…'}
       </div>

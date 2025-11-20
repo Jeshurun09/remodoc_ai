@@ -3,23 +3,50 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
-export async function POST(req: NextRequest) {
+export async function GET(req: NextRequest) {
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
+  const { searchParams } = new URL(req.url)
+  const doctorId = searchParams.get('doctorId')
+
   try {
-    const session = await getServerSession(authOptions)
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
+    const messages = await prisma.message.findMany({
+      where: {
+        OR: [
+          { senderId: session.user.id, receiverId: doctorId || undefined },
+          { receiverId: session.user.id, senderId: doctorId || undefined }
+        ]
+      },
+      orderBy: { createdAt: 'asc' },
+      include: {
+        sender: { select: { name: true, email: true } },
+        receiver: { select: { name: true, email: true } }
+      }
+    })
 
-    const body = await req.json()
-    const { receiverId, content } = body
+    return NextResponse.json(messages)
+  } catch (error) {
+    console.error('Failed to fetch messages:', error)
+    return NextResponse.json({ error: 'Failed to fetch messages' }, { status: 500 })
+  }
+}
 
-    if (!receiverId || !content) {
-      return NextResponse.json(
-        { error: 'Receiver ID and content are required' },
-        { status: 400 }
-      )
-    }
+export async function POST(req: NextRequest) {
+  const session = await getServerSession(authOptions)
+  if (!session?.user?.id) {
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
 
+  const { receiverId, content } = await req.json()
+
+  if (!receiverId || !content) {
+    return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
+  }
+
+  try {
     const message = await prisma.message.create({
       data: {
         senderId: session.user.id,
@@ -27,59 +54,14 @@ export async function POST(req: NextRequest) {
         content
       },
       include: {
-        sender: { select: { name: true, email: true } },
-        receiver: { select: { name: true, email: true } }
+        sender: { select: { name: true } },
+        receiver: { select: { name: true } }
       }
     })
 
-    return NextResponse.json({ message })
+    return NextResponse.json(message)
   } catch (error) {
-    console.error('Message creation error:', error)
-    return NextResponse.json(
-      { error: 'Failed to send message' },
-      { status: 500 }
-    )
+    console.error('Failed to send message:', error)
+    return NextResponse.json({ error: 'Failed to send message' }, { status: 500 })
   }
 }
-
-export async function GET(req: NextRequest) {
-  try {
-    const session = await getServerSession(authOptions)
-    if (!session) {
-      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
-    }
-
-    const { searchParams } = new URL(req.url)
-    const otherUserId = searchParams.get('userId')
-
-    if (!otherUserId) {
-      return NextResponse.json(
-        { error: 'User ID is required' },
-        { status: 400 }
-      )
-    }
-
-    const messages = await prisma.message.findMany({
-      where: {
-        OR: [
-          { senderId: session.user.id, receiverId: otherUserId },
-          { senderId: otherUserId, receiverId: session.user.id }
-        ]
-      },
-      include: {
-        sender: { select: { name: true, email: true } },
-        receiver: { select: { name: true, email: true } }
-      },
-      orderBy: { createdAt: 'asc' }
-    })
-
-    return NextResponse.json({ messages })
-  } catch (error) {
-    console.error('Messages fetch error:', error)
-    return NextResponse.json(
-      { error: 'Failed to fetch messages' },
-      { status: 500 }
-    )
-  }
-}
-

@@ -3,6 +3,7 @@
 import { FormEvent, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
+import { useTheme } from '@/components/theme/ThemeProvider'
 
 export default function VerifyPage() {
   const router = useRouter()
@@ -13,6 +14,11 @@ export default function VerifyPage() {
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
   const [autoSigninError, setAutoSigninError] = useState('')
+  const { isDark, setTheme } = useTheme()
+
+  const toggleTheme = () => {
+    setTheme(isDark ? 'light' : 'dark')
+  }
 
   useEffect(() => {
     const paramEmail = searchParams.get('email')
@@ -78,11 +84,22 @@ export default function VerifyPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12">
-      <div className="max-w-md w-full bg-white rounded-lg shadow-xl p-8 text-black">
-        <div className="text-center mb-8 text-black">
+    <div className="page-shell flex items-center justify-center py-12 relative">
+      <button
+        onClick={toggleTheme}
+        className={`absolute top-4 right-4 px-4 py-2 border rounded-lg text-lg transition-all duration-200 ${
+          isDark 
+            ? 'border-white/40 hover:bg-white/10 text-yellow-400 hover:text-yellow-300' 
+            : 'border-gray-300 hover:bg-gray-100 text-yellow-500 hover:text-yellow-600'
+        }`}
+        title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      >
+        {isDark ? '🌙' : '☀️'}
+      </button>
+      <div className="max-w-md w-full surface rounded-lg shadow-xl p-8">
+        <div className="text-center mb-8">
           <h1 className="text-3xl font-bold text-green-600">Verify Your Email</h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-[var(--foreground)]/80 mt-2">
             Enter the code we sent to your email to activate your account.
           </p>
         </div>
@@ -109,11 +126,11 @@ export default function VerifyPage() {
               Email
             </label>
             <input
-              type='email'
+              type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-black"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-transparent text-[var(--foreground)]"
             />
           </div>
 
@@ -122,11 +139,11 @@ export default function VerifyPage() {
               Verification Code
             </label>
             <input
-              type='text'
+              type="text"
               value={code}
               onChange={(e) => setCode(e.target.value)}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-black tracking-[0.5rem]"
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 bg-transparent text-[var(--foreground)] tracking-[0.5rem]"
             />
           </div>
 

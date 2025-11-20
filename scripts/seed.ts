@@ -12,6 +12,7 @@ if (!mongoUrl) {
 
 async function resetDatabase() {
   console.log('🧹 Clearing existing data (direct Mongo cleanup)...')
+  if (!mongoUrl) throw new Error('MONGODB_URL is required')
   const client = new MongoClient(mongoUrl)
   const collections = [
     'AILog',
@@ -23,6 +24,11 @@ async function resetDatabase() {
     'PatientProfile',
     'Hospital',
     'SystemConfig',
+    'Subscription',
+    'HealthRecord',
+    'VitalsData',
+    'HealthInsight',
+    'LifestyleTracking',
     'User'
   ]
 
@@ -88,8 +94,7 @@ async function createUsers() {
       email: 'admin@remodoc.app',
       password,
       role: UserRole.ADMIN,
-      phone: '+15555550100',
-      isVerified: true
+      phone: '+15555550100'
     }
   })
 
@@ -100,7 +105,6 @@ async function createUsers() {
       password,
       role: UserRole.PATIENT,
       phone: '+15555550101',
-      isVerified: true,
       patientProfile: {
         create: {
           dob: new Date('1993-04-15'),
@@ -124,7 +128,6 @@ async function createUsers() {
       password,
       role: UserRole.DOCTOR,
       phone: '+15555550102',
-      isVerified: true,
       doctorProfile: {
         create: {
           licenseNumber: 'DOC-44321',
@@ -142,10 +145,29 @@ async function createUsers() {
     }
   })
 
+  // Create subscriptions
+  await (prisma as any).subscription.create({
+    data: {
+      userId: patient.id,
+      plan: 'FREE',
+      status: 'ACTIVE'
+    }
+  })
+
+  await (prisma as any).subscription.create({
+    data: {
+      userId: doctor.id,
+      plan: 'INDIVIDUAL',
+      status: 'ACTIVE',
+      endDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days from now
+      paymentMethod: 'stripe'
+    }
+  })
+
   return { admin, patient, doctor }
 }
 
-async function createMedicalData(patientId: string, doctorId: string, patientProfileId?: string) {
+async function createMedicalData(patientId: string, doctorId: string, patientProfileId: string) {
   console.log('📋 Creating medical records...')
 
   const symptomReport = await prisma.symptomReport.create({
@@ -229,6 +251,121 @@ async function createMedicalData(patientId: string, doctorId: string, patientPro
     }
   })
 
+  // Create premium feature data
+  console.log('💎 Creating premium feature data...')
+
+  // Health Records
+  await (prisma as any).healthRecord.create({
+    data: {
+      userId: patientId,
+      title: 'Blood Test Results - March 2024',
+      description: 'Complete blood count and lipid panel',
+      recordType: 'lab_result',
+      fileUrl: '/uploads/blood-test-march-2024.pdf',
+      encrypted: true
+    }
+  })
+
+  await (prisma as any).healthRecord.create({
+    data: {
+      userId: patientId,
+      title: 'Chest X-Ray',
+      description: 'Routine chest X-ray examination',
+      recordType: 'image',
+      fileUrl: '/uploads/chest-xray.jpg',
+      encrypted: true
+    }
+  })
+
+  // Vitals Data
+  await (prisma as any).vitalsData.create({
+    data: {
+      userId: patientId,
+      heartRate: 72,
+      spO2: 98,
+      bloodPressureSystolic: 120,
+      bloodPressureDiastolic: 80,
+      temperature: 98.6,
+      glucose: 95,
+      deviceType: 'smartwatch',
+      deviceName: 'Apple Watch Series 9',
+      recordedAt: new Date()
+    }
+  })
+
+  await (prisma as any).vitalsData.create({
+    data: {
+      userId: patientId,
+      heartRate: 75,
+      spO2: 97,
+      bloodPressureSystolic: 118,
+      bloodPressureDiastolic: 78,
+      temperature: 98.4,
+      deviceType: 'fitness_band',
+      deviceName: 'Fitbit Charge 6',
+      recordedAt: new Date(Date.now() - 1000 * 60 * 60 * 24) // Yesterday
+    }
+  })
+
+  // Health Insights
+  await (prisma as any).healthInsight.create({
+    data: {
+      userId: patientId,
+      type: 'tip',
+      title: 'Stay Hydrated',
+      content: 'Drink at least 8 glasses of water daily to maintain optimal health and support cardiovascular function.',
+      source: 'WHO',
+      read: false
+    }
+  })
+
+  await (prisma as any).healthInsight.create({
+    data: {
+      userId: patientId,
+      type: 'alert',
+      title: 'Flu Season Alert',
+      content: 'CDC reports increased flu activity in your area. Consider getting vaccinated to protect yourself.',
+      source: 'CDC',
+      read: false
+    }
+  })
+
+  await (prisma as any).healthInsight.create({
+    data: {
+      userId: patientId,
+      type: 'reminder',
+      title: 'Medication Reminder',
+      content: 'Remember to take your Atorvastatin with your evening meal as prescribed.',
+      source: 'AI',
+      read: false
+    }
+  })
+
+  // Lifestyle Tracking
+  await (prisma as any).lifestyleTracking.create({
+    data: {
+      userId: patientId,
+      date: new Date(),
+      sleepHours: 7.5,
+      hydration: 2000,
+      steps: 8500,
+      activityMinutes: 35,
+      notes: 'Good day, felt energetic after morning walk'
+    }
+  })
+
+  await (prisma as any).lifestyleTracking.create({
+    data: {
+      userId: patientId,
+      date: new Date(Date.now() - 1000 * 60 * 60 * 24), // Yesterday
+      sleepHours: 8,
+      hydration: 1800,
+      steps: 10200,
+      activityMinutes: 45,
+      notes: 'Completed 10k steps goal!'
+    }
+  })
+
   console.log(`✅ Created appointment ${appointment.id} and linked records.`)
 }
 
@@ -238,7 +375,11 @@ async function main() {
   try {
     await createHospitals()
     const { patient, doctor } = await createUsers()
-    await createMedicalData(patient.id, doctor.id, patient.patientProfile?.id)
+    const patientProfileId = (patient as any).patientProfile?.id
+    if (!patientProfileId) {
+      throw new Error('Patient profile was not created')
+    }
+    await createMedicalData(patient.id, doctor.id, patientProfileId)
     console.log('🎉 Mock data seeded successfully!')
   } catch (err: any) {
     // Prisma requires replica set for transactions with MongoDB. If user runs a standalone server,
@@ -254,6 +395,7 @@ async function main() {
 
 async function seedViaMongoClient() {
   console.log('🧪 Seeding using MongoClient fallback...')
+  if (!mongoUrl) throw new Error('MONGODB_URL is required')
   const client = new MongoClient(mongoUrl)
 
   try {
@@ -263,7 +405,6 @@ async function seedViaMongoClient() {
     // create hospitals
     const hospitals = [
       {
-        _id: randomUUID(),
         name: 'Metro General Hospital',
         address: '123 City Center Blvd',
         city: 'Metropolis',
@@ -279,7 +420,6 @@ async function seedViaMongoClient() {
         updatedAt: new Date()
       },
       {
-        _id: randomUUID(),
         name: 'Lakeside Community Clinic',
         address: '45 Lake View Dr',
         city: 'Springfield',
@@ -301,12 +441,7 @@ async function seedViaMongoClient() {
     const passwordHash = await bcrypt.hash('Password123!', 10)
 
     // users
-    const adminId = randomUUID()
-    const patientUserId = randomUUID()
-    const doctorUserId = randomUUID()
-
     const admin = {
-      _id: adminId,
       email: 'admin@remodoc.app',
       password: passwordHash,
       name: 'Amelia Admin',
@@ -318,7 +453,6 @@ async function seedViaMongoClient() {
     }
 
     const patient = {
-      _id: patientUserId,
       email: 'patient@remodoc.app',
       password: passwordHash,
       name: 'Peter Patient',
@@ -330,7 +464,6 @@ async function seedViaMongoClient() {
     }
 
     const doctor = {
-      _id: doctorUserId,
       email: 'doctor@remodoc.app',
       password: passwordHash,
       name: 'Derek Doctor',
@@ -341,16 +474,16 @@ async function seedViaMongoClient() {
       updatedAt: new Date()
     }
 
-    await Promise.all([
-      db.collection('User').insertOne(admin),
-      db.collection('User').insertOne(patient),
-      db.collection('User').insertOne(doctor)
-    ])
+    const adminResult = await db.collection('User').insertOne(admin)
+    const patientResult = await db.collection('User').insertOne(patient)
+    const doctorResult = await db.collection('User').insertOne(doctor)
+
+    const adminId = adminResult.insertedId.toString()
+    const patientUserId = patientResult.insertedId.toString()
+    const doctorUserId = doctorResult.insertedId.toString()
 
     // patient profile
-    const patientProfileId = randomUUID()
-    await db.collection('PatientProfile').insertOne({
-      _id: patientProfileId,
+    const patientProfileResult = await db.collection('PatientProfile').insertOne({
       userId: patientUserId,
       dob: new Date('1993-04-15'),
       address: '789 Elm Street',
@@ -361,11 +494,10 @@ async function seedViaMongoClient() {
       createdAt: new Date(),
       updatedAt: new Date()
     })
+    const patientProfileId = patientProfileResult.insertedId.toString()
 
     // doctor profile
-    const doctorProfileId = randomUUID()
-    await db.collection('DoctorProfile').insertOne({
-      _id: doctorProfileId,
+    const doctorProfileResult = await db.collection('DoctorProfile').insertOne({
       userId: doctorUserId,
       licenseNumber: 'DOC-44321',
       specialization: 'Cardiology',
@@ -377,11 +509,10 @@ async function seedViaMongoClient() {
       createdAt: new Date(),
       updatedAt: new Date()
     })
+    const doctorProfileId = doctorProfileResult.insertedId.toString()
 
     // symptom report
-    const symptomReportId = randomUUID()
-    await db.collection('SymptomReport').insertOne({
-      _id: symptomReportId,
+    const symptomReportResult = await db.collection('SymptomReport').insertOne({
       patientId: patientProfileId,
       symptoms: 'Chest pain with occasional shortness of breath during mild exercise.',
       urgency: 'HIGH',
@@ -393,11 +524,10 @@ async function seedViaMongoClient() {
       createdAt: new Date(),
       updatedAt: new Date()
     })
+    const symptomReportId = symptomReportResult.insertedId.toString()
 
     // appointment
-    const appointmentId = randomUUID()
     await db.collection('Appointment').insertOne({
-      _id: appointmentId,
       patientId: patientProfileId,
       doctorId: doctorProfileId,
       symptomReportId: symptomReportId,
@@ -409,9 +539,7 @@ async function seedViaMongoClient() {
     })
 
     // prescription
-    const prescriptionId = randomUUID()
     await db.collection('Prescription').insertOne({
-      _id: prescriptionId,
       doctorId: doctorProfileId,
       patientId: patientProfileId,
       medication: 'Atorvastatin 20mg',
@@ -426,7 +554,6 @@ async function seedViaMongoClient() {
     // messages
     await db.collection('Message').insertMany([
       {
-        _id: randomUUID(),
         senderId: doctorUserId,
         receiverId: patientUserId,
         content: 'Please remember to log any symptoms you experience before our appointment.',
@@ -434,7 +561,6 @@ async function seedViaMongoClient() {
         createdAt: new Date()
       },
       {
-        _id: randomUUID(),
         senderId: patientUserId,
         receiverId: doctorUserId,
         content: 'Thanks doctor! I will bring my recent vitals as well.',
@@ -445,7 +571,6 @@ async function seedViaMongoClient() {
 
     // AI log
     await db.collection('AILog').insertOne({
-      _id: randomUUID(),
       userId: patientUserId,
       inputType: 'text',
       input: 'Having recurring chest discomfort and slight dizziness.',
@@ -462,6 +587,136 @@ async function seedViaMongoClient() {
       { $set: { key: 'triage_threshold', value: JSON.stringify({ low: 0.25, medium: 0.5, high: 0.75 }), updatedAt: new Date(), updatedBy: doctorUserId } },
       { upsert: true }
     )
+
+    // subscriptions
+    await db.collection('Subscription').insertMany([
+      {
+        userId: patientUserId,
+        plan: 'FREE',
+        status: 'ACTIVE',
+        startDate: new Date(),
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        userId: doctorUserId,
+        plan: 'INDIVIDUAL',
+        status: 'ACTIVE',
+        startDate: new Date(),
+        endDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30), // 30 days from now
+        paymentMethod: 'stripe',
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ])
+
+    // health records
+    await db.collection('HealthRecord').insertMany([
+      {
+        userId: patientUserId,
+        title: 'Blood Test Results - March 2024',
+        description: 'Complete blood count and lipid panel',
+        recordType: 'lab_result',
+        fileUrl: '/uploads/blood-test-march-2024.pdf',
+        encrypted: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      },
+      {
+        userId: patientUserId,
+        title: 'Chest X-Ray',
+        description: 'Routine chest X-ray examination',
+        recordType: 'image',
+        fileUrl: '/uploads/chest-xray.jpg',
+        encrypted: true,
+        createdAt: new Date(),
+        updatedAt: new Date()
+      }
+    ])
+
+    // vitals data
+    await db.collection('VitalsData').insertMany([
+      {
+        userId: patientUserId,
+        heartRate: 72,
+        spO2: 98,
+        bloodPressureSystolic: 120,
+        bloodPressureDiastolic: 80,
+        temperature: 98.6,
+        glucose: 95,
+        deviceType: 'smartwatch',
+        deviceName: 'Apple Watch Series 9',
+        recordedAt: new Date(),
+        createdAt: new Date()
+      },
+      {
+        userId: patientUserId,
+        heartRate: 75,
+        spO2: 97,
+        bloodPressureSystolic: 118,
+        bloodPressureDiastolic: 78,
+        temperature: 98.4,
+        deviceType: 'fitness_band',
+        deviceName: 'Fitbit Charge 6',
+        recordedAt: new Date(Date.now() - 1000 * 60 * 60 * 24), // Yesterday
+        createdAt: new Date()
+      }
+    ])
+
+    // health insights
+    await db.collection('HealthInsight').insertMany([
+      {
+        userId: patientUserId,
+        type: 'tip',
+        title: 'Stay Hydrated',
+        content: 'Drink at least 8 glasses of water daily to maintain optimal health and support cardiovascular function.',
+        source: 'WHO',
+        read: false,
+        createdAt: new Date()
+      },
+      {
+        userId: patientUserId,
+        type: 'alert',
+        title: 'Flu Season Alert',
+        content: 'CDC reports increased flu activity in your area. Consider getting vaccinated to protect yourself.',
+        source: 'CDC',
+        read: false,
+        createdAt: new Date()
+      },
+      {
+        userId: patientUserId,
+        type: 'reminder',
+        title: 'Medication Reminder',
+        content: 'Remember to take your Atorvastatin with your evening meal as prescribed.',
+        source: 'AI',
+        read: false,
+        createdAt: new Date()
+      }
+    ])
+
+    // lifestyle tracking
+    await db.collection('LifestyleTracking').insertMany([
+      {
+        userId: patientUserId,
+        date: new Date(),
+        sleepHours: 7.5,
+        hydration: 2000,
+        steps: 8500,
+        activityMinutes: 35,
+        notes: 'Good day, felt energetic after morning walk',
+        createdAt: new Date()
+      },
+      {
+        userId: patientUserId,
+        date: new Date(Date.now() - 1000 * 60 * 60 * 24), // Yesterday
+        sleepHours: 8,
+        hydration: 1800,
+        steps: 10200,
+        activityMinutes: 45,
+        notes: 'Completed 10k steps goal!',
+        createdAt: new Date()
+      }
+    ])
 
     console.log('✅ Fallback seed complete (MongoClient).')
   } finally {

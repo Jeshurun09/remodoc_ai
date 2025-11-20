@@ -4,6 +4,7 @@ import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { useState, useEffect } from 'react'
 import Link from 'next/link'
+import { useTheme } from '@/components/theme/ThemeProvider'
 import DoctorVerification from '@/components/admin/DoctorVerification'
 import HospitalManagement from '@/components/admin/HospitalManagement'
 import Analytics from '@/components/admin/Analytics'
@@ -12,7 +13,12 @@ import AILogs from '@/components/admin/AILogs'
 export default function AdminDashboard() {
   const { data: session, status } = useSession()
   const router = useRouter()
+  const { isDark, setTheme } = useTheme()
   const [activeTab, setActiveTab] = useState<'doctors' | 'hospitals' | 'analytics' | 'logs'>('doctors')
+
+  const toggleTheme = () => {
+    setTheme(isDark ? 'light' : 'dark')
+  }
 
   useEffect(() => {
     if (status === 'unauthenticated') {
@@ -30,14 +36,28 @@ export default function AdminDashboard() {
   if (!session) return null
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b">
+    <div className="page-shell">
+      <nav className="surface shadow-sm border-b subtle-border">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between h-16 items-center">
             <div className="flex items-center">
-              <h1 className="text-2xl font-bold text-blue-600">RemoDoc - Admin Dashboard</h1>
+              <Link href="/" className="text-2xl font-bold text-blue-500 hover:opacity-80 cursor-pointer">
+                RemoDoc
+              </Link>
+              <span className="text-2xl font-bold text-blue-500 ml-2">- Admin Dashboard</span>
             </div>
             <div className="flex items-center space-x-4">
+              <button
+                onClick={toggleTheme}
+                className={`px-4 py-2 border rounded-lg text-lg transition-all duration-200 ${
+                  isDark 
+                    ? 'border-white/40 hover:bg-white/10 text-yellow-400 hover:text-yellow-300' 
+                    : 'border-gray-300 hover:bg-gray-100 text-yellow-500 hover:text-yellow-600'
+                }`}
+                title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+              >
+                {isDark ? '🌙' : '☀️'}
+              </button>
               <span className="text-gray-700">{session.user.name}</span>
               <button
                 onClick={() => signOut({ callbackUrl: '/login' })}
@@ -51,8 +71,8 @@ export default function AdminDashboard() {
       </nav>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow-sm mb-6">
-          <div className="border-b border-gray-200">
+        <div className="surface rounded-lg shadow-sm mb-6">
+          <div className="border-b subtle-border">
             <nav className="flex -mb-px">
               <button
                 onClick={() => setActiveTab('doctors')}

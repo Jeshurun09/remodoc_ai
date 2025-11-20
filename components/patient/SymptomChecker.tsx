@@ -80,13 +80,13 @@ export default function SymptomChecker({ location }: SymptomCheckerProps) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">Symptom Checker</h2>
-        <p className="text-gray-600">Describe your symptoms using text, voice, or upload an image</p>
+        <h2 className="text-2xl font-bold text-cyan-500 mb-2">Symptom Checker</h2>
+        <p className="text-cyan-500">Describe your symptoms using text, voice, or upload an image</p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-cyan-500 mb-2">
             Describe Your Symptoms
           </label>
           <textarea
@@ -117,7 +117,7 @@ export default function SymptomChecker({ location }: SymptomCheckerProps) {
             <button
               type="button"
               onClick={resetTranscript}
-              className="px-4 py-2 text-sm text-gray-600 hover:text-gray-800"
+              className="px-4 py-2 text-sm text-cyan-500 hover:text-cyan-600"
             >
               Clear
             </button>
@@ -125,7 +125,7 @@ export default function SymptomChecker({ location }: SymptomCheckerProps) {
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-cyan-500 mb-2">
             Upload Image (Optional)
           </label>
           <input
@@ -171,7 +171,7 @@ export default function SymptomChecker({ location }: SymptomCheckerProps) {
       {result && (
         <div className="mt-6 p-6 bg-gray-50 rounded-lg space-y-4">
           <div className="flex items-center justify-between">
-            <h3 className="text-xl font-bold text-gray-900">Analysis Results</h3>
+            <h3 className="text-xl font-bold text-cyan-500">Analysis Results</h3>
             <span className={`px-3 py-1 rounded-full text-sm font-medium ${urgencyColors[result.urgency]}`}>
               {result.urgency} Urgency
             </span>
@@ -179,8 +179,8 @@ export default function SymptomChecker({ location }: SymptomCheckerProps) {
 
           {result.analysis?.likelyConditions && (
             <div>
-              <h4 className="font-semibold text-gray-900 mb-2">Likely Conditions:</h4>
-              <ul className="list-disc list-inside space-y-1 text-gray-700">
+              <h4 className="font-semibold text-cyan-500 mb-2">Likely Conditions:</h4>
+              <ul className="list-disc list-inside space-y-1 text-cyan-500">
                 {result.analysis.likelyConditions.map((condition: string, idx: number) => (
                   <li key={idx}>{condition}</li>
                 ))}
@@ -190,8 +190,8 @@ export default function SymptomChecker({ location }: SymptomCheckerProps) {
 
           {result.analysis?.careAdvice && (
             <div>
-              <h4 className="font-semibold text-gray-900 mb-2">Care Advice:</h4>
-              <p className="text-gray-700">{result.analysis.careAdvice}</p>
+              <h4 className="font-semibold text-cyan-500 mb-2">Care Advice:</h4>
+              <p className="text-cyan-500">{result.analysis.careAdvice}</p>
             </div>
           )}
 

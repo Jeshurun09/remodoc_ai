@@ -36,6 +36,21 @@ enum DoctorVerificationStatus {
   REJECTED
 }
 
+enum SubscriptionPlan {
+  FREE
+  STUDENT
+  INDIVIDUAL
+  SMALL_GROUP
+  FAMILY
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  CANCELLED
+  EXPIRED
+  TRIAL
+}
+
 model User {
   id        String   @id @default(cuid()) @map("_id")
   email     String   @unique
@@ -55,6 +70,7 @@ model User {
   sentMessages     Message[]      @relation("SentMessages")
   receivedMessages Message[]      @relation("ReceivedMessages")
   aiLogs           AILog[]
+  subscription     Subscription?
 }
 
 model PatientProfile {
@@ -191,4 +207,68 @@ model SystemConfig {
   value     String
   updatedAt DateTime @updatedAt
   updatedBy String?   // Admin ID
+}
+
+model Subscription {
+  id            String            @id @default(cuid()) @map("_id")
+  userId        String            @unique
+  plan          SubscriptionPlan  @default(FREE)
+  status        SubscriptionStatus @default(TRIAL)
+  startDate     DateTime          @default(now())
+  endDate       DateTime?
+  paymentMethod String?
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+
+  user User @relation(fields: [userId], references: [id])
+}
+
+model HealthRecord {
+  id          String   @id @default(cuid()) @map("_id")
+  userId      String
+  title       String
+  description String?
+  fileUrl     String?
+  recordType  String   // "lab_result", "prescription", "image", "report"
+  encrypted   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model VitalsData {
+  id          String   @id @default(cuid()) @map("_id")
+  userId      String
+  heartRate   Int?
+  spO2        Float?   // Oxygen saturation
+  bloodPressureSystolic Int?
+  bloodPressureDiastolic Int?
+  temperature Float?
+  glucose     Float?
+  deviceType  String?  // "smartwatch", "fitness_band", "smart_ring"
+  deviceName  String?
+  recordedAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+}
+
+model HealthInsight {
+  id          String   @id @default(cuid()) @map("_id")
+  userId      String
+  type        String   // "tip", "alert", "reminder"
+  title       String
+  content     String
+  source      String?  // "WHO", "CDC", "AI"
+  createdAt   DateTime @default(now())
+  read        Boolean  @default(false)
+}
+
+model LifestyleTracking {
+  id          String   @id @default(cuid()) @map("_id")
+  userId      String
+  date        DateTime @default(now())
+  sleepHours  Float?
+  hydration   Int?     // ml of water
+  steps       Int?
+  activityMinutes Int?
+  notes       String?
+  createdAt   DateTime @default(now())
 }
