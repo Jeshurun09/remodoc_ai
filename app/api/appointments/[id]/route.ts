@@ -3,10 +3,9 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: NextRequest, context: { params: Promise<{ id: string }> }) {
+  const params = await context.params
+  const id = params.id
   try {
     const session = await getServerSession(authOptions)
     if (!session) {
@@ -17,7 +16,7 @@ export async function PATCH(
     const { status, notes } = body
 
     const appointment = await prisma.appointment.findUnique({
-      where: { id: params.id },
+      where: { id },
       include: {
         patient: { include: { user: true } },
         doctor: { include: { user: true } },
@@ -49,7 +48,7 @@ export async function PATCH(
     }
 
     const updated = await prisma.appointment.update({
-      where: { id: params.id },
+      where: { id },
       data: {
         ...(status && { status }),
         ...(notes !== undefined && { notes })

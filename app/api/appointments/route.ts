@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 })
     }
 
-    let appointments = []
+    let appointments: any[] = []
     if (session.user.role === 'PATIENT' && user.patientProfile) {
       appointments = await prisma.appointment.findMany({
         where: { patientId: user.patientProfile.id },
