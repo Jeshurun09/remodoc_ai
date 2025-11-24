@@ -79,10 +79,13 @@ export function getDirectionsUrl(
   originLat?: number,
   originLng?: number
 ): string {
+  const dest = `${destinationLat},${destinationLng}`
   if (originLat != null && originLng != null) {
-    return `https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${originLat},${originLng};${destinationLat},${destinationLng}`
+    const origin = `${originLat},${originLng}`
+    return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(dest)}&travelmode=driving`
   }
 
-  return `https://www.openstreetmap.org/?mlat=${destinationLat}&mlon=${destinationLng}#map=16/${destinationLat}/${destinationLng}`
+  // If no origin, open the place on Google Maps
+  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dest)}`
 }
 
