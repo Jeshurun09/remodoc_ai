@@ -1,13 +1,13 @@
  'use client'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, useRef } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, CircleMarker, useMap } from 'react-leaflet'
 import type { LatLngExpression, DivIcon } from 'leaflet'
 import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
 import { getDirectionsUrl } from '@/lib/maps'
-import { useLoadScript, GoogleMap, Marker as GMarker, InfoWindow } from '@react-google-maps/api'
+import { useLoadScript, GoogleMap, InfoWindow } from '@react-google-maps/api'
 
 interface HospitalMapProps {
   location: { lat: number; lng: number } | null
@@ -102,11 +102,134 @@ export default function HospitalMap({ location }: HospitalMapProps) {
   // Client-side Google Maps key (must be exposed as NEXT_PUBLIC_...)
   const googleKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''
   const useGoogle = Boolean(googleKey && provider === 'google')
-  const { isLoaded: googleLoaded } = useLoadScript({
+  const { isLoaded: googleLoaded, loadError: googleLoadErrorFromHook } = useLoadScript({
     googleMapsApiKey: googleKey
   })
 
+  const [googleLoadError, setGoogleLoadError] = useState(false)
+  const googleTelemetrySent = useRef<boolean>(false)
+
   const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null)
+  const mapRef = useRef<any>(null)
+  const markersRef = useRef<any[]>([])
+  const userMarkerRef = useRef<any | null>(null)
+
+  const getGoogleIcon = (color: string) => {
+    const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='28' height='28' viewBox='0 0 24 24'><circle cx='12' cy='10' r='6' fill='${color}' stroke='white' stroke-width='2'/></svg>`
+    const icon: any = { url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(svg)}` }
+    try {
+      if (typeof window !== 'undefined' && (window as any).google && (window as any).google.maps && (window as any).google.maps.Size) {
+        icon.scaledSize = new (window as any).google.maps.Size(28, 28)
+      }
+    } catch (e) {
+      // ignore
+    }
+    return icon as any
+  }
+
+  useEffect(() => {
+    // Pan Google map to user location when it becomes available
+    if (mapRef.current && location && googleLoaded) {
+      try {
+        mapRef.current.panTo({ lat: location.lat, lng: location.lng })
+        mapRef.current.setZoom(location ? 12 : 7)
+      } catch (e) {
+        // ignore
+      }
+    }
+
+    // Manage AdvancedMarkerElement markers for hospitals and user position
+    if (!googleLoadError && googleLoaded && mapRef.current && (window as any).google && (window as any).google.maps && (window as any).google.maps.marker) {
+      // Clear existing markers
+      markersRef.current.forEach((m: any) => {
+        try { m.setMap(null) } catch (e) { /* ignore */ }
+      })
+      markersRef.current = []
+
+      // Create hospital markers
+      hospitals.forEach((hospital) => {
+        try {
+          const MarkerClass = (window as any).google.maps.marker.AdvancedMarkerElement
+          // create a DOM element matching Leaflet circle style
+          const el = document.createElement('div')
+          el.style.width = '1.5rem'
+          el.style.height = '1.5rem'
+          el.style.background = hospital.emergency ? '#dc2626' : '#16a34a'
+          el.style.borderRadius = '9999px'
+          el.style.border = '2px solid white'
+          el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)'
+          el.style.display = 'inline-block'
+          el.style.transform = 'translate(-50%, -50%)'
+          el.title = hospital.name
+
+          const marker = new MarkerClass({ position: { lat: hospital.latitude, lng: hospital.longitude }, map: mapRef.current, element: el })
+          // AdvancedMarkerElement uses DOM events; add a click listener
+          try { el.addEventListener('click', () => setSelectedHospital(hospital)) } catch (e) {}
+          markersRef.current.push(marker)
+        } catch (e) {
+          // fallback: ignore marker creation errors
+        }
+      })
+
+      // User position marker
+      try {
+        if (userMarkerRef.current) {
+          try { userMarkerRef.current.setMap(null) } catch (e) {}
+          userMarkerRef.current = null
+        }
+        if (userPosition) {
+          const UserMarkerClass = (window as any).google.maps.marker.AdvancedMarkerElement
+          const el = document.createElement('div')
+          el.style.width = '1.5rem'
+          el.style.height = '1.5rem'
+          el.style.background = '#2563eb'
+          el.style.borderRadius = '9999px'
+          el.style.border = '2px solid white'
+          el.style.boxShadow = '0 2px 6px rgba(0,0,0,0.2)'
+          el.style.display = 'inline-block'
+          el.style.transform = 'translate(-50%, -50%)'
+          el.title = 'You are here'
+          userMarkerRef.current = new UserMarkerClass({ position: { lat: (userPosition as number[])[0], lng: (userPosition as number[])[1] }, map: mapRef.current, element: el })
+        }
+      } catch (e) {
+        // ignore
+      }
+    }
+  }, [location, googleLoaded])
+
+  // React to loadError from the script loader
+  useEffect(() => {
+    if (googleLoadErrorFromHook) {
+      setGoogleLoadError(true)
+      setToast('Google Maps failed to load (check billing/API). Falling back to OpenStreetMap.')
+    }
+  }, [googleLoadErrorFromHook])
+
+  // Send one-time telemetry to server when google load/init fails
+  useEffect(() => {
+    if (!googleLoadError) return
+    if (googleTelemetrySent.current) return
+    googleTelemetrySent.current = true;
+
+    ;(async () => {
+      try {
+        await fetch('/api/telemetry/maps-error', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            error: 'GoogleMapsLoadOrInitFailure',
+            provider: provider || null,
+            env_has_client_key: Boolean(googleKey),
+            url: typeof window !== 'undefined' ? window.location.href : null,
+            userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : null,
+            ts: new Date().toISOString()
+          })
+        })
+      } catch (e) {
+        // ignore telemetry failures
+      }
+    })()
+  }, [googleLoadError])
 
   // One-tap navigate to nearest hospital
   const navigateToNearest = async () => {
@@ -394,23 +517,22 @@ export default function HospitalMap({ location }: HospitalMapProps) {
       )}
 
       <div className="w-full h-[500px] rounded-lg overflow-hidden">
-        {useGoogle && googleLoaded ? (
+        {useGoogle && googleLoaded && !googleLoadError ? (
           <GoogleMap
             mapContainerClassName="h-full w-full"
             center={{ lat: defaultCenter[0] as number, lng: defaultCenter[1] as number }}
             zoom={location ? 12 : 7}
+            onLoad={(map) => {
+              try {
+                mapRef.current = map
+              } catch (e) {
+                setGoogleLoadError(true)
+                setToast('Google Maps failed to initialize (billing/API). Falling back to OpenStreetMap.')
+              }
+            }}
           >
-            {userPosition && (
-              <GMarker position={{ lat: (userPosition as number[])[0], lng: (userPosition as number[])[1] }} />
-            )}
 
-            {hospitals.map((hospital) => (
-              <GMarker
-                key={hospital.id}
-                position={{ lat: hospital.latitude, lng: hospital.longitude }}
-                onClick={() => setSelectedHospital(hospital)}
-              />
-            ))}
+            {/* AdvancedMarkerElement instances created/managed via effect (see useEffect below) */}
 
             {selectedHospital && (
               <InfoWindow
