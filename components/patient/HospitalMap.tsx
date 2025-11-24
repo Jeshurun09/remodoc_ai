@@ -1,4 +1,4 @@
-'use client'
+ 'use client'
 
 import { useState, useEffect, useMemo } from 'react'
 import { MapContainer, TileLayer, Marker, Popup, CircleMarker, useMap } from 'react-leaflet'
@@ -7,6 +7,7 @@ import L from 'leaflet'
 import 'leaflet/dist/leaflet.css'
 
 import { getDirectionsUrl } from '@/lib/maps'
+import { useLoadScript, GoogleMap, Marker as GMarker, InfoWindow } from '@react-google-maps/api'
 
 interface HospitalMapProps {
   location: { lat: number; lng: number } | null
@@ -98,6 +99,15 @@ export default function HospitalMap({ location }: HospitalMapProps) {
     return () => { mounted = false }
   }, [])
 
+  // Client-side Google Maps key (must be exposed as NEXT_PUBLIC_...)
+  const googleKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''
+  const useGoogle = Boolean(googleKey && provider === 'google')
+  const { isLoaded: googleLoaded } = useLoadScript({
+    googleMapsApiKey: googleKey
+  })
+
+  const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null)
+
   // One-tap navigate to nearest hospital
   const navigateToNearest = async () => {
     if (!location) {
@@ -130,8 +140,30 @@ export default function HospitalMap({ location }: HospitalMapProps) {
     }
 
     if (!list || list.length === 0) {
-      setToast('No nearby hospitals found to navigate to.')
-      return
+      // If user requested emergency-only results but none found, try again without that filter
+      if (emergencyOnly) {
+        setToast('No emergency hospitals found nearby — expanding search to include all hospitals...')
+        const found = await fetchHospitals(10000 /* default radius */)
+        if (found && found.length > 0) {
+          list = found
+        } else {
+          // As before, try increasing radii without emergency-only filter
+          const radii = [10000, 20000, 50000]
+          for (const r of radii) {
+            setToast(`No hospitals nearby — expanding search to ${(r / 1000).toFixed(0)} km...`)
+            const found2 = await fetchHospitals(r)
+            if (found2 && found2.length > 0) {
+              list = found2
+              break
+            }
+          }
+        }
+      }
+
+      if (!list || list.length === 0) {
+        setToast('No nearby hospitals found to navigate to.')
+        return
+      }
     }
 
     const nearest = list[0]
@@ -303,6 +335,18 @@ export default function HospitalMap({ location }: HospitalMapProps) {
           </div>
         </div>
       )}
+
+      {provider === 'google' && !googleKey && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-right mb-2">
+            <div className="inline-block px-2 py-1 text-xs rounded bg-yellow-50 text-yellow-800 border border-yellow-200">
+              Google Directions are enabled on the server, but client Google Maps key is missing.
+              To render the map with Google Maps (and remove OpenStreetMap tiles legally), set
+              <code className="ml-1 px-1 py-0.5 bg-white rounded text-xs">NEXT_PUBLIC_GOOGLE_MAPS_API_KEY</code> in your environment.
+            </div>
+          </div>
+        </div>
+      )}
       {/* Toast */}
       {toast && (
         <div className="fixed top-6 right-6 z-50 bg-gray-900 text-white px-4 py-2 rounded shadow">
@@ -350,44 +394,40 @@ export default function HospitalMap({ location }: HospitalMapProps) {
       )}
 
       <div className="w-full h-[500px] rounded-lg overflow-hidden">
-        <MapContainer
-          center={defaultCenter}
-          zoom={location ? 12 : 7}
-          className="h-full w-full"
-          scrollWheelZoom
-        >
-          <RecenterMap center={defaultCenter} />
-          <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
+        {useGoogle && googleLoaded ? (
+          <GoogleMap
+            mapContainerClassName="h-full w-full"
+            center={{ lat: defaultCenter[0] as number, lng: defaultCenter[1] as number }}
+            zoom={location ? 12 : 7}
+          >
+            {userPosition && (
+              <GMarker position={{ lat: (userPosition as number[])[0], lng: (userPosition as number[])[1] }} />
+            )}
 
-          {userPosition && (
-            <CircleMarker center={userPosition} pathOptions={{ color: '#2563eb' }} radius={10}>
-              <Popup>You are here</Popup>
-            </CircleMarker>
-          )}
+            {hospitals.map((hospital) => (
+              <GMarker
+                key={hospital.id}
+                position={{ lat: hospital.latitude, lng: hospital.longitude }}
+                onClick={() => setSelectedHospital(hospital)}
+              />
+            ))}
 
-          {hospitals.map((hospital) => (
-            <Marker
-              key={hospital.id}
-              position={[hospital.latitude, hospital.longitude]}
-              icon={hospital.emergency ? emergencyIcon : standardIcon}
-            >
-              <Popup>
-                <div className="p-1">
-                  <h3 className="font-bold text-base mb-1">{hospital.name}</h3>
-                  <p className="text-sm text-gray-600 mb-1">{hospital.address}</p>
-                  <p className="text-sm text-gray-600 mb-1">Phone: {hospital.phone}</p>
-                  {hospital.emergency && (
-                    <span className="inline-block bg-red-100 text-red-800 text-xs px-2 py-1 rounded mb-2">
-                      Emergency Services
-                    </span>
+            {selectedHospital && (
+              <InfoWindow
+                position={{ lat: selectedHospital.latitude, lng: selectedHospital.longitude }}
+                onCloseClick={() => setSelectedHospital(null)}
+              >
+                <div className="p-1 max-w-xs">
+                  <h3 className="font-bold text-base mb-1">{selectedHospital.name}</h3>
+                  <p className="text-sm text-gray-600 mb-1">{selectedHospital.address}</p>
+                  <p className="text-sm text-gray-600 mb-1">Phone: {selectedHospital.phone}</p>
+                  {selectedHospital.emergency && (
+                    <span className="inline-block bg-red-100 text-red-800 text-xs px-2 py-1 rounded mb-2">Emergency Services</span>
                   )}
                   <a
                     href={getDirectionsUrl(
-                      hospital.latitude,
-                      hospital.longitude,
+                      selectedHospital.latitude,
+                      selectedHospital.longitude,
                       location?.lat,
                       location?.lng
                     )}
@@ -398,32 +438,57 @@ export default function HospitalMap({ location }: HospitalMapProps) {
                     Get Directions →
                   </a>
                   <div className="mt-2 flex space-x-2">
-                    <button
-                      type="button"
-                      onClick={() => startAudioNavigation(hospital)}
-                      className="px-3 py-1 bg-cyan-500 text-white text-sm rounded hover:bg-cyan-600"
-                    >
-                      Navigate (Audio)
-                    </button>
-                    <a
-                      href={getDirectionsUrl(
-                        hospital.latitude,
-                        hospital.longitude,
-                        location?.lat,
-                        location?.lng
-                      )}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="px-3 py-1 border border-gray-200 text-sm rounded hover:bg-gray-50"
-                    >
-                      Open Directions
-                    </a>
+                    <button type="button" onClick={() => startAudioNavigation(selectedHospital)} className="px-3 py-1 bg-cyan-500 text-white text-sm rounded hover:bg-cyan-600">Navigate (Audio)</button>
+                    <a href={getDirectionsUrl(selectedHospital.latitude, selectedHospital.longitude, location?.lat, location?.lng)} target="_blank" rel="noopener noreferrer" className="px-3 py-1 border border-gray-200 text-sm rounded hover:bg-gray-50">Open Directions</a>
                   </div>
                 </div>
-              </Popup>
-            </Marker>
-          ))}
-        </MapContainer>
+              </InfoWindow>
+            )}
+          </GoogleMap>
+        ) : (
+          <MapContainer
+            center={defaultCenter}
+            zoom={location ? 12 : 7}
+            className="h-full w-full"
+            scrollWheelZoom
+          >
+            <RecenterMap center={defaultCenter} />
+            <TileLayer
+              attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+              url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            />
+
+            {userPosition && (
+              <CircleMarker center={userPosition} pathOptions={{ color: '#2563eb' }} radius={10}>
+                <Popup>You are here</Popup>
+              </CircleMarker>
+            )}
+
+            {hospitals.map((hospital) => (
+              <Marker
+                key={hospital.id}
+                position={[hospital.latitude, hospital.longitude]}
+                icon={hospital.emergency ? emergencyIcon : standardIcon}
+              >
+                <Popup>
+                  <div className="p-1">
+                    <h3 className="font-bold text-base mb-1">{hospital.name}</h3>
+                    <p className="text-sm text-gray-600 mb-1">{hospital.address}</p>
+                    <p className="text-sm text-gray-600 mb-1">Phone: {hospital.phone}</p>
+                    {hospital.emergency && (
+                      <span className="inline-block bg-red-100 text-red-800 text-xs px-2 py-1 rounded mb-2">Emergency Services</span>
+                    )}
+                    <a href={getDirectionsUrl(hospital.latitude, hospital.longitude, location?.lat, location?.lng)} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 text-sm font-medium">Get Directions →</a>
+                    <div className="mt-2 flex space-x-2">
+                      <button type="button" onClick={() => startAudioNavigation(hospital)} className="px-3 py-1 bg-cyan-500 text-white text-sm rounded hover:bg-cyan-600">Navigate (Audio)</button>
+                      <a href={getDirectionsUrl(hospital.latitude, hospital.longitude, location?.lat, location?.lng)} target="_blank" rel="noopener noreferrer" className="px-3 py-1 border border-gray-200 text-sm rounded hover:bg-gray-50">Open Directions</a>
+                    </div>
+                  </div>
+                </Popup>
+              </Marker>
+            ))}
+          </MapContainer>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
