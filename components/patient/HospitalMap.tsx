@@ -55,6 +55,19 @@ export default function HospitalMap({ location }: HospitalMapProps) {
   const [hospitals, setHospitals] = useState<Hospital[]>([])
   const [loading, setLoading] = useState(false)
   const [emergencyOnly, setEmergencyOnly] = useState(false)
+  const [navigatingId, setNavigatingId] = useState<string | null>(null)
+  const [routeSteps, setRouteSteps] = useState<string[]>([])
+  const [isSpeaking, setIsSpeaking] = useState(false)
+  const [showConfirm, setShowConfirm] = useState(false)
+  const [pendingHospital, setPendingHospital] = useState<Hospital | null>(null)
+  const [toast, setToast] = useState<string | null>(null)
+
+  // Auto-clear toasts after a short time
+  useEffect(() => {
+    if (!toast) return
+    const t = setTimeout(() => setToast(null), 4500)
+    return () => clearTimeout(t)
+  }, [toast])
 
   const userPosition: LatLngExpression | null = location ? [location.lat, location.lng] : null
   const defaultCenter: LatLngExpression = userPosition ?? [37.7749, -122.4194]
@@ -68,33 +81,222 @@ export default function HospitalMap({ location }: HospitalMapProps) {
     }
   }, [location, emergencyOnly])
 
-  const fetchHospitals = async () => {
-    if (!location) return
+  // One-tap navigate to nearest hospital
+  const navigateToNearest = async () => {
+    if (!location) {
+      setToast('Enable location access to find nearby hospitals.')
+      return
+    }
+
+    if (loading) {
+      setToast('Searching for nearby hospitals — please wait.')
+      return
+    }
+
+    // Try current list first
+    let list = hospitals
+    if (!list || list.length === 0) {
+      list = await fetchHospitals()
+    }
+
+    // If still empty, try expanding search radius progressively
+    if (!list || list.length === 0) {
+      const radii = [10000, 20000, 50000]
+      for (const r of radii) {
+        setToast(`No hospitals nearby — expanding search to ${(r / 1000).toFixed(0)} km...`)
+        const found = await fetchHospitals(r)
+        if (found && found.length > 0) {
+          list = found
+          break
+        }
+      }
+    }
+
+    if (!list || list.length === 0) {
+      setToast('No nearby hospitals found to navigate to.')
+      return
+    }
+
+    const nearest = list[0]
+    setPendingHospital(nearest)
+    const dontAsk = typeof window !== 'undefined' && localStorage.getItem('remodocAudioNavDontAsk') === '1'
+    if (dontAsk) {
+      startAudioNavigation(nearest)
+    } else {
+      setShowConfirm(true)
+    }
+  }
+
+  const fetchHospitals = async (radius = 10000) => {
+    if (!location) return []
 
     setLoading(true)
     try {
       const response = await fetch(
-        `/api/hospitals/nearby?lat=${location.lat}&lng=${location.lng}&radius=10000&emergency=${emergencyOnly}`
+        `/api/hospitals/nearby?lat=${location.lat}&lng=${location.lng}&radius=${radius}&emergency=${emergencyOnly}`
       )
       const data = await response.json()
       if (response.ok) {
         setHospitals(data.hospitals || [])
+        return data.hospitals || []
       }
     } catch (error) {
       console.error('Error fetching hospitals:', error)
     } finally {
       setLoading(false)
     }
+    return []
+  }
+
+  // Helpers for audio navigation using OSRM + Web Speech API
+  const formatDistance = (meters: number) => {
+    if (meters >= 1000) {
+      return `${(meters / 1000).toFixed(1)} km`
+    }
+    return `${Math.round(meters)} m`
+  }
+
+  const getStepText = (step: any) => {
+    // Prefer any rendered instruction if available, otherwise build from maneuver
+    const maneuver = step.maneuver || {}
+    if (step.instruction) return step.instruction
+    if (maneuver.instruction) return maneuver.instruction
+
+    const modifier = maneuver.modifier ? `${maneuver.modifier} ` : ''
+    const name = step.name || 'the road'
+    return `Turn ${modifier}onto ${name}`
+  }
+
+  const stopSpeech = () => {
+    if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+      window.speechSynthesis.cancel()
+    }
+    setIsSpeaking(false)
+    setNavigatingId(null)
+    setRouteSteps([])
+  }
+
+  const toggleSpeech = () => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
+    const synth = window.speechSynthesis
+    if (synth.speaking && !synth.paused) {
+      synth.pause()
+      setIsSpeaking(false)
+      return
+    }
+    if (synth.paused) {
+      synth.resume()
+      setIsSpeaking(true)
+      return
+    }
+
+    // If not speaking, start from beginning of available routeSteps
+    if (routeSteps.length > 0) {
+      speakSteps(routeSteps)
+    }
+  }
+
+  const speakSteps = (steps: string[]) => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) return
+    const synth = window.speechSynthesis
+    synth.cancel()
+    let index = 0
+
+    const speakNext = () => {
+      if (index >= steps.length) {
+        setIsSpeaking(false)
+        return
+      }
+      const utter = new SpeechSynthesisUtterance(steps[index])
+      utter.onend = () => {
+        index += 1
+        speakNext()
+      }
+      utter.onerror = () => {
+        index += 1
+        speakNext()
+      }
+      synth.speak(utter)
+      setIsSpeaking(true)
+    }
+
+    speakNext()
+  }
+
+  const startAudioNavigation = async (hospital: Hospital) => {
+    if (!location) {
+      setToast('Enable location access to start navigation.')
+      return
+    }
+
+    // Check TTS support
+    if (typeof window === 'undefined' || !('speechSynthesis' in window)) {
+      // fallback: open directions in new tab
+      window.open(
+        getDirectionsUrl(hospital.latitude, hospital.longitude, location.lat, location.lng),
+        '_blank'
+      )
+      return
+    }
+
+    // Stop any existing speech
+    if ('speechSynthesis' in window) window.speechSynthesis.cancel()
+
+    // OSRM expects lon,lat order
+    const originLon = location.lng
+    const originLat = location.lat
+    const destLon = hospital.longitude
+    const destLat = hospital.latitude
+
+    try {
+      const proxyUrl = `/api/maps/route?originLat=${originLat}&originLng=${originLon}&destLat=${destLat}&destLng=${destLon}`
+      const res = await fetch(proxyUrl)
+      const data = await res.json()
+      if (!data || !data.steps || data.steps.length === 0) {
+        setToast('Could not fetch route. Opening directions in a new tab.')
+        window.open(getDirectionsUrl(hospital.latitude, hospital.longitude, location.lat, location.lng), '_blank')
+        return
+      }
+
+      const stepsText: string[] = data.steps.map((s: any) => `${formatDistance(s.distance || 0)}: ${s.instruction}`)
+      stepsText.push('You have arrived at your destination.')
+
+      setRouteSteps(stepsText)
+      setNavigatingId(hospital.id)
+      setShowConfirm(false)
+
+      // Start speaking
+      speakSteps(stepsText)
+    } catch (err) {
+      console.error('Error fetching route from proxy:', err)
+      setToast('Unable to fetch route. Opening directions in a new tab.')
+      window.open(getDirectionsUrl(hospital.latitude, hospital.longitude, location.lat, location.lng), '_blank')
+    }
   }
 
   return (
     <div className="space-y-4">
+      {/* Toast */}
+      {toast && (
+        <div className="fixed top-6 right-6 z-50 bg-gray-900 text-white px-4 py-2 rounded shadow">
+          {toast}
+        </div>
+      )}
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-2xl font-bold text-cyan-500 mb-2">Find Hospitals</h2>
           <p className="text-cyan-500">Locate nearby hospitals and medical facilities</p>
         </div>
-        <label className="flex items-center space-x-2">
+        <div className="flex items-center space-x-4">
+          <button
+            onClick={navigateToNearest}
+            disabled={!location || loading}
+            className={`px-3 py-1 rounded text-sm ${!location || loading ? 'bg-gray-300 text-gray-600 cursor-not-allowed' : 'bg-cyan-500 text-white hover:bg-cyan-600'}`}
+            title={!location ? 'Enable location to navigate' : loading ? 'Searching for hospitals...' : 'Navigate to nearest'}
+          >
+            {loading ? 'Searching…' : 'Navigate to nearest'}
+          </button>
+          <label className="flex items-center space-x-2">
           <input
             type="checkbox"
             checked={emergencyOnly}
@@ -102,7 +304,8 @@ export default function HospitalMap({ location }: HospitalMapProps) {
             className="rounded"
           />
           <span className="text-sm text-cyan-500">Emergency only</span>
-        </label>
+          </label>
+        </div>
       </div>
 
       {!location && (
@@ -167,6 +370,28 @@ export default function HospitalMap({ location }: HospitalMapProps) {
                   >
                     Get Directions →
                   </a>
+                  <div className="mt-2 flex space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => startAudioNavigation(hospital)}
+                      className="px-3 py-1 bg-cyan-500 text-white text-sm rounded hover:bg-cyan-600"
+                    >
+                      Navigate (Audio)
+                    </button>
+                    <a
+                      href={getDirectionsUrl(
+                        hospital.latitude,
+                        hospital.longitude,
+                        location?.lat,
+                        location?.lng
+                      )}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="px-3 py-1 border border-gray-200 text-sm rounded hover:bg-gray-50"
+                    >
+                      Open Directions
+                    </a>
+                  </div>
                 </div>
               </Popup>
             </Marker>
@@ -195,22 +420,87 @@ export default function HospitalMap({ location }: HospitalMapProps) {
                 {Math.round(hospital.distance / 1000)} km away
               </p>
             )}
-            <a
-              href={getDirectionsUrl(
-                hospital.latitude,
-                hospital.longitude,
-                location?.lat,
-                location?.lng
-              )}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="text-blue-600 hover:text-blue-800 text-sm font-medium"
-            >
-              Get Directions →
-            </a>
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={() => startAudioNavigation(hospital)}
+                className="px-3 py-1 bg-cyan-500 text-white text-sm rounded hover:bg-cyan-600"
+              >
+                Navigate (Audio)
+              </button>
+              <a
+                href={getDirectionsUrl(
+                  hospital.latitude,
+                  hospital.longitude,
+                  location?.lat,
+                  location?.lng
+                )}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-blue-600 hover:text-blue-800 text-sm font-medium"
+              >
+                Get Directions →
+              </a>
+            </div>
           </div>
         ))}
       </div>
+
+      {/* Audio navigation pane */}
+      {navigatingId && (
+        <div className="fixed bottom-6 right-6 w-96 bg-white border border-gray-200 rounded-lg p-4 shadow-lg">
+          <div className="flex items-center justify-between mb-2">
+            <strong className="text-sm">Audio Navigation</strong>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={toggleSpeech}
+                className="px-3 py-1 bg-gray-100 rounded text-sm"
+              >
+                {isSpeaking ? 'Pause' : 'Play'}
+              </button>
+              <button
+                onClick={stopSpeech}
+                className="px-3 py-1 bg-red-50 text-red-600 rounded text-sm"
+              >
+                Stop
+              </button>
+            </div>
+          </div>
+          <div className="max-h-56 overflow-auto text-sm space-y-2">
+            {routeSteps.length === 0 ? (
+              <p className="text-gray-500">Preparing route...</p>
+            ) : (
+              routeSteps.map((s, i) => (
+                <div key={i} className="text-gray-700">
+                  <span className="font-semibold mr-2">{i + 1}.</span>
+                  <span>{s}</span>
+                </div>
+              ))
+            )}
+          </div>
+        </div>
+      )}
+      {/* Confirmation modal */}
+      {showConfirm && pendingHospital && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 w-11/12 max-w-md">
+            <h3 className="text-lg font-semibold mb-2">Start Audio Navigation</h3>
+            <p className="text-sm text-gray-700 mb-4">Start audio directions to <strong>{pendingHospital.name}</strong>?</p>
+            <div className="flex items-center mb-4">
+              <input id="dontask" type="checkbox" className="mr-2" onChange={(e) => {
+                if (typeof window !== 'undefined') {
+                  if (e.target.checked) localStorage.setItem('remodocAudioNavDontAsk', '1')
+                  else localStorage.removeItem('remodocAudioNavDontAsk')
+                }
+              }} />
+              <label htmlFor="dontask" className="text-sm text-gray-600">Don't ask again</label>
+            </div>
+            <div className="flex justify-end space-x-2">
+              <button className="px-3 py-1 text-sm rounded" onClick={() => { setShowConfirm(false); setPendingHospital(null) }}>Cancel</button>
+              <button className="px-3 py-1 bg-cyan-500 text-white rounded text-sm" onClick={() => pendingHospital && startAudioNavigation(pendingHospital)}>Start</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

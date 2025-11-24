@@ -9,7 +9,7 @@ export async function analyzeSymptoms(
 ) {
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-pro-vision' })
-    
+
     const prompt = `You are a medical AI assistant. Analyze the following symptoms and provide:
 1. Likely conditions (list top 3-5)
 2. Urgency level (LOW, MEDIUM, HIGH, CRITICAL)
@@ -42,23 +42,32 @@ Respond in JSON format:
 
     const response = result.response
     const text = response.text()
-    
+
     // Try to parse JSON from response
     const jsonMatch = text.match(/\{[\s\S]*\}/)
     if (jsonMatch) {
-      return JSON.parse(jsonMatch[0])
+      const parsed = JSON.parse(jsonMatch[0])
+      return { ...parsed, aiUnavailable: false }
     }
-    
+
     // Fallback parsing
     return {
       likelyConditions: extractConditions(text),
       urgency: extractUrgency(text),
       careAdvice: text,
-      needsImmediateCare: text.toLowerCase().includes('emergency') || text.toLowerCase().includes('immediate')
+      needsImmediateCare: text.toLowerCase().includes('emergency') || text.toLowerCase().includes('immediate'),
+      aiUnavailable: false
     }
   } catch (error) {
     console.error('Gemini AI Error:', error)
-    throw new Error('Failed to analyze symptoms')
+    // Fallback: return a safe default analysis so the API doesn't return 500
+    return {
+      likelyConditions: ['Unable to determine - consult a clinician'],
+      urgency: 'MEDIUM' as const,
+      careAdvice: 'The AI assistant is currently unavailable. Please consult a healthcare professional for an accurate assessment.',
+      needsImmediateCare: false,
+      aiUnavailable: true
+    }
   }
 }
 
