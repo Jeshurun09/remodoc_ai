@@ -30,8 +30,39 @@ export default function PatientDashboard() {
   const { isDark, setTheme } = useTheme()
   const [activeTab, setActiveTab] = useState<'symptoms' | 'hospitals' | 'appointments' | 'telemedicine' | 'iot' | 'insights' | 'accessibility' | 'records'>('symptoms')
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null)
+  const [geoError, setGeoError] = useState<string | null>(null)
+  const [geoDismissed, setGeoDismissed] = useState(false)
   const [subscription, setSubscription] = useState<{ plan: string; status: string } | null>(null)
   const [isPremium, setIsPremium] = useState(false)
+
+  // Encapsulate location request so it can be retried from the UI
+  const requestLocation = () => {
+    if (typeof navigator !== 'undefined' && 'geolocation' in navigator) {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocation({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude
+          })
+          setGeoError(null)
+          setGeoDismissed(false)
+        },
+        (error: any) => {
+          try {
+            const code = error?.code ?? 'UNKNOWN'
+            const message = error?.message ?? (error && error.toString && typeof error.toString === 'function' ? error.toString() : 'Unable to retrieve location')
+            console.warn(`Geolocation error: code=${code} message=${message}`)
+            setGeoError(typeof message === 'string' ? message : 'Unable to retrieve location')
+          } catch (e) {
+            console.warn('Geolocation error (unknown/unserializable)')
+            setGeoError('Unable to retrieve location')
+          }
+        }
+      )
+    } else {
+      setGeoError('Geolocation is not supported by your browser')
+    }
+  }
 
   const toggleTheme = () => {
     setTheme(isDark ? 'light' : 'dark')
@@ -45,20 +76,8 @@ export default function PatientDashboard() {
       router.push('/dashboard')
     }
 
-    // Get user location
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setLocation({
-            lat: position.coords.latitude,
-            lng: position.coords.longitude
-          })
-        },
-        (error) => {
-          console.error('Geolocation error:', error)
-        }
-      )
-    }
+    // Get user location (use the encapsulated requestLocation so it can be retried)
+    requestLocation()
 
     // Fetch subscription status
     if (status === 'authenticated') {
@@ -140,6 +159,32 @@ export default function PatientDashboard() {
           </div>
         </div>
       </nav>
+
+      {geoError && !geoDismissed && (
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
+          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3 text-yellow-800 flex items-center justify-between space-x-4">
+            <div>
+              <strong>Location unavailable:</strong> {geoError}. You can still use features manually.
+            </div>
+            <div className="flex items-center space-x-2">
+              <button
+                onClick={() => requestLocation()}
+                className="px-3 py-1 bg-yellow-200 text-yellow-900 rounded text-sm"
+                title="Retry obtaining location"
+              >
+                Retry
+              </button>
+              <button
+                onClick={() => setGeoDismissed(true)}
+                className="px-3 py-1 bg-transparent text-yellow-900 rounded text-sm"
+                title="Dismiss"
+              >
+                Dismiss
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="surface rounded-lg shadow-sm mb-6">

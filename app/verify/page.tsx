@@ -1,15 +1,12 @@
-"use client"
-
-export const dynamic = 'force-dynamic'
+'use client'
 
 import { FormEvent, useEffect, useState } from 'react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 import { useTheme } from '@/components/theme/ThemeProvider'
 
 export default function VerifyPage() {
   const router = useRouter()
-  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
   const [error, setError] = useState('')
@@ -23,11 +20,13 @@ export default function VerifyPage() {
   }
 
   useEffect(() => {
-    const paramEmail = searchParams.get('email')
-    if (paramEmail) {
-      setEmail(paramEmail)
+    // Read query params from the browser URL to avoid `useSearchParams` prerender bailout
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search)
+      const paramEmail = urlParams.get('email')
+      if (paramEmail) setEmail(paramEmail)
     }
-  }, [searchParams])
+  }, [])
 
   const handleVerify = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
