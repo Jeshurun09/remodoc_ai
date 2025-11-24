@@ -77,6 +77,8 @@ export default function SymptomChecker({ location }: SymptomCheckerProps) {
     CRITICAL: 'bg-red-100 text-red-800'
   }
 
+  const urgencyKey = (result?.urgency ?? 'LOW') as keyof typeof urgencyColors
+
   return (
     <div className="space-y-6">
       <div>
@@ -177,8 +179,8 @@ export default function SymptomChecker({ location }: SymptomCheckerProps) {
           )}
           <div className="flex items-center justify-between">
             <h3 className="text-xl font-bold text-cyan-500">Analysis Results</h3>
-            <span className={`px-3 py-1 rounded-full text-sm font-medium ${urgencyColors[result.urgency]}`}>
-              {result.urgency} Urgency
+            <span className={`px-3 py-1 rounded-full text-sm font-medium ${urgencyColors[urgencyKey]}`}>
+              {result?.urgency} Urgency
             </span>
           </div>
 

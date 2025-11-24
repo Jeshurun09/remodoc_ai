@@ -1,8 +1,10 @@
-'use client'
+"use client"
+
+export const dynamic = 'force-dynamic'
 
 import { useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
-import { useRouter, useSearchParams } from 'next/navigation'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useTheme } from '@/components/theme/ThemeProvider'
 
@@ -23,8 +25,16 @@ const paymentMethods = [
 export default function PaymentPage() {
   const { data: session, status } = useSession()
   const router = useRouter()
-  const searchParams = useSearchParams()
-  const planId = searchParams.get('plan') || 'individual'
+  const [planId, setPlanId] = useState('individual')
+
+  useEffect(() => {
+    try {
+      const sp = new URLSearchParams(window.location.search)
+      setPlanId(sp.get('plan') || 'individual')
+    } catch (e) {
+      // ignore during SSR
+    }
+  }, [])
   
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('stripe')
   const [paymentDetails, setPaymentDetails] = useState({

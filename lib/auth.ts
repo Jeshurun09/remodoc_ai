@@ -121,11 +121,11 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       if (session.user) {
-        session.user.role = token.role as string
-        session.user.id = token.id as string
-        session.user.isVerified = token.isVerified as boolean
-        session.user.doctorProfile = token.doctorProfile as any
-        session.user.patientProfile = token.patientProfile as any
+        ;(session.user as any).role = token.role as string
+        ;(session.user as any).id = token.id as string
+        ;(session.user as any).isVerified = token.isVerified as boolean
+        ;(session.user as any).doctorProfile = token.doctorProfile as any
+        ;(session.user as any).patientProfile = token.patientProfile as any
       }
       return session
     }

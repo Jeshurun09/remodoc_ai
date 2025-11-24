@@ -230,7 +230,7 @@ export default function HospitalMap({ location }: HospitalMapProps) {
     }
 
     // Ensure `window` is available in this runtime (TypeScript narrowing lost across awaits)
-    const win = typeof window !== 'undefined' ? window : undefined
+    const win = (typeof window !== 'undefined' ? window : undefined) as Window | undefined
     if (!win) {
       setToast('Unable to open directions in this environment.')
       return
@@ -238,12 +238,12 @@ export default function HospitalMap({ location }: HospitalMapProps) {
 
     // If the browser doesn't support speech synthesis, open external directions instead
     if (!('speechSynthesis' in win)) {
-      win.open(getDirectionsUrl(hospital.latitude, hospital.longitude, location.lat, location.lng), '_blank')
+      ;(win as any).open(getDirectionsUrl(hospital.latitude, hospital.longitude, location.lat, location.lng), '_blank')
       return
     }
 
     // Stop any existing speech
-    if ('speechSynthesis' in win) win.speechSynthesis.cancel()
+    if ('speechSynthesis' in win) (win as any).speechSynthesis.cancel()
 
     // OSRM expects lon,lat order
     const originLon = location.lng
@@ -257,7 +257,7 @@ export default function HospitalMap({ location }: HospitalMapProps) {
       const data = await res.json()
       if (!data || !data.steps || data.steps.length === 0) {
         setToast('Could not fetch route. Opening directions in a new tab.')
-        win.open(getDirectionsUrl(hospital.latitude, hospital.longitude, location.lat, location.lng), '_blank')
+        ;(win as any).open(getDirectionsUrl(hospital.latitude, hospital.longitude, location.lat, location.lng), '_blank')
         return
       }
 
@@ -273,7 +273,7 @@ export default function HospitalMap({ location }: HospitalMapProps) {
     } catch (err) {
       console.error('Error fetching route from proxy:', err)
       setToast('Unable to fetch route. Opening directions in a new tab.')
-      win.open(getDirectionsUrl(hospital.latitude, hospital.longitude, location.lat, location.lng), '_blank')
+      ;(win as any).open(getDirectionsUrl(hospital.latitude, hospital.longitude, location.lat, location.lng), '_blank')
     }
   }
 
