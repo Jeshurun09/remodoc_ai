@@ -1,13 +1,13 @@
 # RemoDoc - AI-Powered Telehealth Platform
 
-RemoDoc is an AI-powered telehealth web application that combines Gemini AI and Leaflet-powered maps (OpenStreetMap) to deliver smart symptom checking, location-based care, secure medical workflows, email-based account verification, and automated SMS reminders.
+RemoDoc is an AI-powered telehealth web application that combines Gemini AI and Google Maps to deliver smart symptom checking, location-based care, secure medical workflows, email-based account verification, and automated SMS reminders.
 
 ## Features
 
 ### 🩺 Patients Module
 - **Symptom Input**: Text, voice, or image input for symptoms
 - **AI Triage**: Gemini AI analyzes symptoms and provides likely conditions, urgency levels, and care advice
-- **Hospital Maps**: Find nearby hospitals with Leaflet + OpenStreetMap integration
+- **Hospital Maps**: Find nearby hospitals with Google Maps integration
 - **Appointments**: Schedule and manage medical appointments (email verification required to activate accounts)
 - **SMS Reminders**: Automatic Twilio reminders for upcoming appointments
 - **Offline Access**: Service worker and IndexedDB caching for offline functionality
@@ -28,8 +28,8 @@ RemoDoc is an AI-powered telehealth web application that combines Gemini AI and 
 - Logs all AI interactions for monitoring
 
 ### 🗺️ Maps Integration
-- Leaflet with OpenStreetMap tiles for hospital discovery
-- Directions links powered by OpenStreetMap
+- Google Maps for hospital discovery and visualization
+- Directions links powered by Google Maps
 - Location-based hospital recommendations
 
 ### 🧑‍💼 Admin Dashboard
@@ -52,7 +52,7 @@ RemoDoc is an AI-powered telehealth web application that combines Gemini AI and 
 - **Database**: MongoDB (via Prisma ORM)
 - **Authentication**: NextAuth.js
 - **AI**: Google Gemini AI
-- **Maps**: Leaflet + OpenStreetMap
+- **Maps**: Google Maps
 - **SMS**: Twilio
 
 ## Getting Started
@@ -62,6 +62,7 @@ RemoDoc is an AI-powered telehealth web application that combines Gemini AI and 
 - Node.js 18+ and npm
 - MongoDB 6.x+ (local instance or Atlas cluster)
 - Google Gemini API key
+- Google Maps API key
 - SMTP credentials (for sending verification emails)
 - Twilio account (for SMS emergency beacon + appointment reminders)
 
@@ -78,7 +79,7 @@ npm install
 ```
 
 3. Set up environment variables:
-Copy `env.example` to `.env.local` (or `.env`) and fill in the placeholders. Required values now include the database connection (`MONGODB_URL`), SMTP credentials (`SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM`), and Twilio credentials (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`).
+Copy `env.example` to `.env.local` (or `.env`) and fill in the placeholders. Required values include the database connection (`MONGODB_URL`), Google Maps API key (`NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`), SMTP credentials (`SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM`), and Twilio credentials (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`).
 
 4. Sync the Prisma schema with MongoDB and seed mock data:
 ```bash
