@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { Suspense, useState, useEffect } from 'react'
 import { useSession } from 'next-auth/react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Link from 'next/link'
@@ -20,7 +20,7 @@ const paymentMethods = [
   { id: 'bank', name: 'Bank Transfer', icon: '🏦' }
 ]
 
-export default function PaymentPage() {
+function PaymentContent() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const searchParams = useSearchParams()
@@ -354,6 +354,20 @@ export default function PaymentPage() {
         </div>
       </div>
     </div>
+  )
+}
+
+export default function PaymentPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="min-h-screen flex items-center justify-center">
+          <div className="text-xl">Loading payment options…</div>
+        </div>
+      }
+    >
+      <PaymentContent />
+    </Suspense>
   )
 }
 
