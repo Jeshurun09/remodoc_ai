@@ -1,11 +1,11 @@
 'use client'
 
-import { FormEvent, useEffect, useState } from 'react'
+import { FormEvent, Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn, getSession } from 'next-auth/react'
 import { useTheme } from '@/components/theme/ThemeProvider'
 
-export default function VerifyPage() {
+function VerifyContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
@@ -166,6 +166,20 @@ export default function VerifyPage() {
         </form>
       </div>
     </div>
+  )
+}
+
+export default function VerifyPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="page-shell flex items-center justify-center py-12">
+          <div className="text-xl">Loading verification form…</div>
+        </div>
+      }
+    >
+      <VerifyContent />
+    </Suspense>
   )
 }
 
