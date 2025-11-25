@@ -212,6 +212,8 @@ const countries = [
   { name: 'Zimbabwe', dialCode: '+263' },
 ] as const
 
+type CountryDialCode = (typeof countries)[number]['dialCode']
+
 export default function RegisterPage() {
   const [formData, setFormData] = useState({
     name: '',
@@ -220,7 +222,7 @@ export default function RegisterPage() {
     confirmPassword: '',
     role: 'PATIENT' as 'PATIENT' | 'DOCTOR' | 'ADMIN',
     phone: '',
-    countryCode: countries[0].dialCode,
+    countryCode: countries[0].dialCode as CountryDialCode,
     adminAccessCode: '',
     licenseNumber: '',
     specialization: ''
@@ -385,7 +387,12 @@ export default function RegisterPage() {
                 <select
                   id="country-code"
                   value={formData.countryCode}
-                  onChange={(e) => setFormData({ ...formData, countryCode: e.target.value })}
+                  onChange={(e) =>
+                    setFormData({
+                      ...formData,
+                      countryCode: e.target.value as CountryDialCode
+                    })
+                  }
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-black bg-transparent"
                 >
                   {countries.map((country) => (
