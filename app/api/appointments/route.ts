@@ -7,7 +7,7 @@ import { sendAppointmentReminder } from '@/lib/sms'
 export async function GET(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session) {
+    if (!session?.user?.id) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
@@ -57,7 +57,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || session.user.role !== 'PATIENT') {
+    if (!session?.user?.id || session.user.role !== 'PATIENT') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 

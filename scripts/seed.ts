@@ -114,11 +114,18 @@ async function createUsers() {
 
   const password = await bcrypt.hash('Password123!', 10)
 
+  const verifiedUserDefaults = {
+    password,
+    isVerified: true,
+    verificationCode: null as string | null,
+    verificationExpires: null as Date | null
+  }
+
   const admin = await prisma.user.create({
     data: {
+      ...verifiedUserDefaults,
       name: 'Amelia Admin',
       email: 'admin@remodoc.app',
-      password,
       role: UserRole.ADMIN,
       phone: '+15555550100'
     }
@@ -126,9 +133,9 @@ async function createUsers() {
 
   const patient = await prisma.user.create({
     data: {
+      ...verifiedUserDefaults,
       name: 'Peter Patient',
       email: 'patient@remodoc.app',
-      password,
       role: UserRole.PATIENT,
       phone: '+15555550101',
       patientProfile: {
@@ -149,9 +156,9 @@ async function createUsers() {
 
   const patientInternational = await prisma.user.create({
     data: {
+      ...verifiedUserDefaults,
       name: 'Keisha Kamau',
       email: 'patient.ke@remodoc.app',
-      password,
       role: UserRole.PATIENT,
       phone: '+254712000123',
       patientProfile: {
@@ -172,9 +179,9 @@ async function createUsers() {
 
   const doctor = await prisma.user.create({
     data: {
+      ...verifiedUserDefaults,
       name: 'Derek Doctor',
       email: 'doctor@remodoc.app',
-      password,
       role: UserRole.DOCTOR,
       phone: '+15555550102',
       doctorProfile: {
@@ -196,9 +203,9 @@ async function createUsers() {
 
   const doctorTelemed = await prisma.user.create({
     data: {
+      ...verifiedUserDefaults,
       name: 'Dr. Noor Qureshi',
       email: 'doctor.global@remodoc.app',
-      password,
       role: UserRole.DOCTOR,
       phone: '+447700900321',
       doctorProfile: {

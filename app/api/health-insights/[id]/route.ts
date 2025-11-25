@@ -5,8 +5,11 @@ import { prisma } from '@/lib/prisma'
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
+  // 1. Await the params object
+  const params = await props.params;
+
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -15,6 +18,7 @@ export async function PATCH(
   const { read } = await req.json()
 
   try {
+    // 2. Use the resolved params.id
     const insight = await prisma.healthInsight.update({
       where: { id: params.id },
       data: { read }
@@ -26,4 +30,3 @@ export async function PATCH(
     return NextResponse.json({ error: 'Failed to update insight' }, { status: 500 })
   }
 }
-

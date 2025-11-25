@@ -5,14 +5,18 @@ import { prisma } from '@/lib/prisma'
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> } // FIX: Change to use Promise type
 ) {
+  // FIX: Await the params object
+  const params = await props.params;
+
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
   try {
+    // Use the resolved params.id
     const record = await prisma.healthRecord.findUnique({
       where: { id: params.id }
     })
@@ -29,4 +33,3 @@ export async function GET(
     return NextResponse.json({ error: 'Failed to download health record' }, { status: 500 })
   }
 }
-
