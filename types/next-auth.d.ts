@@ -8,6 +8,8 @@ declare module 'next-auth' {
       name: string
       role: string
       isVerified?: boolean
+      doctorProfile?: any
+      patientProfile?: any
     }
   }
 
