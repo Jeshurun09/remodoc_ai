@@ -56,7 +56,18 @@ export default function AILogs() {
         </div>
       ) : (
         <div className="space-y-4">
-          {logs.map((log) => (
+          {logs.map((log) => {
+            let formattedOutput = log.output || 'No output recorded.'
+            try {
+              if (log.output?.trim()) {
+                formattedOutput = JSON.stringify(JSON.parse(log.output), null, 2)
+              }
+            } catch {
+              // keep raw string when not valid JSON
+              formattedOutput = log.output
+            }
+
+            return (
             <div
               key={log.id}
               className="bg-white border border-gray-200 rounded-lg p-6"
@@ -103,11 +114,12 @@ export default function AILogs() {
                   View Full Output
                 </summary>
                 <pre className="mt-2 bg-gray-50 p-4 rounded text-xs overflow-auto max-h-64">
-                  {JSON.stringify(JSON.parse(log.output || '{}'), null, 2)}
+                  {formattedOutput}
                 </pre>
               </details>
             </div>
-          ))}
+            )
+          })}
         </div>
       )}
     </div>
