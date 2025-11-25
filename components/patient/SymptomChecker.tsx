@@ -7,12 +7,22 @@ interface SymptomCheckerProps {
   location: { lat: number; lng: number } | null
 }
 
+type UrgencyLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL'
+
+interface AnalysisResult {
+  urgency: UrgencyLevel
+  analysis?: {
+    likelyConditions?: string[]
+    careAdvice?: string
+  }
+}
+
 export default function SymptomChecker({ location }: SymptomCheckerProps) {
   const [symptoms, setSymptoms] = useState('')
   const [image, setImage] = useState<File | null>(null)
   const [imagePreview, setImagePreview] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
-  const [result, setResult] = useState<any>(null)
+  const [result, setResult] = useState<AnalysisResult | null>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { transcript, listening, startListening, stopListening, resetTranscript } = useSpeechRecognitionHook()
 
@@ -70,7 +80,7 @@ export default function SymptomChecker({ location }: SymptomCheckerProps) {
     }
   }
 
-  const urgencyColors = {
+  const urgencyColors: Record<UrgencyLevel, string> = {
     LOW: 'bg-green-100 text-green-800',
     MEDIUM: 'bg-yellow-100 text-yellow-800',
     HIGH: 'bg-orange-100 text-orange-800',
