@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { signIn } from 'next-auth/react'
 
@@ -9,7 +9,7 @@ interface InviteInfo {
   role: string
 }
 
-export default function InviteAcceptPage() {
+function InviteAcceptContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const token = searchParams.get('token')
@@ -212,6 +212,20 @@ export default function InviteAcceptPage() {
         </form>
       </div>
     </div>
+  )
+}
+
+export default function InviteAcceptPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="page-shell flex items-center justify-center">
+          <div className="text-xl">Loading invitation…</div>
+        </div>
+      }
+    >
+      <InviteAcceptContent />
+    </Suspense>
   )
 }
 
