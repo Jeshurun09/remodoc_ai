@@ -22,18 +22,31 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     if (status === 'unauthenticated') {
-      router.push('/login')
+      router.replace('/login')
+      return
     }
     if (status === 'authenticated' && session?.user.role !== 'ADMIN') {
-      router.push('/dashboard')
+      router.replace('/dashboard')
+      return
     }
   }, [status, session, router])
 
+  // Don't render if not authenticated or wrong role
   if (status === 'loading') {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>
+    return (
+      <div className="page-shell flex items-center justify-center">
+        <div className="text-xl">Loading...</div>
+      </div>
+    )
   }
 
-  if (!session) return null
+  if (status === 'unauthenticated' || !session) {
+    return null
+  }
+
+  if (session.user.role !== 'ADMIN') {
+    return null
+  }
 
   return (
     <div className="page-shell">

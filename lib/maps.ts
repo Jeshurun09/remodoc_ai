@@ -79,13 +79,10 @@ export function getDirectionsUrl(
   originLat?: number,
   originLng?: number
 ): string {
-  const dest = `${destinationLat},${destinationLng}`
   if (originLat != null && originLng != null) {
-    const origin = `${originLat},${originLng}`
-    return `https://www.google.com/maps/dir/?api=1&origin=${encodeURIComponent(origin)}&destination=${encodeURIComponent(dest)}&travelmode=driving`
+    return `https://www.google.com/maps/dir/?api=1&origin=${originLat},${originLng}&destination=${destinationLat},${destinationLng}`
   }
 
-  // If no origin, open the place on Google Maps
-  return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(dest)}`
+  return `https://www.google.com/maps/search/?api=1&query=${destinationLat},${destinationLng}`
 }
 

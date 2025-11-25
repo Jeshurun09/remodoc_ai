@@ -3,9 +3,10 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
-export async function POST(req: NextRequest, context: { params: Promise<{ id: string }> }) {
-  const params = await context.params
-  const id = params.id
+export async function POST(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -13,7 +14,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
 
   try {
     const record = await prisma.healthRecord.findUnique({
-      where: { id }
+      where: { id: params.id }
     })
 
     if (!record || record.userId !== session.user.id) {
@@ -21,7 +22,7 @@ export async function POST(req: NextRequest, context: { params: Promise<{ id: st
     }
 
     // Generate a shareable link (in production, use a secure token)
-    const shareUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/share/record/${id}?token=${Buffer.from(`${session.user.id}:${id}`).toString('base64')}`
+    const shareUrl = `${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/share/record/${params.id}?token=${Buffer.from(`${session.user.id}:${params.id}`).toString('base64')}`
 
     return NextResponse.json({ shareUrl })
   } catch (error) {

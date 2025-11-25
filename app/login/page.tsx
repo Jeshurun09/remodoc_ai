@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { signIn } from 'next-auth/react'
+import { signIn, getSession } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useTheme } from '@/components/theme/ThemeProvider'
@@ -12,7 +12,6 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false)
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
-  
   const router = useRouter()
   const { isDark, setTheme } = useTheme()
 
@@ -42,7 +41,16 @@ export default function LoginPage() {
         } else {
           localStorage.removeItem('remodoc-remember-email')
         }
-        router.push('/dashboard')
+        // Wait for session to be fully populated with role
+        let attempts = 0
+        let session = await getSession()
+        while (attempts < 5 && (!session?.user?.role)) {
+          await new Promise(resolve => setTimeout(resolve, 200))
+          session = await getSession()
+          attempts++
+        }
+        // Use window.location for a hard redirect to ensure session is refreshed
+        window.location.href = '/dashboard'
       }
     } catch (err) {
       setError('An error occurred. Please try again.')
@@ -50,8 +58,6 @@ export default function LoginPage() {
       setLoading(false)
     }
   }
-
-  
 
   // Load remembered email on mount
   useEffect(() => {
@@ -144,8 +150,6 @@ export default function LoginPage() {
             {loading ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
-
-        
 
         <div className="mt-6 text-center text-[var(--foreground)]">
           <p className="text-sm">

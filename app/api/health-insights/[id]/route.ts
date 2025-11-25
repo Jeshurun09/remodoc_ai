@@ -3,9 +3,10 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
-export async function PATCH(req: NextRequest, context: { params: Promise<{ id: string }> }) {
-  const params = await context.params
-  const id = params.id
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
@@ -15,7 +16,7 @@ export async function PATCH(req: NextRequest, context: { params: Promise<{ id: s
 
   try {
     const insight = await prisma.healthInsight.update({
-      where: { id },
+      where: { id: params.id },
       data: { read }
     })
 

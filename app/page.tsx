@@ -67,7 +67,7 @@ export default function Home() {
           </h1>
           <p className="text-xl text-[var(--foreground)]/80 mb-8 max-w-2xl mx-auto">
             Smart symptom checking, location-based care, and secure medical workflows
-            powered by Gemini AI and Leaflet maps (OpenStreetMap)
+            powered by Gemini AI and Google Maps
           </p>
           <div className="flex justify-center space-x-4">
             <Link
@@ -129,9 +129,9 @@ export default function Home() {
               </p>
             </div>
             <div>
-              <h3 className={`font-semibold mb-2 ${sectionHeaderClass}`}>🗺️ Leaflet Maps</h3>
+              <h3 className={`font-semibold mb-2 ${sectionHeaderClass}`}>🗺️ Google Maps</h3>
               <p className="text-[var(--foreground)]/80">
-                Hospital discovery, directions, and emergency routing with OpenStreetMap data
+                Hospital discovery, directions, and emergency routing with Google Maps integration
               </p>
             </div>
           </div>

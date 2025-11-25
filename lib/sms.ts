@@ -22,7 +22,7 @@ export async function sendEmergencySMS(
 ): Promise<void> {
   try {
     const locationText = location
-      ? `\nLocation: https://www.openstreetmap.org/?mlat=${location.lat}&mlon=${location.lng}`
+      ? `\nLocation: https://www.google.com/maps/search/?api=1&query=${location.lat},${location.lng}`
       : ''
 
     await sendSMS(

@@ -1,12 +1,13 @@
 'use client'
 
 import { FormEvent, useEffect, useState } from 'react'
-import { useRouter } from 'next/navigation'
-import { signIn } from 'next-auth/react'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { signIn, getSession } from 'next-auth/react'
 import { useTheme } from '@/components/theme/ThemeProvider'
 
 export default function VerifyPage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [email, setEmail] = useState('')
   const [code, setCode] = useState('')
   const [error, setError] = useState('')
@@ -20,13 +21,11 @@ export default function VerifyPage() {
   }
 
   useEffect(() => {
-    // Read query params from the browser URL to avoid `useSearchParams` prerender bailout
-    if (typeof window !== 'undefined') {
-      const urlParams = new URLSearchParams(window.location.search)
-      const paramEmail = urlParams.get('email')
-      if (paramEmail) setEmail(paramEmail)
+    const paramEmail = searchParams.get('email')
+    if (paramEmail) {
+      setEmail(paramEmail)
     }
-  }, [])
+  }, [searchParams])
 
   const handleVerify = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -71,7 +70,16 @@ export default function VerifyPage() {
         if (signInResult?.error) {
           setAutoSigninError('Verified, but automatic sign-in failed. Please sign in manually.')
         } else {
-          router.push('/dashboard')
+          // Wait for session to be fully populated with role
+          let attempts = 0
+          let session = await getSession()
+          while (attempts < 5 && (!session?.user?.role)) {
+            await new Promise(resolve => setTimeout(resolve, 200))
+            session = await getSession()
+            attempts++
+          }
+          // Use window.location for a hard redirect to ensure session is refreshed
+          window.location.href = '/dashboard'
           return
         }
       } else {
