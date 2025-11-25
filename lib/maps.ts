@@ -1,3 +1,5 @@
+import type { Prisma } from '@prisma/client'
+
 export interface HospitalLocation {
   id: string
   name: string
@@ -9,6 +11,8 @@ export interface HospitalLocation {
   specialties: string[]
 }
 
+type PrismaHospital = Prisma.HospitalGetPayload<{}>
+
 export async function findNearestHospitals(
   lat: number,
   lng: number,
@@ -19,7 +23,7 @@ export async function findNearestHospitals(
   // For now, we'll query the database and compute distances locally.
   const { prisma } = await import('./prisma')
   
-  const hospitals = await prisma.hospital.findMany({
+  const hospitals: PrismaHospital[] = await prisma.hospital.findMany({
     where: {
       active: true,
       ...(emergencyOnly && { emergency: true })
@@ -27,7 +31,7 @@ export async function findNearestHospitals(
   })
 
   // Calculate distances and sort
-  const hospitalsWithDistance = hospitals.map(hospital => {
+  const hospitalsWithDistance = hospitals.map((hospital) => {
     const distance = calculateDistance(
       lat,
       lng,
