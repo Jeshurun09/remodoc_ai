@@ -5,8 +5,11 @@ import { prisma } from '@/lib/prisma'
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  props: { params: Promise<{ id: string }> }
 ) {
+  // 1. Await the params object before accessing properties
+  const params = await props.params
+  
   try {
     const session = await getServerSession(authOptions)
     if (!session) {
@@ -16,8 +19,9 @@ export async function PATCH(
     const body = await req.json()
     const { status, notes } = body
 
+    // 2. Use the resolved params.id
     const appointment = await prisma.appointment.findUnique({
-      where: { id: params.id },
+      where: { id: params.id }, 
       include: {
         patient: { include: { user: true } },
         doctor: { include: { user: true } },
@@ -48,6 +52,7 @@ export async function PATCH(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
+    // 3. Use the resolved params.id here as well
     const updated = await prisma.appointment.update({
       where: { id: params.id },
       data: {
@@ -70,4 +75,3 @@ export async function PATCH(
     )
   }
 }
-
