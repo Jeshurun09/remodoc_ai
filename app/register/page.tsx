@@ -218,9 +218,10 @@ export default function RegisterPage() {
     email: '',
     password: '',
     confirmPassword: '',
-    role: 'PATIENT' as 'PATIENT' | 'DOCTOR',
+    role: 'PATIENT' as 'PATIENT' | 'DOCTOR' | 'ADMIN',
     phone: '',
     countryCode: countries[0].dialCode,
+    adminAccessCode: '',
     licenseNumber: '',
     specialization: ''
   })
@@ -258,8 +259,8 @@ export default function RegisterPage() {
     }
 
     // Validate phone format (if provided)
-    if (formData.phone && !/^[\d+\s()-]+$/.test(formData.phone.trim())) {
-      setError('Phone number should only contain digits and formatting characters (+, spaces, hyphens, parentheses)')
+    if (formData.phone && !/^[\d\s()-]+$/.test(formData.phone.trim())) {
+      setError('Phone number should only contain digits and formatting characters (spaces, hyphens, parentheses)')
       return
     }
 
@@ -305,6 +306,7 @@ export default function RegisterPage() {
         role: 'PATIENT',
         phone: '',
         countryCode: countries[0].dialCode,
+        adminAccessCode: '',
         licenseNumber: '',
         specialization: ''
       })
@@ -418,13 +420,33 @@ export default function RegisterPage() {
             </label>
             <select
               value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value as 'PATIENT' | 'DOCTOR' })}
+              onChange={(e) => setFormData({ ...formData, role: e.target.value as 'PATIENT' | 'DOCTOR' | 'ADMIN' })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-red-600 bg-transparent"
             >
               <option value="PATIENT">Patient</option>
               <option value="DOCTOR">Doctor</option>
+              <option value="ADMIN">Admin</option>
             </select>
           </div>
+
+          {formData.role === 'ADMIN' && (
+            <div>
+              <label className="block text-sm font-medium text-red-600 mb-2">
+                Admin Access Code
+              </label>
+              <input
+                type="password"
+                value={formData.adminAccessCode}
+                onChange={(e) => setFormData({ ...formData, adminAccessCode: e.target.value })}
+                required
+                placeholder="Enter the admin access code"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-[var(--foreground)] bg-transparent"
+              />
+              <p className="text-xs text-[var(--foreground)]/70 mt-1">
+                Only authorized personnel should use this form. Contact the platform owner for the access code.
+              </p>
+            </div>
+          )}
 
           {formData.role === 'DOCTOR' && (
             <>

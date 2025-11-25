@@ -75,6 +75,32 @@ async function createHospitals() {
       specialties: JSON.stringify(['Pediatrics', 'Family Medicine']),
       emergency: false,
       active: true
+    },
+    {
+      name: 'Savannah Heart Institute',
+      address: '19 Uhuru Highway',
+      city: 'Nairobi',
+      state: 'KE',
+      zipCode: '00100',
+      phone: '+254 700 555 010',
+      latitude: -1.286389,
+      longitude: 36.817223,
+      specialties: JSON.stringify(['Cardiology', 'Telemedicine', 'Emergency']),
+      emergency: true,
+      active: true
+    },
+    {
+      name: 'Pacific Wellness Center',
+      address: '880 Market Street',
+      city: 'San Francisco',
+      state: 'CA',
+      zipCode: '94102',
+      phone: '(415) 555-1010',
+      latitude: 37.7842,
+      longitude: -122.407,
+      specialties: JSON.stringify(['Dermatology', 'IoT Monitoring', 'Telemedicine']),
+      emergency: false,
+      active: true
     }
   ]
 
@@ -121,6 +147,29 @@ async function createUsers() {
     }
   })
 
+  const patientInternational = await prisma.user.create({
+    data: {
+      name: 'Keisha Kamau',
+      email: 'patient.ke@remodoc.app',
+      password,
+      role: UserRole.PATIENT,
+      phone: '+254712000123',
+      patientProfile: {
+        create: {
+          dob: new Date('1989-08-22'),
+          address: 'Westlands, Nairobi, Kenya',
+          emergencyContact: 'Lulu Kamau',
+          emergencyPhone: '+254733111222',
+          bloodType: 'A-',
+          allergies: 'Penicillin'
+        }
+      }
+    },
+    include: {
+      patientProfile: true
+    }
+  })
+
   const doctor = await prisma.user.create({
     data: {
       name: 'Derek Doctor',
@@ -137,6 +186,30 @@ async function createUsers() {
           verifiedAt: new Date(),
           verifiedBy: admin.id,
           hospital: 'Metro General Hospital'
+        }
+      }
+    },
+    include: {
+      doctorProfile: true
+    }
+  })
+
+  const doctorTelemed = await prisma.user.create({
+    data: {
+      name: 'Dr. Noor Qureshi',
+      email: 'doctor.global@remodoc.app',
+      password,
+      role: UserRole.DOCTOR,
+      phone: '+447700900321',
+      doctorProfile: {
+        create: {
+          licenseNumber: 'DOC-55882',
+          specialization: 'Neurology',
+          yearsExperience: 11,
+          verificationStatus: DoctorVerificationStatus.VERIFIED,
+          verifiedAt: new Date(),
+          verifiedBy: admin.id,
+          hospital: 'Savannah Heart Institute'
         }
       }
     },
@@ -164,21 +237,193 @@ async function createUsers() {
     }
   })
 
-  return { admin, patient, doctor }
+  await (prisma as any).subscription.create({
+    data: {
+      userId: patientInternational.id,
+      plan: 'STUDENT',
+      status: 'ACTIVE',
+      endDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 45),
+      paymentMethod: 'mpesa'
+    }
+  })
+
+  await (prisma as any).subscription.create({
+    data: {
+      userId: doctorTelemed.id,
+      plan: 'SMALL_GROUP',
+      status: 'ACTIVE',
+      endDate: new Date(Date.now() + 1000 * 60 * 60 * 24 * 60),
+      paymentMethod: 'stripe'
+    }
+  })
+
+  return { admin, patients: [patient, patientInternational], doctors: [doctor, doctorTelemed] }
 }
 
-async function createMedicalData(patientId: string, doctorId: string, patientProfileId: string) {
+type MedicalDataOverrides = {
+  symptoms?: string
+  urgency?: UrgencyLevel
+  likelyConditions?: string[]
+  careAdvice?: string
+  locationLat?: number
+  locationLng?: number
+  appointmentNotes?: string
+  medication?: string
+  medicationInstructions?: string
+  aiInput?: string
+  aiOutput?: string
+  healthRecords?: Array<{
+    title: string
+    description: string
+    recordType: string
+    fileUrl: string
+  }>
+  vitalsRecords?: Array<{
+    heartRate: number
+    spO2: number
+    bloodPressureSystolic: number
+    bloodPressureDiastolic: number
+    temperature: number
+    glucose?: number
+    deviceType: string
+    deviceName: string
+    recordedAt: Date
+  }>
+  insightsRecords?: Array<{
+    type: 'tip' | 'alert' | 'reminder'
+    title: string
+    content: string
+    source: string
+  }>
+  lifestyleRecords?: Array<{
+    date: Date
+    sleepHours: number
+    hydration: number
+    steps: number
+    activityMinutes: number
+    notes: string
+  }>
+}
+
+async function createMedicalData(
+  patientId: string,
+  doctorId: string,
+  patientProfileId: string,
+  overrides: MedicalDataOverrides = {}
+) {
   console.log('📋 Creating medical records...')
+
+  const defaults: Required<MedicalDataOverrides> & {
+    symptoms: string
+    careAdvice: string
+    locationLat: number
+    locationLng: number
+    appointmentNotes: string
+    medication: string
+    medicationInstructions: string
+    aiInput: string
+    aiOutput: string
+  } = {
+    symptoms: 'Chest pain with occasional shortness of breath during mild exercise.',
+    urgency: UrgencyLevel.HIGH,
+    likelyConditions: ['Angina', 'Anxiety'],
+    careAdvice: 'Schedule cardiac stress test and monitor vitals. Avoid strenuous activity.',
+    locationLat: 40.741,
+    locationLng: -73.989,
+    appointmentNotes: 'Discuss lab results and stress test preparation.',
+    medication: 'Atorvastatin 20mg',
+    medicationInstructions: 'Take with evening meal',
+    aiInput: 'Having recurring chest discomfort and slight dizziness.',
+    aiOutput: 'Recommended immediate teleconsultation and provided breathing exercises.',
+    healthRecords: [
+      {
+        title: 'Blood Test Results - March 2024',
+        description: 'Complete blood count and lipid panel',
+        recordType: 'lab_result',
+        fileUrl: '/uploads/blood-test-march-2024.pdf'
+      },
+      {
+        title: 'Chest X-Ray',
+        description: 'Routine chest X-ray examination',
+        recordType: 'image',
+        fileUrl: '/uploads/chest-xray.jpg'
+      }
+    ],
+    vitalsRecords: [
+      {
+        heartRate: 72,
+        spO2: 98,
+        bloodPressureSystolic: 120,
+        bloodPressureDiastolic: 80,
+        temperature: 98.6,
+        glucose: 95,
+        deviceType: 'smartwatch',
+        deviceName: 'Apple Watch Series 9',
+        recordedAt: new Date()
+      },
+      {
+        heartRate: 75,
+        spO2: 97,
+        bloodPressureSystolic: 118,
+        bloodPressureDiastolic: 78,
+        temperature: 98.4,
+        glucose: 92,
+        deviceType: 'fitness_band',
+        deviceName: 'Fitbit Charge 6',
+        recordedAt: new Date(Date.now() - 1000 * 60 * 60 * 24)
+      }
+    ],
+    insightsRecords: [
+      {
+        type: 'tip',
+        title: 'Stay Hydrated',
+        content: 'Drink at least 8 glasses of water daily to maintain optimal health and support cardiovascular function.',
+        source: 'WHO'
+      },
+      {
+        type: 'alert',
+        title: 'Flu Season Alert',
+        content: 'CDC reports increased flu activity in your area. Consider getting vaccinated to protect yourself.',
+        source: 'CDC'
+      },
+      {
+        type: 'reminder',
+        title: 'Medication Reminder',
+        content: 'Remember to take your Atorvastatin with your evening meal as prescribed.',
+        source: 'AI'
+      }
+    ],
+    lifestyleRecords: [
+      {
+        date: new Date(),
+        sleepHours: 7.5,
+        hydration: 2000,
+        steps: 8500,
+        activityMinutes: 35,
+        notes: 'Good day, felt energetic after morning walk'
+      },
+      {
+        date: new Date(Date.now() - 1000 * 60 * 60 * 24),
+        sleepHours: 8,
+        hydration: 1800,
+        steps: 10200,
+        activityMinutes: 45,
+        notes: 'Completed 10k steps goal!'
+      }
+    ]
+  }
+
+  const settings = { ...defaults, ...overrides }
 
   const symptomReport = await prisma.symptomReport.create({
     data: {
       patientId: patientProfileId!,
-      symptoms: 'Chest pain with occasional shortness of breath during mild exercise.',
-      urgency: UrgencyLevel.HIGH,
-      likelyConditions: JSON.stringify(['Angina', 'Anxiety']),
-      careAdvice: 'Schedule cardiac stress test and monitor vitals. Avoid strenuous activity.',
-      locationLat: 40.741,
-      locationLng: -73.989,
+      symptoms: settings.symptoms,
+      urgency: settings.urgency!,
+      likelyConditions: JSON.stringify(settings.likelyConditions),
+      careAdvice: settings.careAdvice,
+      locationLat: settings.locationLat,
+      locationLng: settings.locationLng,
       aiAnalysis: JSON.stringify({
         riskScore: 0.74,
         recommendations: ['Schedule in-person visit', 'Collect vitals daily']
@@ -201,9 +446,9 @@ async function createMedicalData(patientId: string, doctorId: string, patientPro
     data: {
       doctorId,
       patientId: patientProfileId!,
-      medication: 'Atorvastatin 20mg',
+      medication: settings.medication,
       dosage: '1 tablet daily',
-      instructions: 'Take with evening meal',
+      instructions: settings.medicationInstructions,
       startDate: new Date(),
       endDate: null
     }
@@ -230,8 +475,8 @@ async function createMedicalData(patientId: string, doctorId: string, patientPro
     data: {
       userId: patientId,
       inputType: 'text',
-      input: 'Having recurring chest discomfort and slight dizziness.',
-      output: 'Recommended immediate teleconsultation and provided breathing exercises.',
+      input: settings.aiInput,
+      output: settings.aiOutput,
       model: 'gemini-pro',
       tokensUsed: 294,
       latency: 1200
@@ -255,116 +500,46 @@ async function createMedicalData(patientId: string, doctorId: string, patientPro
   console.log('💎 Creating premium feature data...')
 
   // Health Records
-  await (prisma as any).healthRecord.create({
-    data: {
-      userId: patientId,
-      title: 'Blood Test Results - March 2024',
-      description: 'Complete blood count and lipid panel',
-      recordType: 'lab_result',
-      fileUrl: '/uploads/blood-test-march-2024.pdf',
-      encrypted: true
-    }
-  })
-
-  await (prisma as any).healthRecord.create({
-    data: {
-      userId: patientId,
-      title: 'Chest X-Ray',
-      description: 'Routine chest X-ray examination',
-      recordType: 'image',
-      fileUrl: '/uploads/chest-xray.jpg',
-      encrypted: true
-    }
-  })
+  for (const record of settings.healthRecords) {
+    await (prisma as any).healthRecord.create({
+      data: {
+        userId: patientId,
+        ...record,
+        encrypted: true
+      }
+    })
+  }
 
   // Vitals Data
-  await (prisma as any).vitalsData.create({
-    data: {
-      userId: patientId,
-      heartRate: 72,
-      spO2: 98,
-      bloodPressureSystolic: 120,
-      bloodPressureDiastolic: 80,
-      temperature: 98.6,
-      glucose: 95,
-      deviceType: 'smartwatch',
-      deviceName: 'Apple Watch Series 9',
-      recordedAt: new Date()
-    }
-  })
-
-  await (prisma as any).vitalsData.create({
-    data: {
-      userId: patientId,
-      heartRate: 75,
-      spO2: 97,
-      bloodPressureSystolic: 118,
-      bloodPressureDiastolic: 78,
-      temperature: 98.4,
-      deviceType: 'fitness_band',
-      deviceName: 'Fitbit Charge 6',
-      recordedAt: new Date(Date.now() - 1000 * 60 * 60 * 24) // Yesterday
-    }
-  })
+  for (const record of settings.vitalsRecords) {
+    await (prisma as any).vitalsData.create({
+      data: {
+        userId: patientId,
+        ...record
+      }
+    })
+  }
 
   // Health Insights
-  await (prisma as any).healthInsight.create({
-    data: {
-      userId: patientId,
-      type: 'tip',
-      title: 'Stay Hydrated',
-      content: 'Drink at least 8 glasses of water daily to maintain optimal health and support cardiovascular function.',
-      source: 'WHO',
-      read: false
-    }
-  })
-
-  await (prisma as any).healthInsight.create({
-    data: {
-      userId: patientId,
-      type: 'alert',
-      title: 'Flu Season Alert',
-      content: 'CDC reports increased flu activity in your area. Consider getting vaccinated to protect yourself.',
-      source: 'CDC',
-      read: false
-    }
-  })
-
-  await (prisma as any).healthInsight.create({
-    data: {
-      userId: patientId,
-      type: 'reminder',
-      title: 'Medication Reminder',
-      content: 'Remember to take your Atorvastatin with your evening meal as prescribed.',
-      source: 'AI',
-      read: false
-    }
-  })
+  for (const record of settings.insightsRecords) {
+    await (prisma as any).healthInsight.create({
+      data: {
+        userId: patientId,
+        ...record,
+        read: false
+      }
+    })
+  }
 
   // Lifestyle Tracking
-  await (prisma as any).lifestyleTracking.create({
-    data: {
-      userId: patientId,
-      date: new Date(),
-      sleepHours: 7.5,
-      hydration: 2000,
-      steps: 8500,
-      activityMinutes: 35,
-      notes: 'Good day, felt energetic after morning walk'
-    }
-  })
-
-  await (prisma as any).lifestyleTracking.create({
-    data: {
-      userId: patientId,
-      date: new Date(Date.now() - 1000 * 60 * 60 * 24), // Yesterday
-      sleepHours: 8,
-      hydration: 1800,
-      steps: 10200,
-      activityMinutes: 45,
-      notes: 'Completed 10k steps goal!'
-    }
-  })
+  for (const record of settings.lifestyleRecords) {
+    await (prisma as any).lifestyleTracking.create({
+      data: {
+        userId: patientId,
+        ...record
+      }
+    })
+  }
 
   console.log(`✅ Created appointment ${appointment.id} and linked records.`)
 }
@@ -374,12 +549,99 @@ async function main() {
 
   try {
     await createHospitals()
-    const { patient, doctor } = await createUsers()
-    const patientProfileId = (patient as any).patientProfile?.id
-    if (!patientProfileId) {
-      throw new Error('Patient profile was not created')
+    const { patients, doctors } = await createUsers()
+    const [primaryPatient, internationalPatient] = patients
+    const [primaryDoctor, telemedDoctor] = doctors
+
+    const primaryProfileId = (primaryPatient as any).patientProfile?.id
+    const internationalProfileId = (internationalPatient as any).patientProfile?.id
+
+    if (!primaryProfileId || !internationalProfileId) {
+      throw new Error('Patient profiles were not created')
     }
-    await createMedicalData(patient.id, doctor.id, patientProfileId)
+
+    await createMedicalData(primaryPatient.id, primaryDoctor.id, primaryProfileId)
+    await createMedicalData(internationalPatient.id, telemedDoctor.id, internationalProfileId, {
+      symptoms: 'Persistent migraines with occasional blurred vision.',
+      urgency: UrgencyLevel.MEDIUM,
+      likelyConditions: ['Migraine', 'Hypertension'],
+      careAdvice: 'Track triggers, maintain hydration, schedule neuro consult.',
+      locationLat: -1.2921,
+      locationLng: 36.8219,
+      appointmentNotes: 'Evaluate impact of migraines on work schedule.',
+      medication: 'Sumatriptan 50mg',
+      medicationInstructions: 'Take at migraine onset. Do not exceed 2 tablets per day.',
+      aiInput: 'Severe headaches twice a week with sensitivity to light.',
+      aiOutput: 'Suggested keeping a migraine diary and practicing guided breathing.',
+      healthRecords: [
+        {
+          title: 'MRI Brain Scan',
+          description: 'Baseline MRI to rule out structural issues',
+          recordType: 'image',
+          fileUrl: '/uploads/mri-brain.jpg'
+        },
+        {
+          title: 'Allergy Panel',
+          description: 'Identified mild dust allergy',
+          recordType: 'lab_result',
+          fileUrl: '/uploads/allergy-panel.pdf'
+        }
+      ],
+      vitalsRecords: [
+        {
+          heartRate: 68,
+          spO2: 99,
+          bloodPressureSystolic: 115,
+          bloodPressureDiastolic: 76,
+          temperature: 98.2,
+          deviceType: 'smart_ring',
+          deviceName: 'Oura Ring 3',
+          recordedAt: new Date()
+        },
+        {
+          heartRate: 70,
+          spO2: 98,
+          bloodPressureSystolic: 117,
+          bloodPressureDiastolic: 77,
+          temperature: 98.1,
+          deviceType: 'smartwatch',
+          deviceName: 'Samsung Galaxy Watch 6',
+          recordedAt: new Date(Date.now() - 1000 * 60 * 60 * 12)
+        }
+      ],
+      insightsRecords: [
+        {
+          type: 'tip',
+          title: 'Blue Light Breaks',
+          content: 'Use 20-20-20 rule when working on screens to reduce migraine triggers.',
+          source: 'AI Coach'
+        },
+        {
+          type: 'alert',
+          title: 'High Pollen Count',
+          content: 'Outdoor pollen levels are high in Nairobi today. Keep antihistamines nearby.',
+          source: 'Met Office'
+        }
+      ],
+      lifestyleRecords: [
+        {
+          date: new Date(),
+          sleepHours: 6.5,
+          hydration: 1600,
+          steps: 6200,
+          activityMinutes: 20,
+          notes: 'Slept late finishing client deadline.'
+        },
+        {
+          date: new Date(Date.now() - 1000 * 60 * 60 * 24),
+          sleepHours: 7.2,
+          hydration: 2100,
+          steps: 9400,
+          activityMinutes: 30,
+          notes: 'Morning yoga helped reduce headache severity.'
+        }
+      ]
+    })
     console.log('🎉 Mock data seeded successfully!')
   } catch (err: any) {
     // Prisma requires replica set for transactions with MongoDB. If user runs a standalone server,

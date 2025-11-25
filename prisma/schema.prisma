@@ -272,3 +272,15 @@ model LifestyleTracking {
   notes       String?
   createdAt   DateTime @default(now())
 }
+
+model Invite {
+  id        String   @id @default(cuid()) @map("_id")
+  email     String
+  role      UserRole
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdBy String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}

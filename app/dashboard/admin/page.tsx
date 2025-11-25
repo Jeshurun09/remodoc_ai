@@ -15,6 +15,9 @@ export default function AdminDashboard() {
   const router = useRouter()
   const { isDark, setTheme } = useTheme()
   const [activeTab, setActiveTab] = useState<'doctors' | 'hospitals' | 'analytics' | 'logs'>('doctors')
+  const [inviteEmail, setInviteEmail] = useState('')
+  const [inviteStatus, setInviteStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
+  const [inviteLoading, setInviteLoading] = useState(false)
 
   const toggleTheme = () => {
     setTheme(isDark ? 'light' : 'dark')
@@ -46,6 +49,31 @@ export default function AdminDashboard() {
 
   if (session.user.role !== 'ADMIN') {
     return null
+  }
+
+  const handleSendInvite = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setInviteStatus(null)
+
+    try {
+      setInviteLoading(true)
+      const res = await fetch('/api/admin/invites', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: inviteEmail, role: 'ADMIN' })
+      })
+      const data = await res.json()
+      if (!res.ok) {
+        setInviteStatus({ type: 'error', message: data.error || 'Failed to send invite' })
+        return
+      }
+      setInviteEmail('')
+      setInviteStatus({ type: 'success', message: 'Invitation sent successfully.' })
+    } catch (error) {
+      setInviteStatus({ type: 'error', message: 'Failed to send invite. Try again later.' })
+    } finally {
+      setInviteLoading(false)
+    }
   }
 
   return (
@@ -83,7 +111,45 @@ export default function AdminDashboard() {
         </div>
       </nav>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+        <div className="surface rounded-lg shadow-sm p-6">
+          <h2 className="text-xl font-semibold text-[var(--foreground)] mb-2">Invite a new admin</h2>
+          <p className="text-sm text-[var(--foreground)]/70 mb-4">
+            Send a secure magic link to onboard trusted administrators.
+          </p>
+          <form onSubmit={handleSendInvite} className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-blue-600 mb-2">Admin Email</label>
+              <input
+                type="email"
+                value={inviteEmail}
+                onChange={(e) => setInviteEmail(e.target.value)}
+                required
+                className="w-full max-w-md px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-[var(--foreground)] bg-transparent"
+                placeholder="admin@example.com"
+              />
+            </div>
+            {inviteStatus && (
+              <div
+                className={`px-4 py-2 rounded ${
+                  inviteStatus.type === 'success'
+                    ? 'bg-green-50 text-green-700 border border-green-200'
+                    : 'bg-red-50 text-red-700 border border-red-200'
+                }`}
+              >
+                {inviteStatus.message}
+              </div>
+            )}
+            <button
+              type="submit"
+              disabled={inviteLoading}
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+            >
+              {inviteLoading ? 'Sending...' : 'Send Invite'}
+            </button>
+          </form>
+        </div>
+
         <div className="surface rounded-lg shadow-sm mb-6">
           <div className="border-b subtle-border">
             <nav className="flex -mb-px">

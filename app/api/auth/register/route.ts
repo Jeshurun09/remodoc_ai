@@ -13,7 +13,8 @@ export async function POST(req: NextRequest) {
       phone,
       role = 'PATIENT',
       licenseNumber,
-      specialization
+      specialization,
+      adminAccessCode
     } = body
 
     const normalizedEmail = (email as string | undefined)?.trim().toLowerCase()
@@ -25,11 +26,32 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    const allowedRoles = ['PATIENT', 'DOCTOR', 'ADMIN']
+    if (!allowedRoles.includes(role)) {
+      return NextResponse.json({ error: 'Invalid role selected' }, { status: 400 })
+    }
+
     if (role === 'DOCTOR' && (!licenseNumber || !specialization)) {
       return NextResponse.json(
         { error: 'License number and specialization are required for doctors' },
         { status: 400 }
       )
+    }
+
+    if (role === 'ADMIN') {
+      const adminSecret = process.env.ADMIN_REGISTRATION_CODE
+      if (!adminSecret) {
+        return NextResponse.json(
+          { error: 'Admin registration is not configured. Contact support.' },
+          { status: 500 }
+        )
+      }
+      if (!adminAccessCode || adminAccessCode !== adminSecret) {
+        return NextResponse.json(
+          { error: 'Invalid admin access code' },
+          { status: 403 }
+        )
+      }
     }
 
     // Check if user exists

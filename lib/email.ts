@@ -48,3 +48,35 @@ export async function sendVerificationEmail(to: string, code: string) {
   })
 }
 
+export async function sendInviteEmail(to: string, inviteLink: string, role: string) {
+  if (!host || !user || !pass || !from) {
+    throw new Error('Email transport is not configured. Please set SMTP_* and EMAIL_FROM env vars.')
+  }
+
+  const html = `
+    <div style="font-family: sans-serif; line-height: 1.6;">
+      <h2>RemoDoc ${role} Invitation</h2>
+      <p>Hello,</p>
+      <p>You have been invited to join RemoDoc as a <strong>${role.toLowerCase()}</strong>.</p>
+      <p>Click the button below to accept the invitation and set your password:</p>
+      <p>
+        <a href="${inviteLink}" style="display:inline-block;padding:12px 24px;background:#0ea5e9;color:#ffffff;
+        border-radius:6px;text-decoration:none;font-weight:bold;">Accept Invitation</a>
+      </p>
+      <p>If the button does not work, copy and paste this link into your browser:</p>
+      <p style="word-break:break-all;">${inviteLink}</p>
+      <p>This link will expire in 48 hours.</p>
+      <p>If you were not expecting this email, you can safely ignore it.</p>
+      <p>— The RemoDoc Team</p>
+    </div>
+  `
+
+  await transporter.sendMail({
+    to,
+    from,
+    subject: 'You have been invited to RemoDoc',
+    text: `You have been invited to join RemoDoc as a ${role}. Open the following link to accept: ${inviteLink}`,
+    html
+  })
+}
+
