@@ -2,7 +2,6 @@
 
 import { FormEvent, Suspense, useEffect, useState } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { signIn, getSession } from 'next-auth/react'
 import { useTheme } from '@/components/theme/ThemeProvider'
 
 function VerifyContent() {
@@ -13,7 +12,6 @@ function VerifyContent() {
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
-  const [autoSigninError, setAutoSigninError] = useState('')
   const { isDark, setTheme } = useTheme()
 
   const toggleTheme = () => {
@@ -31,7 +29,6 @@ function VerifyContent() {
     e.preventDefault()
     setError('')
     setSuccess('')
-    setAutoSigninError('')
     setLoading(true)
 
     try {
@@ -51,40 +48,17 @@ function VerifyContent() {
         return
       }
 
-      setSuccess('Email verified! Signing you in...')
+      setSuccess('Email verified! Redirecting you to the sign-in page...')
 
-      const stored = typeof window !== 'undefined'
-        ? sessionStorage.getItem('remodocPendingCredentials')
-        : null
-
-      if (stored) {
-        const { email: storedEmail, password } = JSON.parse(stored)
-        const signInResult = await signIn('credentials', {
-          email: storedEmail,
-          password,
-          redirect: false
-        })
-
+      // Clear any stored pending credentials since verification is complete
+      if (typeof window !== 'undefined') {
         sessionStorage.removeItem('remodocPendingCredentials')
-
-        if (signInResult?.error) {
-          setAutoSigninError('Verified, but automatic sign-in failed. Please sign in manually.')
-        } else {
-          // Wait for session to be fully populated with role
-          let attempts = 0
-          let session = await getSession()
-          while (attempts < 5 && (!session?.user?.role)) {
-            await new Promise(resolve => setTimeout(resolve, 200))
-            session = await getSession()
-            attempts++
-          }
-          // Use window.location for a hard redirect to ensure session is refreshed
-          window.location.href = '/dashboard'
-          return
-        }
-      } else {
-        setAutoSigninError('Verified! Please sign in with your credentials.')
       }
+
+      // Give the user a brief moment to read the success message, then go to login
+      setTimeout(() => {
+        router.push('/login')
+      }, 1200)
     } catch (err) {
       setError('Failed to verify code. Please try again.')
     } finally {
@@ -122,11 +96,6 @@ function VerifyContent() {
           {success && (
             <div className="bg-green-50 border border-green-200 text-green-800 px-4 py-3 rounded">
               {success}
-            </div>
-          )}
-          {autoSigninError && (
-            <div className="bg-yellow-50 border border-yellow-200 text-yellow-800 px-4 py-3 rounded">
-              {autoSigninError}
             </div>
           )}
 
