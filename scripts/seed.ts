@@ -4,16 +4,16 @@ import bcrypt from 'bcryptjs'
 import { randomUUID } from 'crypto'
 
 const prisma = new PrismaClient()
-const mongoUrl = process.env.MONGODB_URL
+const databaseUrl = process.env.DATABASE_URL
 
-if (!mongoUrl) {
-  throw new Error('MONGODB_URL is not defined. Please set it in your .env file.')
+if (!databaseUrl) {
+  throw new Error('DATABASE_URL is not defined. Please set it in your .env file.')
 }
 
 async function resetDatabase() {
   console.log('🧹 Clearing existing data (direct Mongo cleanup)...')
-  if (!mongoUrl) throw new Error('MONGODB_URL is required')
-  const client = new MongoClient(mongoUrl)
+  if (!databaseUrl) throw new Error('DATABASE_URL is required')
+  const client = new MongoClient(databaseUrl)
   const collections = [
     'AILog',
     'Message',
@@ -664,8 +664,8 @@ async function main() {
 
 async function seedViaMongoClient() {
   console.log('🧪 Seeding using MongoClient fallback...')
-  if (!mongoUrl) throw new Error('MONGODB_URL is required')
-  const client = new MongoClient(mongoUrl)
+  if (!databaseUrl) throw new Error('DATABASE_URL is required')
+  const client = new MongoClient(databaseUrl)
 
   try {
     await client.connect()
