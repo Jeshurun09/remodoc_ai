@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { signIn, getSession } from 'next-auth/react'
+import { signIn } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { useTheme } from '@/components/theme/ThemeProvider'
@@ -19,8 +19,7 @@ export default function LoginPage() {
     setTheme(isDark ? 'light' : 'dark')
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async () => {
     setError('')
     setLoading(true)
 
@@ -29,30 +28,30 @@ export default function LoginPage() {
         email,
         password,
         redirect: false,
-        callbackUrl: '/dashboard'
+        callbackUrl: '/dashboard',
       })
 
       if (result?.error) {
         setError(result.error || 'Invalid email or password')
-      } else {
+      } else if (result?.ok) {
         // Store remember me preference
         if (rememberMe && typeof window !== 'undefined') {
           localStorage.setItem('remodoc-remember-email', email)
-        } else {
+        } else if (typeof window !== 'undefined') {
           localStorage.removeItem('remodoc-remember-email')
         }
-        // Wait for session to be fully populated with role
-        let attempts = 0
-        let session = await getSession()
-        while (attempts < 5 && (!session?.user?.role)) {
-          await new Promise(resolve => setTimeout(resolve, 200))
-          session = await getSession()
-          attempts++
+
+        // Prefer Next.js client navigation; fall back to hard redirect if URL is provided
+        if (result.url) {
+          router.push(result.url)
+        } else {
+          router.push('/dashboard')
         }
-        // Use window.location for a hard redirect to ensure session is refreshed
-        window.location.href = '/dashboard'
+      } else {
+        setError('Unable to sign in. Please check your credentials and try again.')
       }
     } catch (err) {
+      console.error('Sign-in error:', err)
       setError('An error occurred. Please try again.')
     } finally {
       setLoading(false)
@@ -91,7 +90,13 @@ export default function LoginPage() {
           <p className="mt-2 text-[var(--foreground)]/80">AI-Powered Telehealth Platform</p>
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-6">
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            void handleSubmit()
+          }}
+          className="space-y-6"
+        >
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded">
               {error}
