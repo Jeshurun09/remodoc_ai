@@ -2,16 +2,16 @@
 
 import nodemailer from 'nodemailer'
 
-const host = process.env.SMTP_HOST
-const port = Number(process.env.SMTP_PORT || 587)
-const secure = process.env.SMTP_SECURE === 'true'
-const user = process.env.SMTP_USER
-const pass = process.env.SMTP_PASS
+const host = process.env.EMAIL_HOST
+const port = Number(process.env.EMAIL_PORT || 587)
+const secure = process.env.EMAIL_SECURE === 'true'
+const user = process.env.EMAIL_USER
+const pass = process.env.EMAIL_PASS
 const from = process.env.EMAIL_FROM
 
 if (!host || !user || !pass || !from) {
   console.warn(
-    '[email] SMTP credentials or EMAIL_FROM are missing. Email delivery will fail until they are configured.'
+    '[email] EMAIL_* credentials are missing. Email delivery will fail until EMAIL_HOST/EMAIL_USER/EMAIL_PASS/EMAIL_FROM are configured.'
   )
 }
 
@@ -24,7 +24,7 @@ const transporter = nodemailer.createTransport({
 
 export async function sendVerificationEmail(to: string, code: string) {
   if (!host || !user || !pass || !from) {
-    throw new Error('Email transport is not configured. Please set SMTP_* and EMAIL_FROM env vars.')
+    throw new Error('Email transport is not configured. Please set EMAIL_HOST/EMAIL_USER/EMAIL_PASS/EMAIL_FROM env vars.')
   }
 
   const html = `
@@ -50,7 +50,7 @@ export async function sendVerificationEmail(to: string, code: string) {
 
 export async function sendInviteEmail(to: string, inviteLink: string, role: string) {
   if (!host || !user || !pass || !from) {
-    throw new Error('Email transport is not configured. Please set SMTP_* and EMAIL_FROM env vars.')
+    throw new Error('Email transport is not configured. Please set EMAIL_HOST/EMAIL_USER/EMAIL_PASS/EMAIL_FROM env vars.')
   }
 
   const html = `

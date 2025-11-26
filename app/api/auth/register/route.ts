@@ -19,9 +19,9 @@ export async function POST(req: NextRequest) {
 
     const normalizedEmail = (email as string | undefined)?.trim().toLowerCase()
     const emailConfigured =
-      Boolean(process.env.SMTP_HOST) &&
-      Boolean(process.env.SMTP_USER) &&
-      Boolean(process.env.SMTP_PASS) &&
+      Boolean(process.env.EMAIL_HOST) &&
+      Boolean(process.env.EMAIL_USER) &&
+      Boolean(process.env.EMAIL_PASS) &&
       Boolean(process.env.EMAIL_FROM)
 
     if (!name || !normalizedEmail || !password) {
@@ -178,7 +178,7 @@ export async function POST(req: NextRequest) {
         return NextResponse.json(
           {
             error:
-              'Email delivery is not configured. Please set SMTP_* and EMAIL_FROM environment variables before registering users.'
+              'Email delivery is not configured. Please set EMAIL_HOST, EMAIL_PORT, EMAIL_SECURE, EMAIL_USER, EMAIL_PASS, and EMAIL_FROM before registering users.'
           },
           { status: 500 }
         )

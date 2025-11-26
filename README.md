@@ -79,7 +79,7 @@ npm install
 ```
 
 3. Set up environment variables:
-Copy `env.example` to `.env.local` (or `.env`) and fill in the placeholders. Required values include the database connection (`DATABASE_URL`), Google Maps API key (`NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`), SMTP credentials (`SMTP_HOST`, `SMTP_PORT`, `SMTP_SECURE`, `SMTP_USER`, `SMTP_PASS`, `EMAIL_FROM`), and Twilio credentials (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`).
+Copy `env.example` to `.env.local` (or `.env`) and fill in the placeholders. Required values include the database connection (`DATABASE_URL`), Google Maps API key (`NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`), email credentials (`EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_SECURE`, `EMAIL_USER`, `EMAIL_PASS`, `EMAIL_FROM`), and Twilio credentials (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`).
 
 4. Sync the Prisma schema with MongoDB and seed mock data:
 ```bash
