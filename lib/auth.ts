@@ -33,6 +33,16 @@ export const authOptions: NextAuthOptions = {
             throw new Error('Please verify your email before signing in.')
           }
 
+          // Check doctor verification status
+          if (user.role === 'DOCTOR' && user.doctorProfile) {
+            if (user.doctorProfile.verificationStatus === 'PENDING') {
+              throw new Error('Your account is pending admin verification. Please wait for approval.')
+            }
+            if (user.doctorProfile.verificationStatus === 'REJECTED') {
+              throw new Error('Your account verification was rejected. Please contact support.')
+            }
+          }
+
           const isValid = await bcrypt.compare(credentials.password, user.password)
 
           if (!isValid) {

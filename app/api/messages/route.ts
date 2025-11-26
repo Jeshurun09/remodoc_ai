@@ -11,13 +11,32 @@ export async function GET(req: NextRequest) {
 
   const { searchParams } = new URL(req.url)
   const doctorId = searchParams.get('doctorId')
+  const patientId = searchParams.get('patientId')
 
   try {
+    // Determine the other party's user ID
+    let otherUserId: string | undefined
+
+    if (session.user.role === 'DOCTOR' && patientId) {
+      otherUserId = patientId
+    } else if (session.user.role === 'PATIENT' && doctorId) {
+      // For patients, doctorId is the doctorProfile.id, need to get the userId
+      const doctor = await prisma.doctorProfile.findUnique({
+        where: { id: doctorId },
+        select: { userId: true }
+      })
+      otherUserId = doctor?.userId
+    } else if (patientId) {
+      otherUserId = patientId
+    } else if (doctorId) {
+      otherUserId = doctorId
+    }
+
     const messages = await prisma.message.findMany({
       where: {
         OR: [
-          { senderId: session.user.id, receiverId: doctorId || undefined },
-          { receiverId: session.user.id, senderId: doctorId || undefined }
+          { senderId: session.user.id, receiverId: otherUserId },
+          { receiverId: session.user.id, senderId: otherUserId }
         ]
       },
       orderBy: { createdAt: 'asc' },

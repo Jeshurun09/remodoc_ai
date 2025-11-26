@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import SymptomReportViewer from './SymptomReportViewer'
+import AIAnalysisInterface from './AIAnalysisInterface'
 
 interface Case {
   id: string
@@ -17,9 +19,14 @@ interface Case {
     id: string
     symptoms: string
     urgency: string
-    aiAnalysis: string
+    aiAnalysis: string | null
     likelyConditions: string
     careAdvice: string | null
+    imageUrl: string | null
+    audioUrl: string | null
+    locationLat: number | null
+    locationLng: number | null
+    createdAt: string
   } | null
 }
 
@@ -161,41 +168,46 @@ export default function CasesList() {
       )}
 
       {selectedCase && (
-        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50">
-          <div className="surface rounded-lg p-6 max-w-2xl w-full mx-4 max-h-[90vh] overflow-y-auto border subtle-border">
+        <div className="fixed inset-0 bg-black/60 flex items-center justify-center z-50 p-4">
+          <div className="surface rounded-lg p-6 max-w-4xl w-full max-h-[90vh] overflow-y-auto border subtle-border">
             <div className="flex justify-between items-center mb-4">
               <h3 className="text-xl font-bold text-[var(--foreground)]">Case Details</h3>
               <button
                 onClick={() => setSelectedCase(null)}
-                className="text-[var(--foreground)]/60 hover:text-[var(--foreground)]"
+                className="text-[var(--foreground)]/60 hover:text-[var(--foreground)] text-2xl"
               >
                 ✕
               </button>
             </div>
-            <div className="space-y-4 text-[var(--foreground)]">
-              <div>
+            <div className="space-y-6 text-[var(--foreground)]">
+              <div className="p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
                 <p className="font-semibold">Patient</p>
                 <p>
                   {selectedCase.patient.user.name} ({selectedCase.patient.user.email})
                 </p>
+                {selectedCase.scheduledAt && (
+                  <p className="text-sm text-[var(--foreground)]/70 mt-1">
+                    Scheduled: {new Date(selectedCase.scheduledAt).toLocaleString()}
+                  </p>
+                )}
               </div>
               {selectedCase.symptomReport && (
                 <>
-                  <div>
-                    <p className="font-semibold">Symptoms</p>
-                    <p>{selectedCase.symptomReport.symptoms}</p>
-                  </div>
-                  <div>
-                    <p className="font-semibold">AI Analysis</p>
-                    <pre className="bg-black/5 dark:bg-white/5 p-3 rounded text-sm overflow-auto">
-                      {JSON.stringify(JSON.parse(selectedCase.symptomReport.aiAnalysis || '{}'), null, 2)}
-                    </pre>
-                  </div>
+                  <SymptomReportViewer
+                    report={selectedCase.symptomReport}
+                    patientName={selectedCase.patient.user.name}
+                  />
+                  <AIAnalysisInterface
+                    aiAnalysis={selectedCase.symptomReport.aiAnalysis}
+                    symptoms={selectedCase.symptomReport.symptoms}
+                    urgency={selectedCase.symptomReport.urgency}
+                    likelyConditions={selectedCase.symptomReport.likelyConditions}
+                  />
                 </>
               )}
               {selectedCase.notes && (
-                <div>
-                  <p className="font-semibold">Notes</p>
+                <div className="p-4 bg-gray-50 dark:bg-gray-800 rounded-lg">
+                  <p className="font-semibold mb-2">Notes</p>
                   <p>{selectedCase.notes}</p>
                 </div>
               )}

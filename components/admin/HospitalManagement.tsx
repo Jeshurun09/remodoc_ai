@@ -8,9 +8,11 @@ interface Hospital {
   address: string
   city: string
   state: string
+  zipCode: string
   phone: string
   latitude: number
   longitude: number
+  specialties: string
   emergency: boolean
   active: boolean
 }
@@ -19,6 +21,7 @@ export default function HospitalManagement() {
   const [hospitals, setHospitals] = useState<Hospital[]>([])
   const [loading, setLoading] = useState(true)
   const [showForm, setShowForm] = useState(false)
+  const [editingHospital, setEditingHospital] = useState<Hospital | null>(null)
   const [formData, setFormData] = useState({
     name: '',
     address: '',
@@ -29,7 +32,8 @@ export default function HospitalManagement() {
     latitude: '',
     longitude: '',
     emergency: false,
-    specialties: ''
+    specialties: '',
+    active: true
   })
 
   useEffect(() => {
@@ -50,25 +54,92 @@ export default function HospitalManagement() {
     }
   }
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleEdit = (hospital: Hospital) => {
+    setEditingHospital(hospital)
+    let specialties = ''
     try {
-      const response = await fetch('/api/admin/hospitals', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          ...formData,
-          latitude: parseFloat(formData.latitude),
-          longitude: parseFloat(formData.longitude),
-          specialties: JSON.stringify(formData.specialties.split(',').map(s => s.trim()))
-        })
+      const parsed = JSON.parse(hospital.specialties || '[]')
+      specialties = Array.isArray(parsed) ? parsed.join(', ') : ''
+    } catch {
+      specialties = ''
+    }
+    setFormData({
+      name: hospital.name,
+      address: hospital.address,
+      city: hospital.city,
+      state: hospital.state,
+      zipCode: hospital.zipCode || '',
+      phone: hospital.phone,
+      latitude: hospital.latitude.toString(),
+      longitude: hospital.longitude.toString(),
+      emergency: hospital.emergency,
+      specialties,
+      active: hospital.active
+    })
+    setShowForm(true)
+  }
+
+  const handleDelete = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this hospital?')) return
+    try {
+      const response = await fetch(`/api/admin/hospitals?id=${id}`, {
+        method: 'DELETE'
       })
       if (response.ok) {
-        setShowForm(false)
         fetchHospitals()
       }
     } catch (error) {
-      console.error('Error creating hospital:', error)
+      console.error('Error deleting hospital:', error)
+    }
+  }
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    try {
+      const url = '/api/admin/hospitals'
+      const method = editingHospital ? 'PATCH' : 'POST'
+      const body = editingHospital
+        ? {
+            id: editingHospital.id,
+            ...formData,
+            latitude: parseFloat(formData.latitude),
+            longitude: parseFloat(formData.longitude),
+            specialties: formData.specialties
+              ? JSON.stringify(formData.specialties.split(',').map(s => s.trim()))
+              : '[]'
+          }
+        : {
+            ...formData,
+            latitude: parseFloat(formData.latitude),
+            longitude: parseFloat(formData.longitude),
+            specialties: JSON.stringify(formData.specialties.split(',').map(s => s.trim()))
+          }
+
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      })
+      if (response.ok) {
+        setShowForm(false)
+        setEditingHospital(null)
+        setFormData({
+          name: '',
+          address: '',
+          city: '',
+          state: '',
+          zipCode: '',
+          phone: '',
+          latitude: '',
+          longitude: '',
+          emergency: false,
+          specialties: '',
+          active: true
+        })
+        fetchHospitals()
+      }
+    } catch (error) {
+      console.error('Error saving hospital:', error)
     }
   }
 
@@ -93,7 +164,9 @@ export default function HospitalManagement() {
 
       {showForm && (
         <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold mb-4">Add New Hospital</h3>
+          <h3 className="text-lg font-semibold mb-4">
+            {editingHospital ? 'Edit Hospital' : 'Add New Hospital'}
+          </h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
               <input
@@ -170,24 +243,50 @@ export default function HospitalManagement() {
               onChange={(e) => setFormData({ ...formData, specialties: e.target.value })}
               className="w-full px-4 py-2 border border-gray-300 rounded-lg"
             />
-            <label className="flex items-center space-x-2">
-              <input
-                type="checkbox"
-                checked={formData.emergency}
-                onChange={(e) => setFormData({ ...formData, emergency: e.target.checked })}
-              />
-              <span>Emergency Services Available</span>
-            </label>
+            <div className="flex items-center space-x-4">
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={formData.emergency}
+                  onChange={(e) => setFormData({ ...formData, emergency: e.target.checked })}
+                />
+                <span>Emergency Services Available</span>
+              </label>
+              <label className="flex items-center space-x-2">
+                <input
+                  type="checkbox"
+                  checked={formData.active}
+                  onChange={(e) => setFormData({ ...formData, active: e.target.checked })}
+                />
+                <span>Active</span>
+              </label>
+            </div>
             <div className="flex space-x-2">
               <button
                 type="submit"
                 className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
               >
-                Create
+                {editingHospital ? 'Update' : 'Create'}
               </button>
               <button
                 type="button"
-                onClick={() => setShowForm(false)}
+                onClick={() => {
+                  setShowForm(false)
+                  setEditingHospital(null)
+                  setFormData({
+                    name: '',
+                    address: '',
+                    city: '',
+                    state: '',
+                    zipCode: '',
+                    phone: '',
+                    latitude: '',
+                    longitude: '',
+                    emergency: false,
+                    specialties: '',
+                    active: true
+                  })
+                }}
                 className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
               >
                 Cancel
@@ -203,15 +302,38 @@ export default function HospitalManagement() {
             key={hospital.id}
             className="bg-white border border-gray-200 rounded-lg p-4"
           >
-            <h3 className="font-semibold text-gray-900 mb-2">{hospital.name}</h3>
+            <div className="flex justify-between items-start mb-2">
+              <h3 className="font-semibold text-gray-900">{hospital.name}</h3>
+              <div className="flex gap-2">
+                <button
+                  onClick={() => handleEdit(hospital)}
+                  className="text-blue-600 hover:text-blue-800 text-sm"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handleDelete(hospital.id)}
+                  className="text-red-600 hover:text-red-800 text-sm"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
             <p className="text-sm text-gray-600 mb-2">{hospital.address}</p>
             <p className="text-sm text-gray-600 mb-2">{hospital.city}, {hospital.state}</p>
             <p className="text-sm text-gray-600 mb-2">Phone: {hospital.phone}</p>
-            {hospital.emergency && (
-              <span className="inline-block bg-red-100 text-red-800 text-xs px-2 py-1 rounded">
-                Emergency
-              </span>
-            )}
+            <div className="flex gap-2 mt-2">
+              {hospital.emergency && (
+                <span className="inline-block bg-red-100 text-red-800 text-xs px-2 py-1 rounded">
+                  Emergency
+                </span>
+              )}
+              {!hospital.active && (
+                <span className="inline-block bg-gray-100 text-gray-800 text-xs px-2 py-1 rounded">
+                  Inactive
+                </span>
+              )}
+            </div>
           </div>
         ))}
       </div>

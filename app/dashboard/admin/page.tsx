@@ -9,12 +9,17 @@ import DoctorVerification from '@/components/admin/DoctorVerification'
 import HospitalManagement from '@/components/admin/HospitalManagement'
 import Analytics from '@/components/admin/Analytics'
 import AILogs from '@/components/admin/AILogs'
+import SystemConfiguration from '@/components/admin/SystemConfiguration'
+import UserManagement from '@/components/admin/UserManagement'
+import Reports from '@/components/admin/Reports'
 
 export default function AdminDashboard() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { isDark, setTheme } = useTheme()
-  const [activeTab, setActiveTab] = useState<'doctors' | 'hospitals' | 'analytics' | 'logs'>('doctors')
+  const [activeTab, setActiveTab] = useState<
+    'doctors' | 'hospitals' | 'analytics' | 'logs' | 'config' | 'users' | 'reports'
+  >('doctors')
   const [inviteEmail, setInviteEmail] = useState('')
   const [inviteStatus, setInviteStatus] = useState<{ type: 'success' | 'error'; message: string } | null>(null)
   const [inviteLoading, setInviteLoading] = useState(false)
@@ -152,7 +157,7 @@ export default function AdminDashboard() {
 
         <div className="surface rounded-lg shadow-sm mb-6">
           <div className="border-b subtle-border">
-            <nav className="flex -mb-px">
+            <nav className="flex -mb-px overflow-x-auto">
               <button
                 onClick={() => setActiveTab('doctors')}
                 className={`px-6 py-4 text-sm font-medium ${
@@ -185,13 +190,43 @@ export default function AdminDashboard() {
               </button>
               <button
                 onClick={() => setActiveTab('logs')}
-                className={`px-6 py-4 text-sm font-medium ${
+                className={`px-6 py-4 text-sm font-medium whitespace-nowrap ${
                   activeTab === 'logs'
                     ? 'border-b-2 border-blue-500 text-blue-600'
                     : 'text-gray-500 hover:text-gray-700'
                 }`}
               >
                 AI Logs
+              </button>
+              <button
+                onClick={() => setActiveTab('config')}
+                className={`px-6 py-4 text-sm font-medium whitespace-nowrap ${
+                  activeTab === 'config'
+                    ? 'border-b-2 border-blue-500 text-blue-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Configuration
+              </button>
+              <button
+                onClick={() => setActiveTab('users')}
+                className={`px-6 py-4 text-sm font-medium whitespace-nowrap ${
+                  activeTab === 'users'
+                    ? 'border-b-2 border-blue-500 text-blue-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                User Management
+              </button>
+              <button
+                onClick={() => setActiveTab('reports')}
+                className={`px-6 py-4 text-sm font-medium whitespace-nowrap ${
+                  activeTab === 'reports'
+                    ? 'border-b-2 border-blue-500 text-blue-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Reports
               </button>
             </nav>
           </div>
@@ -201,6 +236,9 @@ export default function AdminDashboard() {
             {activeTab === 'hospitals' && <HospitalManagement />}
             {activeTab === 'analytics' && <Analytics />}
             {activeTab === 'logs' && <AILogs />}
+            {activeTab === 'config' && <SystemConfiguration />}
+            {activeTab === 'users' && <UserManagement />}
+            {activeTab === 'reports' && <Reports />}
           </div>
         </div>
       </div>

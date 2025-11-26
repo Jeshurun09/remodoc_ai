@@ -1,6 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { useSession } from 'next-auth/react'
 
 interface Prescription {
   id: string
@@ -10,10 +11,24 @@ interface Prescription {
   startDate: string
   endDate: string | null
   patientId: string
+  patient?: {
+    user: {
+      name: string
+      email: string
+    }
+  }
+}
+
+interface Patient {
+  id: string
+  name: string
+  email: string
 }
 
 export default function PrescriptionsList() {
+  const { data: session } = useSession()
   const [prescriptions, setPrescriptions] = useState<Prescription[]>([])
+  const [patients, setPatients] = useState<Patient[]>([])
   const [showForm, setShowForm] = useState(false)
   const [formData, setFormData] = useState({
     patientId: '',
@@ -23,10 +38,38 @@ export default function PrescriptionsList() {
     startDate: '',
     endDate: ''
   })
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // Fetch prescriptions would go here
+    fetchPrescriptions()
+    fetchPatients()
   }, [])
+
+  const fetchPrescriptions = async () => {
+    try {
+      const response = await fetch('/api/prescriptions')
+      if (response.ok) {
+        const data = await response.json()
+        setPrescriptions(data)
+      }
+    } catch (error) {
+      console.error('Error fetching prescriptions:', error)
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const fetchPatients = async () => {
+    try {
+      const response = await fetch('/api/doctors/patients')
+      if (response.ok) {
+        const data = await response.json()
+        setPatients(data.patients || [])
+      }
+    } catch (error) {
+      console.error('Error fetching patients:', error)
+    }
+  }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
@@ -46,19 +89,23 @@ export default function PrescriptionsList() {
           startDate: '',
           endDate: ''
         })
-        // Refresh list
+        fetchPrescriptions()
       }
     } catch (error) {
       console.error('Error creating prescription:', error)
     }
   }
 
+  if (loading) {
+    return <div className="text-center py-8">Loading prescriptions...</div>
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Prescriptions</h2>
-          <p className="text-gray-600">Manage patient prescriptions</p>
+          <h2 className="text-2xl font-bold text-[var(--foreground)] mb-2">Prescriptions</h2>
+          <p className="text-[var(--foreground)]/70">Manage patient prescriptions</p>
         </div>
         <button
           onClick={() => setShowForm(true)}
@@ -69,23 +116,29 @@ export default function PrescriptionsList() {
       </div>
 
       {showForm && (
-        <div className="bg-white border border-gray-200 rounded-lg p-6">
-          <h3 className="text-lg font-semibold mb-4">Create Prescription</h3>
+        <div className="surface border subtle-border rounded-lg p-6">
+          <h3 className="text-lg font-semibold text-[var(--foreground)] mb-4">Create Prescription</h3>
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Patient ID
+              <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
+                Patient
               </label>
-              <input
-                type="text"
+              <select
                 value={formData.patientId}
                 onChange={(e) => setFormData({ ...formData, patientId: e.target.value })}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
-              />
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-[var(--foreground)] bg-transparent"
+              >
+                <option value="">Select a patient</option>
+                {patients.map((patient) => (
+                  <option key={patient.id} value={patient.id}>
+                    {patient.name} ({patient.email})
+                  </option>
+                ))}
+              </select>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
                 Medication
               </label>
               <input
@@ -93,11 +146,12 @@ export default function PrescriptionsList() {
                 value={formData.medication}
                 onChange={(e) => setFormData({ ...formData, medication: e.target.value })}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-[var(--foreground)] bg-transparent"
+                placeholder="e.g., Amoxicillin 500mg"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
                 Dosage
               </label>
               <input
@@ -105,11 +159,12 @@ export default function PrescriptionsList() {
                 value={formData.dosage}
                 onChange={(e) => setFormData({ ...formData, dosage: e.target.value })}
                 required
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-[var(--foreground)] bg-transparent"
+                placeholder="e.g., 1 tablet twice daily"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
                 Instructions
               </label>
               <textarea
@@ -117,12 +172,13 @@ export default function PrescriptionsList() {
                 onChange={(e) => setFormData({ ...formData, instructions: e.target.value })}
                 required
                 rows={3}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-[var(--foreground)] bg-transparent"
+                placeholder="Take with food. Complete the full course even if symptoms improve."
               />
             </div>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
                   Start Date
                 </label>
                 <input
@@ -130,18 +186,18 @@ export default function PrescriptionsList() {
                   value={formData.startDate}
                   onChange={(e) => setFormData({ ...formData, startDate: e.target.value })}
                   required
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-[var(--foreground)] bg-transparent"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-[var(--foreground)] mb-2">
                   End Date (Optional)
                 </label>
                 <input
                   type="date"
                   value={formData.endDate}
                   onChange={(e) => setFormData({ ...formData, endDate: e.target.value })}
-                  className="w-full px-4 py-2 border border-gray-300 rounded-lg"
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-[var(--foreground)] bg-transparent"
                 />
               </div>
             </div>
@@ -165,20 +221,35 @@ export default function PrescriptionsList() {
       )}
 
       {prescriptions.length === 0 ? (
-        <div className="text-center py-12 bg-gray-50 rounded-lg">
-          <p className="text-gray-600">No prescriptions yet</p>
+        <div className="text-center py-12 surface rounded-lg border subtle-border">
+          <p className="text-[var(--foreground)]/70">No prescriptions yet</p>
         </div>
       ) : (
         <div className="space-y-4">
           {prescriptions.map((prescription) => (
             <div
               key={prescription.id}
-              className="bg-white border border-gray-200 rounded-lg p-6"
+              className="surface border subtle-border rounded-lg p-6 shadow-sm"
             >
-              <h3 className="text-lg font-semibold mb-2">{prescription.medication}</h3>
-              <p className="text-sm text-gray-600">Dosage: {prescription.dosage}</p>
-              <p className="text-sm text-gray-600 mt-2">{prescription.instructions}</p>
-              <p className="text-xs text-gray-500 mt-2">
+              <div className="flex items-start justify-between mb-2">
+                <div>
+                  <h3 className="text-lg font-semibold text-[var(--foreground)]">
+                    {prescription.medication}
+                  </h3>
+                  {prescription.patient && (
+                    <p className="text-sm text-[var(--foreground)]/70 mt-1">
+                      Patient: {prescription.patient.user.name}
+                    </p>
+                  )}
+                </div>
+              </div>
+              <p className="text-sm text-[var(--foreground)]/80 mb-2">
+                <span className="font-medium">Dosage:</span> {prescription.dosage}
+              </p>
+              <p className="text-sm text-[var(--foreground)]/80 mb-2">
+                <span className="font-medium">Instructions:</span> {prescription.instructions}
+              </p>
+              <p className="text-xs text-[var(--foreground)]/60 mt-2">
                 {new Date(prescription.startDate).toLocaleDateString()} -{' '}
                 {prescription.endDate
                   ? new Date(prescription.endDate).toLocaleDateString()
