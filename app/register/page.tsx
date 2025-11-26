@@ -240,13 +240,13 @@ export default function RegisterPage() {
 
   const handleNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Only allow alphabets, spaces, hyphens, and apostrophes
-    const value = e.target.value.replace(/[^a-zA-Z\s'-]/g, '')
+    const value = e.target.value.replace(/[^a-zA-Z\s'\-]/g, '')
     setFormData({ ...formData, name: value })
   }
 
   const handlePhoneChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     // Only allow numerical digits and basic formatting characters
-    const value = e.target.value.replace(/[^\d\s()-]/g, '')
+    const value = e.target.value.replace(/[^\d\s()\-]/g, '')
     setFormData({ ...formData, phone: value })
   }
 
@@ -255,13 +255,13 @@ export default function RegisterPage() {
     setError('')
 
     // Validate name format
-    if (!/^[a-zA-Z\s'-]+$/.test(formData.name.trim())) {
+    if (!/^[a-zA-Z\s'\-]+$/.test(formData.name.trim())) {
       setError('Name should only contain letters, spaces, hyphens, and apostrophes')
       return
     }
 
     // Validate phone format (if provided)
-    if (formData.phone && !/^[\d\s()-]+$/.test(formData.phone.trim())) {
+    if (formData.phone && !/^[\d\s()\-]+$/.test(formData.phone.trim())) {
       setError('Phone number should only contain digits and formatting characters (spaces, hyphens, parentheses)')
       return
     }
@@ -279,7 +279,9 @@ export default function RegisterPage() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
-          phone: `${formData.countryCode}${formData.phone.replace(/\D/g, '')}`
+          phone: formData.phone
+            ? `${formData.countryCode}${formData.phone.replace(/\D/g, '')}`
+            : ''
         })
       })
 
@@ -292,13 +294,17 @@ export default function RegisterPage() {
 
       const normalizedEmail = formData.email.trim().toLowerCase()
       if (typeof window !== 'undefined') {
-        sessionStorage.setItem(
+        if (!data.skipVerification) {
+          sessionStorage.setItem(
             'remodocPendingCredentials',
             JSON.stringify({
               email: normalizedEmail,
               password: formData.password
             })
-        )
+          )
+        } else {
+          sessionStorage.removeItem('remodocPendingCredentials')
+        }
       }
       setFormData({
         name: '',
@@ -312,7 +318,11 @@ export default function RegisterPage() {
         licenseNumber: '',
         specialization: ''
       })
-      router.push(`/verify?email=${encodeURIComponent(normalizedEmail)}`)
+      if (data.skipVerification) {
+        router.push('/login?registered=1')
+      } else {
+        router.push(`/verify?email=${encodeURIComponent(normalizedEmail)}`)
+      }
     } catch (err) {
       setError('An error occurred. Please try again.')
     } finally {
@@ -355,7 +365,7 @@ export default function RegisterPage() {
               value={formData.name}
               onChange={handleNameChange}
               required
-              pattern="[a-zA-Z\s'-]+"
+              pattern="[a-zA-Z\\s'\\-]+"
               title="Name should only contain letters, spaces, hyphens, and apostrophes"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-[var(--foreground)] bg-transparent"
             />
@@ -411,7 +421,7 @@ export default function RegisterPage() {
                     type="tel"
                     value={formData.phone}
                     onChange={handlePhoneChange}
-                    pattern="[\d\s()-]+"
+                    pattern="[\\d\\s()\\-]+"
                     title="Phone number should only contain digits, spaces, hyphens, and parentheses"
                     placeholder="123 456 789"
                     className="w-full px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 text-black bg-transparent"

@@ -18,6 +18,11 @@ export async function POST(req: NextRequest) {
     } = body
 
     const normalizedEmail = (email as string | undefined)?.trim().toLowerCase()
+    const emailConfigured =
+      Boolean(process.env.SMTP_HOST) &&
+      Boolean(process.env.SMTP_USER) &&
+      Boolean(process.env.SMTP_PASS) &&
+      Boolean(process.env.EMAIL_FROM)
 
     if (!name || !normalizedEmail || !password) {
       return NextResponse.json(
@@ -86,8 +91,10 @@ export async function POST(req: NextRequest) {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10)
 
-    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString()
-    const verificationExpires = new Date(Date.now() + 15 * 60 * 1000)
+    const verificationCode = emailConfigured
+      ? Math.floor(100000 + Math.random() * 900000).toString()
+      : null
+    const verificationExpires = emailConfigured ? new Date(Date.now() + 15 * 60 * 1000) : null
 
     // Create user first, then role-specific profile (MongoDB doesn't support cross-collection transactions on standalone instances)
     const user = await prisma.user.create({
@@ -99,7 +106,7 @@ export async function POST(req: NextRequest) {
         role,
         verificationCode,
         verificationExpires,
-        isVerified: false
+        isVerified: emailConfigured ? false : true
       }
     })
 
@@ -131,22 +138,27 @@ export async function POST(req: NextRequest) {
       throw profileError
     }
 
-    try {
-      await sendVerificationEmail(normalizedEmail, verificationCode)
-    } catch (emailError) {
-      if (createdPatientProfileId) {
-        await prisma.patientProfile.delete({ where: { id: createdPatientProfileId } })
+    if (emailConfigured && verificationCode) {
+      try {
+        await sendVerificationEmail(normalizedEmail, verificationCode)
+      } catch (emailError) {
+        if (createdPatientProfileId) {
+          await prisma.patientProfile.delete({ where: { id: createdPatientProfileId } })
+        }
+        if (createdDoctorProfileId) {
+          await prisma.doctorProfile.delete({ where: { id: createdDoctorProfileId } })
+        }
+        await prisma.user.delete({ where: { id: user.id } })
+        throw emailError
       }
-      if (createdDoctorProfileId) {
-        await prisma.doctorProfile.delete({ where: { id: createdDoctorProfileId } })
-      }
-      await prisma.user.delete({ where: { id: user.id } })
-      throw emailError
     }
 
     return NextResponse.json({
       success: true,
-      message: 'Verification code sent to your email. Please verify to activate your account.'
+      message: emailConfigured
+        ? 'Verification code sent to your email. Please verify to activate your account.'
+        : 'Account created. Email verification is disabled, so you can sign in immediately.',
+      skipVerification: !emailConfigured
     })
   } catch (error) {
     console.error('Registration error:', error)
