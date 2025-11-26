@@ -49,7 +49,7 @@ export async function GET(req: NextRequest) {
 
     // Map to include patient info for doctors
     const result = await Promise.all(
-      prescriptions.map(async (prescription) => {
+      prescriptions.map(async (prescription: any) => {
         if (session.user.role === 'DOCTOR') {
           const patient = await prisma.patientProfile.findUnique({
             where: { id: prescription.patientId },
