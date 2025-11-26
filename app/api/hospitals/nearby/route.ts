@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { findNearestHospitals } from '@/lib/maps'
+import { findNearestHospitals } from '@/lib/maps-server'
 
 export async function GET(req: NextRequest) {
   try {
