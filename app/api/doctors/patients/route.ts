@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import type { Prisma } from '@prisma/client'
 
 export async function GET(req: NextRequest) {
   try {
@@ -35,8 +36,18 @@ export async function GET(req: NextRequest) {
     })
 
     // Get unread message counts for each patient
+    type AppointmentWithPatient = Prisma.AppointmentGetPayload<{
+      include: {
+        patient: {
+          include: {
+            user: true
+          }
+        }
+      }
+    }>
+    
     const patients = await Promise.all(
-      appointments.map(async (apt) => {
+      appointments.map(async (apt: AppointmentWithPatient) => {
         const unreadCount = await prisma.message.count({
           where: {
             senderId: apt.patient.userId,
