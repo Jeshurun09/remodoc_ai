@@ -28,6 +28,7 @@ declare module 'next-auth/jwt' {
   interface JWT {
     id: string
     email?: string
+    name?: string
     role: string
     isVerified?: boolean
     doctorProfile?: any

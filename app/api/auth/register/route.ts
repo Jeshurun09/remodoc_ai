@@ -26,6 +26,23 @@ export async function POST(req: NextRequest) {
       )
     }
 
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+    if (!emailRegex.test(normalizedEmail)) {
+      return NextResponse.json(
+        { error: 'Invalid email format' },
+        { status: 400 }
+      )
+    }
+
+    // Validate password length
+    if (password.length < 6) {
+      return NextResponse.json(
+        { error: 'Password must be at least 6 characters long' },
+        { status: 400 }
+      )
+    }
+
     const allowedRoles = ['PATIENT', 'DOCTOR', 'ADMIN']
     if (!allowedRoles.includes(role)) {
       return NextResponse.json({ error: 'Invalid role selected' }, { status: 400 })
@@ -75,10 +92,10 @@ export async function POST(req: NextRequest) {
     // Create user first, then role-specific profile (MongoDB doesn't support cross-collection transactions on standalone instances)
     const user = await prisma.user.create({
       data: {
-        name,
+        name: name.trim(),
         email: normalizedEmail,
         password: hashedPassword,
-        phone,
+        phone: phone || null,
         role,
         verificationCode,
         verificationExpires,
@@ -133,21 +150,46 @@ export async function POST(req: NextRequest) {
     })
   } catch (error) {
     console.error('Registration error:', error)
-    if (
-      error instanceof Error &&
-      error.message.includes('Email transport is not configured')
-    ) {
-      return NextResponse.json(
-        {
-          error:
-            'Email delivery is not configured. Please set SMTP_* and EMAIL_FROM environment variables before registering users.'
-        },
-        { status: 500 }
-      )
+    
+    // Handle specific error types
+    if (error instanceof Error) {
+      // Prisma unique constraint violation (duplicate email)
+      if (error.message.includes('Unique constraint') || error.message.includes('duplicate')) {
+        return NextResponse.json(
+          { error: 'A user with this email already exists' },
+          { status: 400 }
+        )
+      }
+      
+      // Email configuration error
+      if (error.message.includes('Email transport is not configured')) {
+        return NextResponse.json(
+          {
+            error:
+              'Email delivery is not configured. Please set SMTP_* and EMAIL_FROM environment variables before registering users.'
+          },
+          { status: 500 }
+        )
+      }
+      
+      // Database connection error
+      if (error.message.includes('connect') || error.message.includes('connection')) {
+        return NextResponse.json(
+          { error: 'Database connection error. Please try again later.' },
+          { status: 500 }
+        )
+      }
+      
+      // Log the full error for debugging
+      console.error('Full registration error details:', {
+        message: error.message,
+        stack: error.stack,
+        name: error.name
+      })
     }
 
     return NextResponse.json(
-      { error: 'Failed to create account' },
+      { error: 'Failed to create account. Please try again.' },
       { status: 500 }
     )
   }

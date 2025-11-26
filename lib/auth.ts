@@ -72,6 +72,7 @@ export const authOptions: NextAuthOptions = {
           token.doctorProfile = user.doctorProfile
           token.patientProfile = user.patientProfile
           token.email = user.email
+          token.name = user.name
         }
         // If role is missing from token or session is being updated, fetch from database
         if ((!token.role || trigger === 'update') && token.id) {
@@ -91,6 +92,7 @@ export const authOptions: NextAuthOptions = {
               token.doctorProfile = dbUser.doctorProfile
               token.patientProfile = dbUser.patientProfile
               token.email = dbUser.email
+              token.name = dbUser.name
             }
           } catch (dbError) {
             // If database query fails, log but don't break the token
@@ -106,29 +108,65 @@ export const authOptions: NextAuthOptions = {
     },
     async session({ session, token }) {
       try {
-        if (session.user && token) {
-          // Ensure role is always set from token
-          if (token.role) {
-            session.user.role = token.role as string
-          }
-          if (token.id) {
-            session.user.id = token.id as string
-          }
-          if (token.isVerified !== undefined) {
-            session.user.isVerified = token.isVerified as boolean
-          }
-          // Only set these if they exist
-          if (token.doctorProfile) {
-            session.user.doctorProfile = token.doctorProfile as any
-          }
-          if (token.patientProfile) {
-            session.user.patientProfile = token.patientProfile as any
+        // Ensure session and session.user exist
+        if (!session) {
+          return session
+        }
+        
+        if (!session.user) {
+          session.user = {
+            id: '',
+            email: '',
+            name: '',
+            role: '',
           }
         }
+
+        // Set email from token if available (required by NextAuth)
+        if (token.email) {
+          session.user.email = token.email as string
+        }
+
+        // Set name from token if available
+        if (token.name) {
+          session.user.name = token.name as string
+        }
+
+        // Ensure role is always set from token
+        if (token.role) {
+          session.user.role = token.role as string
+        }
+        
+        if (token.id) {
+          session.user.id = token.id as string
+        }
+        
+        if (token.isVerified !== undefined) {
+          session.user.isVerified = token.isVerified as boolean
+        }
+        
+        // Only set these if they exist
+        if (token.doctorProfile) {
+          session.user.doctorProfile = token.doctorProfile as any
+        }
+        
+        if (token.patientProfile) {
+          session.user.patientProfile = token.patientProfile as any
+        }
+
         return session
       } catch (error) {
         console.error('[NextAuth Session] Error:', error)
-        return session
+        // Return a minimal valid session object on error
+        return {
+          ...session,
+          user: {
+            id: token?.id as string || '',
+            email: token?.email as string || '',
+            name: token?.name as string || '',
+            role: token?.role as string || '',
+          }
+        }
       }
     }
   },
