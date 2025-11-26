@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
+import { AppointmentStatus } from '@prisma/client'
 
 export async function GET(req: NextRequest) {
   try {
@@ -66,7 +67,7 @@ export async function GET(req: NextRequest) {
       cancelled: 0
     }
 
-    appointmentStats.forEach((stat) => {
+    appointmentStats.forEach((stat: { status: AppointmentStatus; _count: { status: number } }) => {
       stats[stat.status.toLowerCase() as keyof typeof stats] = stat._count.status
     })
 
