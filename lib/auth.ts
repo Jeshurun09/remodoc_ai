@@ -1,6 +1,5 @@
 import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
-import { CredentialsSignin } from 'next-auth/errors'
 import { prisma } from './prisma'
 import bcrypt from 'bcryptjs'
 
@@ -31,7 +30,7 @@ export const authOptions: NextAuthOptions = {
           }
 
           if (!user.isVerified) {
-            throw new CredentialsSignin('Please verify your email before signing in.')
+            throw new Error('Please verify your email before signing in.')
           }
 
           const isValid = await bcrypt.compare(credentials.password, user.password)
@@ -50,8 +49,9 @@ export const authOptions: NextAuthOptions = {
             patientProfile: user.patientProfile
           }
         } catch (error) {
-          // Re-throw CredentialsSignin errors so they're handled properly
-          if (error instanceof CredentialsSignin) {
+          // Re-throw errors so they're handled properly by NextAuth
+          // NextAuth will pass the error message to the client
+          if (error instanceof Error) {
             throw error
           }
           // Log other errors and return null to show generic error
