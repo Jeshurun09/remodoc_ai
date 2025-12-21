@@ -4,6 +4,22 @@ import { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useTheme } from '@/components/theme/ThemeProvider'
 
+// Password strength calculation
+const calculatePasswordStrength = (password: string): { score: number; label: string; color: string } => {
+  let score = 0
+  
+  if (password.length >= 8) score++
+  if (password.length >= 12) score++
+  if (/[a-z]/.test(password)) score++
+  if (/[A-Z]/.test(password)) score++
+  if (/\d/.test(password)) score++
+  if (/[!@#$%^&*(),.?":{}|<>]/.test(password)) score++
+
+  if (score <= 2) return { score, label: 'Weak', color: 'text-red-600 bg-red-50 border-red-200' }
+  if (score <= 4) return { score, label: 'Fair', color: 'text-yellow-600 bg-yellow-50 border-yellow-200' }
+  return { score, label: 'Strong', color: 'text-green-600 bg-green-50 border-green-200' }
+}
+
 const countries = [
   { name: 'Afghanistan', dialCode: '+93' },
   { name: 'Albania', dialCode: '+355' },
@@ -515,6 +531,42 @@ export default function RegisterPage() {
                 {showPassword ? 'Hide Password' : 'Show Password'}
               </button>
             </div>
+            {formData.password && (
+              <div className={`mt-3 p-3 rounded-lg border ${calculatePasswordStrength(formData.password).color}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">Password Strength</span>
+                  <span className="text-sm font-semibold">{calculatePasswordStrength(formData.password).label}</span>
+                </div>
+                <div className="w-full bg-gray-200 rounded-full h-2">
+                  <div
+                    className={`h-2 rounded-full transition-all duration-300 ${
+                      calculatePasswordStrength(formData.password).score <= 2
+                        ? 'w-1/3 bg-red-600'
+                        : calculatePasswordStrength(formData.password).score <= 4
+                        ? 'w-2/3 bg-yellow-600'
+                        : 'w-full bg-green-600'
+                    }`}
+                  />
+                </div>
+                <ul className="text-xs mt-2 space-y-1">
+                  <li className={formData.password.length >= 8 ? 'text-green-600' : 'text-gray-500'}>
+                    {formData.password.length >= 8 ? '✓' : '○'} At least 8 characters
+                  </li>
+                  <li className={/[a-z]/.test(formData.password) ? 'text-green-600' : 'text-gray-500'}>
+                    {/[a-z]/.test(formData.password) ? '✓' : '○'} Lowercase letters
+                  </li>
+                  <li className={/[A-Z]/.test(formData.password) ? 'text-green-600' : 'text-gray-500'}>
+                    {/[A-Z]/.test(formData.password) ? '✓' : '○'} Uppercase letters
+                  </li>
+                  <li className={/\d/.test(formData.password) ? 'text-green-600' : 'text-gray-500'}>
+                    {/\d/.test(formData.password) ? '✓' : '○'} Numbers
+                  </li>
+                  <li className={/[!@#$%^&*(),.?":{}|<>]/.test(formData.password) ? 'text-green-600' : 'text-gray-500'}>
+                    {/[!@#$%^&*(),.?":{}|<>]/.test(formData.password) ? '✓' : '○'} Special characters
+                  </li>
+                </ul>
+              </div>
+            )}
           </div>
 
           <div>

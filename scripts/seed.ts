@@ -16,8 +16,8 @@ async function resetDatabase() {
   const client = new MongoClient(databaseUrl)
   const collections = [
     'AILog',
-    'Message',
-    'Prescription',
+    'ChatMessage',
+    'MedicationPrescription',
     'Appointment',
     'SymptomReport',
     'DoctorProfile',
@@ -192,7 +192,7 @@ async function createUsers() {
           verificationStatus: DoctorVerificationStatus.VERIFIED,
           verifiedAt: new Date(),
           verifiedBy: admin.id,
-          hospital: 'Metro General Hospital'
+          currentInstitution: 'Metro General Hospital'
         }
       }
     },
@@ -216,7 +216,7 @@ async function createUsers() {
           verificationStatus: DoctorVerificationStatus.VERIFIED,
           verifiedAt: new Date(),
           verifiedBy: admin.id,
-          hospital: 'Savannah Heart Institute'
+          currentInstitution: 'Savannah Heart Institute'
         }
       }
     },
@@ -449,33 +449,67 @@ async function createMedicalData(
     }
   })
 
-  await prisma.prescription.create({
+  // Create medication first
+  let medication = await prisma.medication.findFirst({
+    where: { name: settings.medication }
+  })
+
+  if (!medication) {
+    medication = await prisma.medication.create({
+      data: {
+        name: settings.medication,
+        genericName: 'Generic',
+        strength: '20mg',
+        form: 'tablet',
+        manufacturer: 'Generic Manufacturer',
+        description: 'Sample medication'
+      }
+    })
+  }
+
+  await prisma.medicationPrescription.create({
     data: {
       doctorId,
       patientId: patientProfileId!,
-      medication: settings.medication,
+      medicationId: medication.id,
       dosage: '1 tablet daily',
+      frequency: 'daily',
+      duration: 30,
+      quantity: 30,
       instructions: settings.medicationInstructions,
-      startDate: new Date(),
-      endDate: null
+      expiresAt: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000) // 30 days from now
+    }
+  })
+
+  // Create a chat between doctor and patient
+  const chat = await prisma.chat.create({
+    data: {
+      type: 'DIRECT',
+      createdBy: doctorId,
+      participants: {
+        create: [
+          { userId: doctorId },
+          { userId: patientId }
+        ]
+      }
     }
   })
 
   const messages = [
     {
+      chatId: chat.id,
       senderId: doctorId,
-      receiverId: patientId,
       content: 'Please remember to log any symptoms you experience before our appointment.'
     },
     {
+      chatId: chat.id,
       senderId: patientId,
-      receiverId: doctorId,
       content: 'Thanks doctor! I will bring my recent vitals as well.'
     }
   ]
 
   for (const message of messages) {
-    await prisma.message.create({ data: message })
+    await prisma.chatMessage.create({ data: message })
   }
 
   await prisma.aILog.create({
@@ -774,7 +808,7 @@ async function seedViaMongoClient() {
       verificationStatus: 'VERIFIED',
       verifiedAt: new Date(),
       verifiedBy: adminId,
-      hospital: 'Metro General Hospital',
+      currentInstitution: 'Metro General Hospital',
       createdAt: new Date(),
       updatedAt: new Date()
     })
@@ -807,8 +841,8 @@ async function seedViaMongoClient() {
       updatedAt: new Date()
     })
 
-    // prescription
-    await db.collection('Prescription').insertOne({
+    // medicationPrescription
+    await db.collection('MedicationPrescription').insertOne({
       doctorId: doctorProfileId,
       patientId: patientProfileId,
       medication: 'Atorvastatin 20mg',
@@ -820,8 +854,8 @@ async function seedViaMongoClient() {
       updatedAt: new Date()
     })
 
-    // messages
-    await db.collection('Message').insertMany([
+    // chatMessages
+    await db.collection('ChatMessage').insertMany([
       {
         senderId: doctorUserId,
         receiverId: patientUserId,

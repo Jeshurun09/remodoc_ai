@@ -11,14 +11,17 @@ import EnhancedMessaging from '@/components/doctor/EnhancedMessaging'
 import TelemedicineConsultation from '@/components/doctor/TelemedicineConsultation'
 import AvailabilityCalendar from '@/components/doctor/AvailabilityCalendar'
 import VerificationStatus from '@/components/doctor/VerificationStatus'
+import dynamic from 'next/dynamic'
+import DoctorProfileEditor from '@/components/doctor/DoctorProfileEditor'
 import AppointmentReminders from '@/components/doctor/AppointmentReminders'
 
 export default function DoctorDashboard() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { isDark, setTheme } = useTheme()
+  const [showEditor, setShowEditor] = useState(false)
   const [activeTab, setActiveTab] = useState<
-    'overview' | 'cases' | 'prescriptions' | 'messages' | 'telemedicine' | 'availability'
+    'overview' | 'cases' | 'prescriptions' | 'messages' | 'telemedicine' | 'availability' | 'profile'
   >('overview')
 
   const toggleTheme = () => {
@@ -76,7 +79,24 @@ export default function DoctorDashboard() {
               >
                 {isDark ? '🌙' : '☀️'}
               </button>
-              <span className="text-gray-700">Dr. {session.user.name}</span>
+              <button
+                onClick={() => setShowEditor(true)}
+                className="text-gray-700 hover:underline focus:outline-none"
+                aria-label="Edit doctor profile"
+              >
+                Dr. {session.user.name}
+              </button>
+              {showEditor && (
+                <div className="fixed inset-0 z-50 flex items-start justify-center p-6">
+                  <div className="absolute inset-0 bg-black/40" onClick={() => setShowEditor(false)} />
+                  <div className="relative w-full max-w-3xl bg-white dark:bg-gray-900 rounded-lg shadow-lg p-6 overflow-auto" role="dialog" aria-modal="true">
+                    <div className="flex justify-end">
+                      <button onClick={() => setShowEditor(false)} className="px-3 py-1 text-sm">Close</button>
+                    </div>
+                    <DoctorProfileEditor />
+                  </div>
+                </div>
+              )}
               <button
                 onClick={() => signOut({ callbackUrl: '/login' })}
                 className="px-4 py-2 text-sm text-gray-700 hover:text-gray-900"
@@ -152,6 +172,16 @@ export default function DoctorDashboard() {
               >
                 Availability
               </button>
+              <button
+                onClick={() => setActiveTab('profile')}
+                className={`px-6 py-4 text-sm font-medium whitespace-nowrap ${
+                  activeTab === 'profile'
+                    ? 'border-b-2 border-blue-500 text-blue-600'
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                Profile Update
+              </button>
             </nav>
           </div>
 
@@ -167,6 +197,20 @@ export default function DoctorDashboard() {
             {activeTab === 'messages' && <EnhancedMessaging />}
             {activeTab === 'telemedicine' && <TelemedicineConsultation />}
             {activeTab === 'availability' && <AvailabilityCalendar />}
+            {activeTab === 'profile' && (
+              <div className="text-center py-12">
+                <h2 className="text-2xl font-bold mb-4">Complete Your Doctor Profile</h2>
+                <p className="text-gray-600 mb-6">
+                  Update your professional information, credentials, and documents for verification.
+                </p>
+                <Link
+                  href="/dashboard/doctor/profile-update"
+                  className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 inline-block"
+                >
+                  Start Profile Update
+                </Link>
+              </div>
+            )}
           </div>
         </div>
       </div>

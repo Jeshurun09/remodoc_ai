@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect, useCallback, useMemo } from 'react'
-import { GoogleMap, LoadScript, Marker, InfoWindow, Circle } from '@react-google-maps/api'
+import { GoogleMap, useLoadScript, Marker, InfoWindow, Circle } from '@react-google-maps/api'
 import { getDirectionsUrl } from '@/lib/maps'
 
 interface HospitalMapProps {
@@ -36,6 +36,15 @@ export default function HospitalMap({ location }: HospitalMapProps) {
   const [emergencyOnly, setEmergencyOnly] = useState(false)
   const [selectedHospital, setSelectedHospital] = useState<Hospital | null>(null)
   const [map, setMap] = useState<google.maps.Map | null>(null)
+  const [mapError, setMapError] = useState<string | null>(null)
+
+  const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''
+
+  // Use useLoadScript hook instead of LoadScript component to prevent multiple script loads
+  const { isLoaded, loadError } = useLoadScript({
+    googleMapsApiKey: googleMapsApiKey,
+    id: 'google-map-script' // Unique ID to prevent duplicate loads
+  })
 
   const center = useMemo(() => {
     if (location) {
@@ -46,6 +55,8 @@ export default function HospitalMap({ location }: HospitalMapProps) {
 
   const onLoad = useCallback((map: google.maps.Map) => {
     setMap(map)
+    // Clear any previous errors if map loads successfully
+    setMapError(null)
   }, [])
 
   const onUnmount = useCallback(() => {
@@ -98,7 +109,64 @@ export default function HospitalMap({ location }: HospitalMapProps) {
     return undefined
   }
 
-  const googleMapsApiKey = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY || ''
+  useEffect(() => {
+    // Handle load errors from useLoadScript
+    if (loadError) {
+      const errorMessage = loadError.message || String(loadError)
+      if (errorMessage.includes('BillingNotEnabled') || errorMessage.includes('BillingNotEnabledMapError')) {
+        setMapError('Google Maps billing is not enabled. Please enable billing in your Google Cloud Console.')
+      } else {
+        setMapError(`Failed to load Google Maps: ${errorMessage}`)
+      }
+    }
+
+    // Intercept console.error to catch Google Maps billing errors (only for Google Maps related errors)
+    const originalConsoleError = console.error
+    console.error = (...args: any[]) => {
+      const message = args.join(' ')
+      // Only intercept if it's a Google Maps billing error
+      if (message.includes('BillingNotEnabledMapError') || 
+          (message.includes('Google Maps') && message.includes('BillingNotEnabled'))) {
+        setMapError('Google Maps billing is not enabled. Please enable billing in your Google Cloud Console.')
+        // Suppress the console error since we're showing a user-friendly message
+        return
+      }
+      // For all other errors, log normally
+      originalConsoleError.apply(console, args)
+    }
+
+    // Listen for Google Maps API errors from window error events
+    const handleMapError = (event: ErrorEvent) => {
+      const errorMessage = event.message || event.error?.message || String(event.error || '')
+      if (errorMessage.includes('BillingNotEnabledMapError') || 
+          (errorMessage.includes('Google Maps') && errorMessage.includes('BillingNotEnabled'))) {
+        setMapError('Google Maps billing is not enabled. Please enable billing in your Google Cloud Console.')
+        // Prevent the error from appearing in console
+        event.preventDefault()
+        return false
+      }
+    }
+
+    // Also listen for unhandled promise rejections that might contain Google Maps errors
+    const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
+      const errorMessage = event.reason?.message || String(event.reason || '')
+      if (errorMessage.includes('BillingNotEnabledMapError') || 
+          (errorMessage.includes('Google Maps') && errorMessage.includes('BillingNotEnabled'))) {
+        setMapError('Google Maps billing is not enabled. Please enable billing in your Google Cloud Console.')
+        event.preventDefault()
+      }
+    }
+
+    window.addEventListener('error', handleMapError)
+    window.addEventListener('unhandledrejection', handleUnhandledRejection)
+    
+    return () => {
+      window.removeEventListener('error', handleMapError)
+      window.removeEventListener('unhandledrejection', handleUnhandledRejection)
+      // Restore original console.error
+      console.error = originalConsoleError
+    }
+  }, [loadError])
 
   if (!googleMapsApiKey) {
     return (
@@ -106,6 +174,27 @@ export default function HospitalMap({ location }: HospitalMapProps) {
         <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
           <p className="text-yellow-800">
             Google Maps API key is not configured. Please add NEXT_PUBLIC_GOOGLE_MAPS_API_KEY to your environment variables.
+          </p>
+        </div>
+      </div>
+    )
+  }
+
+  if (mapError) {
+    return (
+      <div className="space-y-4">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+          <p className="text-red-800 font-semibold mb-2">Google Maps Error</p>
+          <p className="text-red-700 text-sm">{mapError}</p>
+          <p className="text-red-600 text-xs mt-2">
+            <a 
+              href="https://developers.google.com/maps/documentation/javascript/error-messages#billing-not-enabled-map-error"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              Learn how to fix this
+            </a>
           </p>
         </div>
       </div>
@@ -145,7 +234,11 @@ export default function HospitalMap({ location }: HospitalMapProps) {
       )}
 
       <div className="w-full rounded-lg overflow-hidden">
-        <LoadScript googleMapsApiKey={googleMapsApiKey}>
+        {!isLoaded ? (
+          <div className="h-[500px] flex items-center justify-center bg-gray-100 rounded-lg">
+            <p className="text-gray-600">Loading map...</p>
+          </div>
+        ) : (
           <GoogleMap
             mapContainerStyle={mapContainerStyle}
             center={center}
@@ -225,7 +318,7 @@ export default function HospitalMap({ location }: HospitalMapProps) {
               </InfoWindow>
             )}
           </GoogleMap>
-        </LoadScript>
+        )}
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">

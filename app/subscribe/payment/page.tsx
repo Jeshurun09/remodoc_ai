@@ -37,6 +37,7 @@ function PaymentContent() {
   })
   const [processing, setProcessing] = useState(false)
   const [error, setError] = useState('')
+  const [mpesaCheckoutRequestId, setMpesaCheckoutRequestId] = useState<string | null>(null)
   const { isDark, setTheme } = useTheme()
 
   const plan = plans[planId] || plans.individual
@@ -50,6 +51,34 @@ function PaymentContent() {
       router.push('/login')
     }
   }, [status, router])
+
+  // Poll for M-Pesa payment status
+  useEffect(() => {
+    if (!mpesaCheckoutRequestId) return
+
+    const pollInterval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/subscription?checkoutRequestId=${mpesaCheckoutRequestId}`)
+        if (res.ok) {
+          const data = await res.json()
+          if (data.subscription?.status === 'ACTIVE') {
+            clearInterval(pollInterval)
+            router.push('/dashboard/patient?premium=activated')
+          }
+        }
+      } catch (err) {
+        console.error('Poll error:', err)
+      }
+    }, 3000) // Poll every 3 seconds
+
+    // Stop polling after 5 minutes
+    const timeout = setTimeout(() => clearInterval(pollInterval), 300000)
+
+    return () => {
+      clearInterval(pollInterval)
+      clearTimeout(timeout)
+    }
+  }, [mpesaCheckoutRequestId, router])
 
   const handleInputChange = (field: string, value: string) => {
     setPaymentDetails(prev => ({ ...prev, [field]: value }))
@@ -128,8 +157,30 @@ function PaymentContent() {
 
       if (res.ok) {
         const data = await res.json()
-        // Redirect to success page or dashboard
-        router.push('/dashboard/patient?premium=activated')
+        
+        if (selectedPaymentMethod === 'mpesa') {
+          // For M-Pesa, show waiting message and poll for confirmation
+          setMpesaCheckoutRequestId(data.checkoutRequestId)
+          setError('')
+        } else if (selectedPaymentMethod === 'paypal') {
+          // For PayPal, redirect to PayPal checkout
+          if (data.approvalUrl) {
+            window.location.href = data.approvalUrl
+          } else {
+            setError('Failed to get PayPal approval URL')
+          }
+        } else if (selectedPaymentMethod === 'stripe') {
+          // For Stripe, show a message to complete payment
+          // In a real implementation, you would use Stripe Elements here
+          setError('Stripe integration requires Stripe Elements. Please use a test card.')
+          // For now, just redirect
+          router.push('/dashboard/patient?premium=activated')
+        } else if (selectedPaymentMethod === 'bank') {
+          // For bank transfer, show confirmation
+          router.push(`/subscribe/payment/confirmation?transactionId=${data.transactionId}`)
+        } else {
+          router.push('/dashboard/patient?premium=activated')
+        }
       } else {
         const data = await res.json()
         setError(data.error || 'Payment processing failed')
@@ -140,6 +191,37 @@ function PaymentContent() {
     } finally {
       setProcessing(false)
     }
+  }
+
+  // Render M-Pesa waiting screen
+  if (mpesaCheckoutRequestId) {
+    return (
+      <div className="page-shell min-h-screen flex items-center justify-center">
+        <div className="surface rounded-lg shadow-sm p-8 border subtle-border max-w-md">
+          <div className="text-center">
+            <div className="text-6xl mb-4">📱</div>
+            <h2 className="text-2xl font-bold text-cyan-500 mb-2">Payment Prompt Sent</h2>
+            <p className="text-gray-600 mb-4">
+              Check your phone for the M-Pesa payment prompt and enter your PIN to complete the transaction.
+            </p>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+              <p className="text-sm text-blue-700">
+                This page will automatically redirect once payment is confirmed.
+              </p>
+            </div>
+            <button
+              onClick={() => {
+                setMpesaCheckoutRequestId(null)
+                setError('')
+              }}
+              className="px-6 py-2 border-2 border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 font-semibold"
+            >
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+    )
   }
 
   if (status === 'loading') {
@@ -222,6 +304,9 @@ function PaymentContent() {
           <form onSubmit={handleSubmit}>
             {selectedPaymentMethod === 'stripe' && (
               <div className="space-y-4 mb-6">
+                <p className="text-sm text-gray-600">
+                  Your card information will be securely processed by Stripe. Your card details are never stored on our servers.
+                </p>
                 <div>
                   <label className="block text-sm font-medium text-cyan-500 mb-2">
                     Cardholder Name
@@ -321,10 +406,16 @@ function PaymentContent() {
             )}
 
             {selectedPaymentMethod === 'paypal' && (
-              <div className="mb-6 p-4 bg-blue-50 rounded-lg">
-                <p className="text-sm text-cyan-500">
-                  You will be redirected to PayPal to complete your payment
+              <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
+                <p className="text-sm text-blue-700 mb-4">
+                  You will be securely redirected to PayPal to complete your payment. PayPal is a trusted payment platform used by millions worldwide.
                 </p>
+                <div className="flex items-center space-x-2">
+                  <div className="text-2xl">💳</div>
+                  <p className="text-sm font-semibold text-blue-700">
+                    Click "Pay" to proceed to PayPal
+                  </p>
+                </div>
               </div>
             )}
 

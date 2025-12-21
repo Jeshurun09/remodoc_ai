@@ -32,6 +32,13 @@ RemoDoc is an AI-powered telehealth web application that combines Gemini AI and 
 - Directions links powered by Google Maps
 - Location-based hospital recommendations
 
+### 💳 Premium Subscriptions & Payments
+- **Multiple Payment Methods**: M-Pesa, Stripe (credit/debit), PayPal, Bank Transfer
+- **Flexible Plans**: Free, Student, Individual, Small Group, Family
+- **M-Pesa Integration**: STK Push for seamless mobile payments (perfect for African markets)
+- **Payment History**: Track all transactions and subscription status
+- **Auto-renewal**: Subscription management and expiration handling
+
 ### 🧑‍💼 Admin Dashboard
 - **Doctor Verification**: Verify and manage doctor registrations
 - **Hospital Management**: Add, edit, and manage hospital listings
@@ -65,6 +72,7 @@ RemoDoc is an AI-powered telehealth web application that combines Gemini AI and 
 - Google Maps API key
 - SMTP credentials (for sending verification emails)
 - Twilio account (for SMS emergency beacon + appointment reminders)
+- M-Pesa credentials (optional, for payment processing) - [Setup Guide](./MPESA_SETUP.md)
 
 ### Installation
 
@@ -80,6 +88,8 @@ npm install
 
 3. Set up environment variables:
 Copy `env.example` to `.env.local` (or `.env`) and fill in the placeholders. Required values include the database connection (`DATABASE_URL`), Google Maps API key (`NEXT_PUBLIC_GOOGLE_MAPS_API_KEY`), email credentials (`EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_SECURE`, `EMAIL_USER`, `EMAIL_PASS`, `EMAIL_FROM`), and Twilio credentials (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`).
+
+   **Optional**: For M-Pesa payment integration, add `MPESA_CONSUMER_KEY`, `MPESA_CONSUMER_SECRET`, `MPESA_SHORTCODE`, `MPESA_PASSKEY`, etc. See [M-Pesa Setup Guide](./MPESA_SETUP.md).
 
 4. Sync the Prisma schema with MongoDB and seed mock data:
 ```bash
@@ -146,7 +156,7 @@ remodoc/
 7. Receive SMS reminders for confirmed appointments
 
 ### For Admins
-
+Copy `env.example` to `.env.local` (or `.env`) and fill in the placeholders. Required values include the database connection (`DATABASE_URL`), email credentials (`EMAIL_HOST`, `EMAIL_PORT`, `EMAIL_SECURE`, `EMAIL_USER`, `EMAIL_PASS`, `EMAIL_FROM`), and Twilio credentials (`TWILIO_ACCOUNT_SID`, `TWILIO_AUTH_TOKEN`, `TWILIO_PHONE_NUMBER`).
 1. Sign in with admin account
 2. Verify doctor registrations
 3. Manage hospital listings

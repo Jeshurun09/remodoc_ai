@@ -1,9 +1,19 @@
 import twilio from 'twilio'
+import { getDirectionsUrl } from './maps'
 
 const client = twilio(process.env.TWILIO_ACCOUNT_SID, process.env.TWILIO_AUTH_TOKEN)
 const twilioPhoneNumber = process.env.TWILIO_PHONE_NUMBER
 
-async function sendSMS(to: string, body: string) {
+// Internal Twilio sender is implemented below as `sendSMSInternal` and an exported
+// `sendSMS` wrapper is provided for callers. This avoids exporting internal helpers
+// directly and keeps the signature stable.
+
+export async function sendSMS(to: string, body: string) {
+  return sendSMSInternal(to, body)
+}
+
+// internal implementation to avoid name collision when exporting
+async function sendSMSInternal(to: string, body: string) {
   if (!twilioPhoneNumber) {
     throw new Error('TWILIO_PHONE_NUMBER is not configured')
   }
@@ -22,7 +32,7 @@ export async function sendEmergencySMS(
 ): Promise<void> {
   try {
     const locationText = location
-      ? `\nLocation: https://www.google.com/maps/search/?api=1&query=${location.lat},${location.lng}`
+      ? `\nLocation: ${getDirectionsUrl(location.lat, location.lng)}`
       : ''
 
     await sendSMS(

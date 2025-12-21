@@ -40,31 +40,34 @@
   - Visual urgency indicators
 
 #### 5. ✅ Find Nearby Hospitals on Map
+#### 5. ✅ Find Nearby Hospitals on Map
 - **Location**: `components/patient/HospitalMap.tsx`
 - **Features**:
-  - Interactive Google Maps integration
-  - Location-based hospital search
-  - Real-time GPS positioning
-  - Hospital markers on map
-  - Distance calculation
-  - Emergency hospital filtering
+-  - Interactive Leaflet + OpenStreetMap integration
+-  - Location-based hospital search
+-  - Real-time GPS positioning
+-  - Hospital markers on map
+-  - Distance calculation
+-  - Emergency hospital filtering
 
+#### 6. ✅ Get Directions to Hospitals
 #### 6. ✅ Get Directions to Hospitals
 - **Location**: `components/patient/HospitalMap.tsx`, `lib/maps.ts`
 - **Features**:
-  - Google Maps directions integration
-  - "Get Directions" button for each hospital
-  - Opens Google Maps with route
-  - Origin and destination coordinates
+-  - OpenStreetMap / OSRM links for directions
+-  - "Get Directions" button for each hospital
+-  - Opens OpenStreetMap directions or map view
+-  - Origin and destination coordinates
 
 #### 7. ✅ Book Appointments with Doctors
-- **Location**: `components/patient/AppointmentsList.tsx`, `app/api/appointments/route.ts`
-- **Features**:
-  - Doctor selection dropdown
-  - Date/time picker
-  - Appointment request submission
+#### ✅ Interactive Maps (Leaflet + OpenStreetMap)
+- Leaflet map component
+- Real-time location
+- Hospital markers
+- Popups
+- Search radius control
   - Status tracking (PENDING/CONFIRMED/COMPLETED/CANCELLED)
-  - Appointment history view
+✅ Leaflet + OpenStreetMap is integrated
 
 #### 8. ✅ Receive SMS Reminders
 - **Location**: `app/api/appointments/route.ts`, `lib/sms.ts`

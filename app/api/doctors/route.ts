@@ -11,25 +11,58 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
 
-    type DoctorWithUser = Prisma.DoctorProfileGetPayload<{ include: { user: true } }>
-    const doctors: DoctorWithUser[] = await prisma.doctorProfile.findMany({
-      where: { verificationStatus: 'VERIFIED' },
-      include: { user: true },
-      orderBy: { user: { name: 'asc' } }
+    // Fetch verified doctors first without user relation to avoid join issues
+    const doctorProfiles = await prisma.doctorProfile.findMany({
+      where: { 
+        verificationStatus: 'VERIFIED'
+      }
     })
 
+    // Then fetch users for each doctor, handling missing users gracefully
+    const doctorsWithUsers = await Promise.all(
+      doctorProfiles.map(async (doctor) => {
+        try {
+          const user = await prisma.user.findUnique({
+            where: { id: doctor.userId }
+          })
+          return { ...doctor, user }
+        } catch (error) {
+          // If user doesn't exist, return null
+          console.warn(`User not found for doctor ${doctor.id}: ${doctor.userId}`)
+          return { ...doctor, user: null }
+        }
+      })
+    )
+
+    // Filter out doctors without users and sort
+    const validDoctors = doctorsWithUsers
+      .filter((doctor) => doctor.user !== null)
+      .sort((a, b) => {
+        const nameA = a.user?.name || ''
+        const nameB = b.user?.name || ''
+        return nameA.localeCompare(nameB)
+      })
+
     return NextResponse.json({
-      doctors: doctors.map((doctor) => ({
+      doctors: validDoctors.map((doctor) => ({
         id: doctor.id,
-        name: doctor.user.name,
-        email: doctor.user.email,
+        userId: doctor.userId,
+        name: doctor.user?.name || 'Unknown',
+        email: doctor.user?.email || '',
         specialization: doctor.specialization,
-        hospital: doctor.hospital
+        currentInstitution: doctor.currentInstitution
       }))
     })
-  } catch (error) {
+  } catch (error: any) {
     console.error('Doctors list error:', error)
-    return NextResponse.json({ error: 'Failed to fetch doctors' }, { status: 500 })
+    const errorMessage = error?.message || 'Failed to fetch doctors'
+    return NextResponse.json(
+      { error: errorMessage },
+      { 
+        status: 500,
+        headers: { 'Content-Type': 'application/json' }
+      }
+    )
   }
 }
 

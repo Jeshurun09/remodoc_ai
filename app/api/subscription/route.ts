@@ -10,6 +10,39 @@ export async function GET(req: NextRequest) {
   }
 
   try {
+    // Check if querying by checkoutRequestId (for M-Pesa polling)
+    const checkoutRequestId = req.nextUrl.searchParams.get('checkoutRequestId')
+    
+    if (checkoutRequestId) {
+      // Find payment transaction by checkoutRequestId
+      const transaction = await prisma.paymentTransaction.findUnique({
+        where: { checkoutRequestId }
+      })
+
+      if (!transaction) {
+        return NextResponse.json({ error: 'Transaction not found' }, { status: 404 })
+      }
+
+      // Get subscription for this user
+      const subscription = await prisma.subscription.findUnique({
+        where: { userId: transaction.userId }
+      })
+
+      return NextResponse.json({
+        transaction: {
+          id: transaction.id,
+          status: transaction.status
+        },
+        subscription: subscription ? {
+          plan: subscription.plan,
+          status: subscription.status,
+          startDate: subscription.startDate.toISOString(),
+          endDate: subscription.endDate?.toISOString()
+        } : null
+      })
+    }
+
+    // Normal subscription query
     const subscription = await prisma.subscription.findUnique({
       where: { userId: session.user.id }
     })

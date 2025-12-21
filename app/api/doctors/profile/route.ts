@@ -26,7 +26,7 @@ export async function GET(req: NextRequest) {
         verifiedAt: user.doctorProfile.verifiedAt,
         licenseNumber: user.doctorProfile.licenseNumber,
         specialization: user.doctorProfile.specialization,
-        hospital: user.doctorProfile.hospital,
+        currentInstitution: user.doctorProfile.currentInstitution,
         yearsExperience: user.doctorProfile.yearsExperience
       }
     })

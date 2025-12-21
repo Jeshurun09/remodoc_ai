@@ -31,26 +31,34 @@ export default function AppointmentReminders() {
   const fetchUpcomingAppointments = async () => {
     try {
       const response = await fetch('/api/appointments')
-      if (response.ok) {
-        const data = await response.json()
-        const now = new Date()
-        const next24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000)
-
-        const upcoming = (data.appointments || [])
-          .filter((apt: Appointment) => {
-            if (!apt.scheduledAt || apt.status !== 'CONFIRMED') return false
-            const scheduled = new Date(apt.scheduledAt)
-            return scheduled >= now && scheduled <= next24Hours
-          })
-          .sort((a: Appointment, b: Appointment) => {
-            const dateA = new Date(a.scheduledAt!).getTime()
-            const dateB = new Date(b.scheduledAt!).getTime()
-            return dateA - dateB
-          })
-          .slice(0, 5) // Show next 5 appointments
-
-        setUpcomingAppointments(upcoming)
+      if (!response.ok) {
+        const contentType = response.headers.get('content-type')
+        if (contentType && contentType.includes('application/json')) {
+          const error = await response.json()
+          console.error('Error fetching appointments:', error.error || 'Failed to fetch appointments')
+        } else {
+          console.error('Error fetching appointments: Server returned non-JSON response')
+        }
+        return
       }
+      const data = await response.json()
+      const now = new Date()
+      const next24Hours = new Date(now.getTime() + 24 * 60 * 60 * 1000)
+
+      const upcoming = (data.appointments || [])
+        .filter((apt: Appointment) => {
+          if (!apt.scheduledAt || apt.status !== 'CONFIRMED') return false
+          const scheduled = new Date(apt.scheduledAt)
+          return scheduled >= now && scheduled <= next24Hours
+        })
+        .sort((a: Appointment, b: Appointment) => {
+          const dateA = new Date(a.scheduledAt!).getTime()
+          const dateB = new Date(b.scheduledAt!).getTime()
+          return dateA - dateB
+        })
+        .slice(0, 5) // Show next 5 appointments
+
+      setUpcomingAppointments(upcoming)
     } catch (error) {
       console.error('Error fetching appointments:', error)
     } finally {

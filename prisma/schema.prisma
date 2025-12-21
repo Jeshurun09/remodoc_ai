@@ -14,6 +14,7 @@ enum UserRole {
   PATIENT
   DOCTOR
   ADMIN
+  FAMILY_MEMBER
 }
 
 enum AppointmentStatus {
@@ -21,6 +22,7 @@ enum AppointmentStatus {
   CONFIRMED
   COMPLETED
   CANCELLED
+  NO_SHOW
 }
 
 enum UrgencyLevel {
@@ -34,6 +36,106 @@ enum DoctorVerificationStatus {
   PENDING
   VERIFIED
   REJECTED
+}
+
+enum VerificationStatus {
+  PENDING
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+}
+
+enum BackgroundCheckStatus {
+  NOT_REQUESTED
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum TwoFactorMethod {
+  SMS
+  EMAIL
+  AUTHENTICATOR
+  BIOMETRIC
+}
+
+enum NotificationType {
+  APPOINTMENT_REMINDER
+  APPOINTMENT_CONFIRMED
+  APPOINTMENT_CANCELLED
+  PRESCRIPTION_READY
+  LAB_RESULTS
+  PAYMENT_DUE
+  EMERGENCY_ALERT
+  MESSAGE_RECEIVED
+  SYSTEM_UPDATE
+}
+
+enum NotificationChannel {
+  PUSH
+  SMS
+  EMAIL
+  IN_APP
+}
+
+enum PaymentMethod {
+  STRIPE
+  PAYPAL
+  MPESA
+  APPLE_PAY
+  GOOGLE_PAY
+}
+
+enum InsuranceStatus {
+  ACTIVE
+  PENDING
+  EXPIRED
+  REJECTED
+}
+
+enum MessageType {
+  TEXT
+  VOICE
+  VIDEO
+  IMAGE
+  FILE
+}
+
+enum ChatType {
+  DIRECT
+  GROUP
+  FAMILY
+  TEAM
+}
+
+enum ReviewType {
+  DOCTOR
+  HOSPITAL
+  TREATMENT
+  OVERALL
+}
+
+enum EmergencyStatus {
+  ACTIVE
+  RESOLVED
+  CANCELLED
+}
+
+enum MedicationStatus {
+  ACTIVE
+  COMPLETED
+  DISCONTINUED
+  ON_HOLD
+}
+
+enum VitalType {
+  BLOOD_PRESSURE
+  HEART_RATE
+  TEMPERATURE
+  WEIGHT
+  BLOOD_SUGAR
+  OXYGEN_SATURATION
+  RESPIRATORY_RATE
 }
 
 enum SubscriptionPlan {
@@ -51,6 +153,12 @@ enum SubscriptionStatus {
   TRIAL
 }
 
+enum NotificationPreference {
+  EMAIL
+  PHONE
+  BOTH
+}
+
 model User {
   id        String   @id @default(cuid()) @map("_id")
   email     String   @unique
@@ -58,9 +166,13 @@ model User {
   name      String
   role      UserRole @default(PATIENT)
   phone     String?
+  dateOfBirth DateTime?
+  nationality String?
   isVerified Boolean  @default(false)
   verificationCode String?
   verificationExpires DateTime?
+  isOnline  Boolean  @default(false)
+  lastSeen  DateTime @default(now())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
@@ -71,6 +183,23 @@ model User {
   receivedMessages Message[]      @relation("ReceivedMessages")
   aiLogs           AILog[]
   subscription     Subscription?
+  payments         PaymentTransaction[] @relation("UserPayments")
+  initiatedCalls   VideoCallInvitation[] @relation("VideoCallInitiator")
+  receivedCalls    VideoCallInvitation[] @relation("VideoCallRecipient")
+  verificationActions DoctorVerificationHistory[]
+  twoFactorAuth    TwoFactorAuth?
+  auditLogs        SecurityAuditLog[]
+  notifications    Notification[]
+  notificationPrefs NotificationPreferences?
+  createdChats     Chat[]         @relation("ChatCreator")
+  chatParticipants ChatParticipant[]
+  sentChatMessages ChatMessage[]  @relation("SentMessages")
+  paymentMethods   UserPaymentMethod[]
+  familyMembers    FamilyMember[]
+  reviewsGiven     Review[]       @relation("ReviewReviewer")
+  reviewsReceived  Review[]       @relation("ReviewReviewee")
+  complaintsFiled  Complaint[]    @relation("ComplaintComplainant")
+  complaintsAssigned Complaint[]  @relation("ComplaintAssignee")
 }
 
 model PatientProfile {
@@ -88,24 +217,192 @@ model PatientProfile {
   user        User          @relation(fields: [userId], references: [id])
   appointments Appointment[]
   symptoms    SymptomReport[]
+  emergencyContacts EmergencyContact[]
+  insurances  Insurance[]
+  prescriptions MedicationPrescription[]
+  medicationReminders MedicationReminder[]
+  vitalSigns  VitalSign[]
+  familyMembers FamilyMember[]
+  emergencies  Emergency[]
+  voiceHealthAnalyses VoiceHealthAnalysis[]
+  medicalReportSummaries MedicalReportSummary[]
+  symptomPatterns SymptomPattern[]
+  skinLesionScans SkinLesionScan[]
+  healthTimeline HealthTimeline[]
 }
 
 model DoctorProfile {
   id              String                  @id @default(cuid()) @map("_id")
   userId          String                  @unique
   licenseNumber   String                  @unique
+  licenseIssuingAuthority String?
+  licenseIssueDate DateTime?
+  licenseExpiryDate DateTime?
   specialization  String
+  subspecialty    String?
   yearsExperience Int
-  hospital        String?
+  medicalSchool   String?
+  graduationYear  Int?
+  medicalDegree   String?
+  currentInstitution String?
+  professionalContact String?
   verificationStatus DoctorVerificationStatus @default(PENDING)
   verifiedAt      DateTime?
   verifiedBy      String? // Admin ID
+  verificationCompletedAt DateTime?
+  verificationReviewedBy String?
+  // Payout/contact fields
+  stripeAccountId String?
+  paypalPayoutEmail String?
+  mpesaPhoneNumber String?
+  bankDetails     String? // JSON string with bank account details
   createdAt       DateTime                @default(now())
   updatedAt       DateTime                @updatedAt
 
   user         User          @relation(fields: [userId], references: [id])
   appointments Appointment[]
-  prescriptions Prescription[]
+  prescriptions MedicationPrescription[]
+  payouts      DoctorPayout[]
+  verificationRequests DoctorVerificationRequest[]
+  boardCertifications DoctorBoardCertification[]
+  references DoctorReference[]
+  documents DoctorDocument[]
+  verificationHistory DoctorVerificationHistory[]
+}
+
+model DoctorVerificationRequest {
+  id                    String               @id @default(cuid()) @map("_id")
+  doctorId              String
+  fullLegalName         String
+  nationalId            String
+  registrationNumber    String
+  registrationStatusUrl String?              // Link to council portal verification
+  licenseUrl            String?              // Medical license file (PDF/image)
+  degreeUrl             String?              // Degree certificate
+  internshipLetterUrl   String?              // Internship completion letter
+  postgraduateUrl       String?              // Postgraduate qualification
+  facilityName          String?
+  facilityAddress       String?
+  facilityOfficialEmail String?
+  passportPhotoUrl      String?
+  phoneNumber           String?
+  phoneVerified         Boolean              @default(false)
+  signedOathUrl         String?              // Signed professional oath document
+  backgroundCheckStatus BackgroundCheckStatus @default(NOT_REQUESTED)
+  backgroundCheckReference String?
+  optionalDocuments     String?              // JSON array for specialty/CPD etc.
+  status                VerificationStatus   @default(PENDING)
+  adminNotes            String?
+  reviewedBy            String?
+  reviewedAt            DateTime?
+  createdAt             DateTime             @default(now())
+  updatedAt             DateTime             @updatedAt
+
+  doctor DoctorProfile @relation(fields: [doctorId], references: [id])
+
+  @@index([doctorId])
+}
+
+model DoctorBoardCertification {
+  id             String       @id @default(cuid()) @map("_id")
+  doctorId       String
+  certificationName String
+  issuingBody    String
+  issueDate      DateTime?
+  expiryDate     DateTime?
+  certificateUrl String?
+  verified       Boolean      @default(false)
+  verificationNotes String?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  doctor DoctorProfile @relation(fields: [doctorId], references: [id])
+
+  @@index([doctorId])
+}
+
+model DoctorReference {
+  id             String       @id @default(cuid()) @map("_id")
+  doctorId       String
+  name           String
+  title          String
+  institution    String
+  email          String
+  phone          String
+  relationship   String
+  verified       Boolean      @default(false)
+  verificationNotes String?
+  verifiedBy     String?
+  verifiedAt     DateTime?
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  doctor DoctorProfile @relation(fields: [doctorId], references: [id])
+
+  @@index([doctorId])
+}
+
+model DoctorDocument {
+  id             String       @id @default(cuid()) @map("_id")
+  doctorId       String
+  documentType   String       // 'license', 'degree', 'board_cert', 'gov_id', 'headshot', 'cv'
+  fileUrl        String
+  verified       Boolean      @default(false)
+  verificationNotes String?
+  uploadedAt     DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  doctor DoctorProfile @relation(fields: [doctorId], references: [id])
+
+  @@index([doctorId])
+}
+
+model DoctorVerificationHistory {
+  id             String       @id @default(cuid()) @map("_id")
+  doctorId       String
+  action         String       // 'approved', 'rejected', 'requested_changes'
+  notes          String?
+  adminId        String
+  createdAt      DateTime     @default(now())
+
+  doctor DoctorProfile @relation(fields: [doctorId], references: [id])
+  admin  User          @relation(fields: [adminId], references: [id])
+
+  @@index([doctorId])
+  @@index([adminId])
+}
+
+model PhoneOtp {
+  id         String   @id @default(cuid()) @map("_id")
+  phone      String
+  code       String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([phone])
+}
+
+model EmailOtp {
+  id         String   @id @default(cuid()) @map("_id")
+  email      String
+  code       String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+
+  @@index([email])
+}
+
+model AuditLog {
+  id          String   @id @default(cuid()) @map("_id")
+  actorId     String   // admin user id
+  action      String   // e.g. APPROVE_VERIFICATION, REJECT_VERIFICATION, REQUEST_BACKGROUND_CHECK
+  targetType  String   // e.g. DoctorVerificationRequest
+  targetId    String
+  details     String?  // JSON string with extra data
+  createdAt   DateTime @default(now())
+
+  @@index([actorId])
+  @@index([targetType, targetId])
 }
 
 model Hospital {
@@ -158,21 +455,7 @@ model Appointment {
   patient      PatientProfile   @relation(fields: [patientId], references: [id])
   doctor       DoctorProfile?   @relation(fields: [doctorId], references: [id])
   symptomReport SymptomReport?  @relation(fields: [symptomReportId], references: [id])
-}
-
-model Prescription {
-  id          String   @id @default(cuid()) @map("_id")
-  doctorId   String
-  patientId  String
-  medication String
-  dosage     String
-  instructions String
-  startDate  DateTime
-  endDate    DateTime?
-  createdAt  DateTime @default(now())
-  updatedAt  DateTime @updatedAt
-
-  doctor DoctorProfile @relation(fields: [doctorId], references: [id])
+  prescriptions MedicationPrescription[]
 }
 
 model Message {
@@ -284,3 +567,607 @@ model Invite {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model PaymentTransaction {
+  id                String   @id @default(cuid()) @map("_id")
+  userId            String
+  subscriptionId    String?
+  transactionId     String   @unique
+  amount            Float
+  currency          String   @default("KES")
+  status            String   @default("pending") // pending, completed, failed, refunded
+  method            String   // mpesa, stripe, paypal, bank
+  phoneNumber       String?  // For M-Pesa
+  merchantRequestId String?  // M-Pesa
+  checkoutRequestId String?  // M-Pesa
+  receiptNumber     String?  // M-Pesa receipt
+  plan              String
+  description       String?
+  metadata          String?  // JSON metadata
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  user User @relation("UserPayments", fields: [userId], references: [id])
+}
+
+enum PayoutStatus {
+  PENDING
+  READY
+  APPROVED
+  PROCESSING
+  PAID
+  FAILED
+  CANCELLED
+}
+
+enum PayoutProvider {
+  STRIPE_CONNECT
+  PAYPAL_PAYOUTS
+  MPESA_B2C
+  BANK_TRANSFER
+}
+
+model DoctorPayout {
+  id                 String        @id @default(cuid()) @map("_id")
+  doctorId           String
+  periodStart        DateTime
+  periodEnd          DateTime
+  consultationsCount Int           @default(0)
+  interactionsCount  Int           @default(0)
+  amountDue          Float         @default(0)
+  currency           String        @default("KES")
+  status             PayoutStatus  @default(PENDING)
+  provider           PayoutProvider?
+  providerReference  String?
+  approvedByAdminId  String?
+  processedAt        DateTime?
+  notes              String?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  doctor DoctorProfile @relation(fields: [doctorId], references: [id])
+  items  DoctorPayoutItem[]
+}
+
+model DoctorPayoutItem {
+  id           String   @id @default(cuid()) @map("_id")
+  payoutId     String
+  appointmentId String?
+  description  String?
+  amount       Float
+  currency     String   @default("KES")
+  createdAt    DateTime @default(now())
+
+  payout DoctorPayout @relation(fields: [payoutId], references: [id])
+}
+
+model EmergencyContact {
+  id              String                   @id @default(cuid()) @map("_id")
+  patientId       String
+  name            String
+  relationship    String                   // "parent", "spouse", "sibling", "friend", "other"
+  phone           String?
+  email           String?
+  notificationPreference NotificationPreference @default(BOTH)
+  isPrimary       Boolean                  @default(false)
+  verified        Boolean                  @default(false)
+  verificationCode String?
+  verificationExpires DateTime?
+  createdAt       DateTime                 @default(now())
+  updatedAt       DateTime                 @updatedAt
+
+  patient PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@unique([patientId, email])
+  @@unique([patientId, phone])
+}
+
+model IotDevice {
+  id              String   @id @default(cuid()) @map("_id")
+  userId          String
+  deviceId        String   // Bluetooth device ID
+  name            String   // User-friendly name
+  type            String   // "smartwatch", "fitness_band", "smart_ring", "bp_monitor", "scale", "glucose_meter"
+  macAddress      String?  // Bluetooth MAC address
+  manufacturer    String?
+  isConnected     Boolean  @default(false)
+  lastSync        DateTime?
+  syncInterval    Int      @default(5) // minutes between syncs
+  dataTypes       String   // JSON array of data types: ["heart_rate", "blood_pressure", "temperature", "weight", "glucose"]
+  battery         Int?     // Battery percentage
+  firmwareVersion String?
+  timezone        String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([userId, deviceId])
+}
+
+enum VideoCallStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+  CANCELLED
+}
+
+model VideoCallInvitation {
+  id            String           @id @default(cuid()) @map("_id")
+  initiatorId   String           // User ID of the person initiating the call
+  recipientId   String           // User ID of the person receiving the call
+  status        VideoCallStatus  @default(PENDING)
+  roomId        String?          // WebRTC room ID for the call
+  expiresAt     DateTime         // 30 seconds to respond
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  initiator User @relation("VideoCallInitiator", fields: [initiatorId], references: [id])
+  recipient User @relation("VideoCallRecipient", fields: [recipientId], references: [id])
+
+  @@index([recipientId, status])
+  @@index([expiresAt])
+}
+
+// Advanced Security & Compliance
+model TwoFactorAuth {
+  id          String          @id @default(cuid()) @map("_id")
+  userId      String          @unique
+  method      TwoFactorMethod
+  secret      String?         // For authenticator apps
+  backupCodes String[]        // Encrypted backup codes
+  isEnabled   Boolean         @default(false)
+  verifiedAt  DateTime?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SecurityAuditLog {
+  id          String   @id @default(cuid()) @map("_id")
+  userId      String?
+  action      String   // "LOGIN", "VIEW_PATIENT_DATA", "UPDATE_PRESCRIPTION", etc.
+  resource    String   // "PATIENT", "APPOINTMENT", "PRESCRIPTION", etc.
+  resourceId  String?
+  details     String?  // JSON string with additional details
+  ipAddress   String?
+  userAgent   String?
+  timestamp   DateTime @default(now())
+
+  user User? @relation(fields: [userId], references: [id])
+
+  @@index([userId])
+  @@index([resource, resourceId])
+  @@index([timestamp])
+}
+
+// Enhanced Communication
+model Notification {
+  id          String              @id @default(cuid()) @map("_id")
+  userId      String
+  type        NotificationType
+  title       String
+  message     String
+  data        String?             // JSON string for additional data
+  channels    NotificationChannel[]
+  isRead      Boolean             @default(false)
+  readAt      DateTime?
+  sentAt      DateTime            @default(now())
+  expiresAt   DateTime?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([sentAt])
+}
+
+model NotificationPreferences {
+  id                    String                @id @default(cuid()) @map("_id")
+  userId                String                @unique
+  appointmentReminders  Boolean               @default(true)
+  prescriptionAlerts    Boolean               @default(true)
+  labResults            Boolean               @default(true)
+  paymentNotifications  Boolean               @default(true)
+  emergencyAlerts       Boolean               @default(true)
+  marketingEmails       Boolean               @default(false)
+  smsEnabled            Boolean               @default(true)
+  pushEnabled           Boolean               @default(true)
+  emailDigest           String                @default("DAILY") // "NONE", "DAILY", "WEEKLY"
+  quietHoursStart       String?               // "22:00"
+  quietHoursEnd         String?               // "08:00"
+  createdAt             DateTime              @default(now())
+  updatedAt             DateTime              @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Chat {
+  id          String     @id @default(cuid()) @map("_id")
+  type        ChatType   @default(DIRECT)
+  name        String?    // For group chats
+  description String?
+  avatar      String?
+  isActive    Boolean    @default(true)
+  createdBy   String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  creator     User                   @relation("ChatCreator", fields: [createdBy], references: [id])
+  participants ChatParticipant[]
+  messages    ChatMessage[]
+
+  @@index([type])
+  @@index([createdBy])
+}
+
+model ChatParticipant {
+  id        String    @id @default(cuid()) @map("_id")
+  chatId    String
+  userId    String
+  role      String    @default("MEMBER") // "ADMIN", "MEMBER"
+  joinedAt  DateTime  @default(now())
+  leftAt    DateTime?
+  isActive  Boolean   @default(true)
+
+  chat Chat @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([chatId, userId])
+  @@index([userId])
+}
+
+model ChatMessage {
+  id            String      @id @default(cuid()) @map("_id")
+  chatId        String
+  senderId      String
+  type          MessageType @default(TEXT)
+  content       String
+  fileUrl       String?
+  fileName      String?
+  fileSize      Int?
+  replyToId     String?
+  isEdited      Boolean     @default(false)
+  editedAt      DateTime?
+  isDeleted     Boolean     @default(false)
+  deletedAt     DateTime?
+  readBy        String[]    // User IDs who have read this message
+  deliveredAt   DateTime?
+  sentAt        DateTime    @default(now())
+
+  chat    Chat         @relation(fields: [chatId], references: [id], onDelete: Cascade)
+  sender  User         @relation("SentMessages", fields: [senderId], references: [id])
+  replyTo ChatMessage? @relation("MessageReplies", fields: [replyToId], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  replies ChatMessage[] @relation("MessageReplies")
+
+  @@index([chatId, sentAt])
+  @@index([senderId])
+}
+
+// Payment & Insurance
+model UserPaymentMethod {
+  id            String        @id @default(cuid()) @map("_id")
+  userId        String
+  type          PaymentMethod
+  providerId    String        // Stripe payment method ID, PayPal token, etc.
+  last4         String?
+  expiryMonth   Int?
+  expiryYear    Int?
+  isDefault     Boolean       @default(false)
+  isVerified    Boolean       @default(false)
+  metadata      String?       // JSON string for additional data
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isDefault])
+}
+
+model Insurance {
+  id                String          @id @default(cuid()) @map("_id")
+  patientId         String
+  providerName      String
+  policyNumber      String
+  groupNumber       String?
+  memberId          String
+  cardFrontUrl      String?
+  cardBackUrl       String?
+  status            InsuranceStatus @default(PENDING)
+  coverageDetails   String?         // JSON string with coverage info
+  copayAmount       Float?
+  deductible        Float?
+  outOfPocketMax    Float?
+  effectiveDate     DateTime
+  expiryDate        DateTime
+  verifiedAt        DateTime?
+  verifiedBy        String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  patient PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId])
+  @@index([status])
+}
+
+// Medication Management
+model Medication {
+  id              String   @id @default(cuid()) @map("_id")
+  name            String
+  genericName     String?
+  strength        String
+  form            String   // "tablet", "capsule", "liquid", etc.
+  manufacturer    String?
+  description     String?
+  sideEffects     String?
+  interactions    String?  // JSON array of drug interactions
+  contraindications String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  prescriptions   MedicationPrescription[]
+}
+
+model MedicationPrescription {
+  id                String            @id @default(cuid()) @map("_id")
+  patientId         String
+  doctorId          String
+  appointmentId     String?
+  medicationId      String
+  dosage            String            // "500mg"
+  frequency         String            // "twice daily"
+  duration          Int               // days
+  quantity          Int
+  instructions      String
+  refillsAllowed    Int               @default(0)
+  refillsRemaining  Int               @default(0)
+  status            MedicationStatus  @default(ACTIVE)
+  prescribedAt      DateTime          @default(now())
+  expiresAt         DateTime
+  filledAt          DateTime?
+  pharmacyId        String?
+  notes             String?
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  patient     PatientProfile @relation(fields: [patientId], references: [id])
+  doctor      DoctorProfile  @relation(fields: [doctorId], references: [id])
+  appointment Appointment?   @relation(fields: [appointmentId], references: [id])
+  medication  Medication     @relation(fields: [medicationId], references: [id])
+  reminders   MedicationReminder[]
+
+  @@index([patientId, status])
+  @@index([doctorId])
+  @@index([expiresAt])
+}
+
+model MedicationReminder {
+  id             String   @id @default(cuid()) @map("_id")
+  prescriptionId String
+  patientId      String
+  scheduledTime  DateTime
+  isTaken        Boolean  @default(false)
+  takenAt        DateTime?
+  skippedReason  String?
+  reminderSent   Boolean  @default(false)
+  reminderSentAt DateTime?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  prescription MedicationPrescription @relation(fields: [prescriptionId], references: [id], onDelete: Cascade)
+  patient      PatientProfile @relation(fields: [patientId], references: [id])
+
+  @@index([prescriptionId])
+  @@index([patientId, scheduledTime])
+}
+
+// Health Analytics
+model VitalSign {
+  id          String     @id @default(cuid()) @map("_id")
+  patientId   String
+  type        VitalType
+  value       Float
+  unit        String     // "mmHg", "bpm", "°C", "kg", etc.
+  recordedAt  DateTime
+  recordedBy  String     // User ID who recorded it
+  deviceId    String?    // IoT device ID
+  notes       String?
+  isManual    Boolean    @default(true)
+  createdAt   DateTime   @default(now())
+
+  patient PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId, type, recordedAt])
+  @@index([recordedBy])
+}
+
+// Family & Emergency
+model FamilyMember {
+  id            String   @id @default(cuid()) @map("_id")
+  patientId     String
+  userId        String?  // If they have their own account
+  name          String
+  relationship  String
+  email         String?
+  phone         String?
+  dateOfBirth   DateTime?
+  canAccessRecords Boolean @default(false)
+  emergencyContact Boolean @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  patient PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+  user    User?         @relation(fields: [userId], references: [id])
+
+  @@index([patientId])
+  @@index([userId])
+}
+
+model Emergency {
+  id            String          @id @default(cuid()) @map("_id")
+  patientId     String
+  reportedBy    String          // User ID
+  type          String          // "medical", "accident", "cardiac", etc.
+  severity      UrgencyLevel    @default(HIGH)
+  description   String
+  location      String?         // GPS coordinates or address
+  status        EmergencyStatus @default(ACTIVE)
+  ambulanceDispatched Boolean    @default(false)
+  ambulanceId    String?
+  hospitalId     String?
+  resolvedAt    DateTime?
+  resolution    String?
+  createdAt     DateTime        @default(now())
+  updatedAt     DateTime        @updatedAt
+
+  patient PatientProfile @relation(fields: [patientId], references: [id])
+
+  @@index([patientId, status])
+  @@index([status, createdAt])
+}
+
+// Reviews & Quality Assurance
+model Review {
+  id          String     @id @default(cuid()) @map("_id")
+  reviewerId  String     // Patient ID
+  revieweeId  String     // Doctor or Hospital ID
+  type        ReviewType
+  rating      Int        // 1-5 stars
+  title       String
+  comment     String
+  isAnonymous Boolean    @default(false)
+  isVerified  Boolean    @default(false) // Verified patient
+  helpful     Int        @default(0)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  reviewer User @relation("ReviewReviewer", fields: [reviewerId], references: [id])
+  reviewee User @relation("ReviewReviewee", fields: [revieweeId], references: [id])
+
+  @@index([revieweeId, type])
+  @@index([rating])
+}
+
+model Complaint {
+  id            String   @id @default(cuid()) @map("_id")
+  complainantId String
+  subjectId     String   // Doctor, Hospital, or System
+  subjectType   String   // "DOCTOR", "HOSPITAL", "SYSTEM"
+  category      String   // "SERVICE", "BILLING", "QUALITY", etc.
+  title         String
+  description   String
+  status        String   @default("OPEN") // "OPEN", "INVESTIGATING", "RESOLVED", "CLOSED"
+  priority      String   @default("MEDIUM") // "LOW", "MEDIUM", "HIGH", "CRITICAL"
+  assignedTo    String?
+  resolution    String?
+  resolvedAt    DateTime?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  complainant User @relation("ComplaintComplainant", fields: [complainantId], references: [id])
+  assignee    User? @relation("ComplaintAssignee", fields: [assignedTo], references: [id])
+
+  @@index([complainantId])
+  @@index([subjectId, subjectType])
+  @@index([status])
+}
+
+// AI Health Features Models
+model VoiceHealthAnalysis {
+  id              String   @id @default(cuid()) @map("_id")
+  patientId       String
+  audioUrl        String   // URL to audio recording
+  duration        Float    // Duration in seconds
+  analysis        String   // JSON string with AI analysis
+  healthIndicators String? // JSON array of detected indicators
+  recommendations String? // AI recommendations
+  confidence      Float?   // AI confidence score (0-1)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId, createdAt])
+}
+
+model MedicalReportSummary {
+  id              String   @id @default(cuid()) @map("_id")
+  patientId       String
+  originalReportUrl String // URL to original report file
+  reportType      String   // "lab_result", "imaging", "pathology", "discharge_summary", etc.
+  originalText    String?  // Extracted text from report
+  summary         String   // AI-generated summary
+  keyFindings     String   // JSON array of key findings
+  recommendations String?  // AI recommendations
+  urgency         UrgencyLevel?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId, createdAt])
+  @@index([reportType])
+}
+
+model SymptomPattern {
+  id              String   @id @default(cuid()) @map("_id")
+  patientId       String
+  patternType     String   // "recurring", "seasonal", "progressive", "cyclic", etc.
+  symptoms        String   // JSON array of symptoms
+  frequency       String?  // "daily", "weekly", "monthly", etc.
+  duration        String?  // Duration pattern
+  triggers        String?  // JSON array of potential triggers
+  aiInsights      String   // AI pattern recognition insights
+  recommendations String?  // AI recommendations
+  confidence      Float?   // Pattern confidence score (0-1)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId, createdAt])
+  @@index([patternType])
+}
+
+model SkinLesionScan {
+  id              String   @id @default(cuid()) @map("_id")
+  patientId       String
+  imageUrl        String   // URL to skin lesion image
+  bodyLocation    String?  // Where on body the lesion is located
+  analysis        String   // JSON string with AI analysis
+  lesionType      String?  // AI-detected lesion type
+  riskLevel       String?  // "low", "medium", "high", "urgent"
+  characteristics String?  // JSON object with characteristics (size, color, shape, etc.)
+  recommendations String?  // AI recommendations
+  confidence      Float?   // AI confidence score (0-1)
+  followUpDate    DateTime? // Recommended follow-up date
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId, createdAt])
+  @@index([riskLevel])
+}
+
+model HealthTimeline {
+  id              String   @id @default(cuid()) @map("_id")
+  patientId       String
+  eventType       String   // "symptom", "appointment", "medication", "vital", "scan", "report", etc.
+  eventId         String?  // Reference to the original event (symptomReportId, appointmentId, etc.)
+  title           String
+  description     String?
+  date            DateTime
+  category        String?  // "medical", "lifestyle", "medication", "diagnostic", etc.
+  metadata        String?  // JSON string with additional data
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  patient PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
+
+  @@index([patientId, date])
+  @@index([eventType])
+  @@index([category])
+}
+

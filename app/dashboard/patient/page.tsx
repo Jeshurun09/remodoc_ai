@@ -9,11 +9,17 @@ import dynamic from 'next/dynamic'
 import SymptomChecker from '@/components/patient/SymptomChecker'
 import AppointmentsList from '@/components/patient/AppointmentsList'
 import EmergencyBeacon from '@/components/patient/EmergencyBeacon'
+import EmergencyContactsManager from '@/components/patient/EmergencyContactsManager'
 import Telemedicine from '@/components/patient/Telemedicine'
 import IoTHealthSync from '@/components/patient/IoTHealthSync'
 import HealthInsights from '@/components/patient/HealthInsights'
 import Accessibility from '@/components/patient/Accessibility'
 import CloudHealthRecords from '@/components/patient/CloudHealthRecords'
+import VoiceHealthAnalysis from '@/components/patient/VoiceHealthAnalysis'
+import MedicalReportSummary from '@/components/patient/MedicalReportSummary'
+import SymptomPatternRecognition from '@/components/patient/SymptomPatternRecognition'
+import SkinLesionScanner from '@/components/patient/SkinLesionScanner'
+import HealthTimeMachine from '@/components/patient/HealthTimeMachine'
 
 const HospitalMap = dynamic(() => import('@/components/patient/HospitalMap'), {
   ssr: false,
@@ -28,7 +34,7 @@ export default function PatientDashboard() {
   const { data: session, status } = useSession()
   const router = useRouter()
   const { isDark, setTheme } = useTheme()
-  const [activeTab, setActiveTab] = useState<'symptoms' | 'hospitals' | 'appointments' | 'telemedicine' | 'iot' | 'insights' | 'accessibility' | 'records'>('symptoms')
+  const [activeTab, setActiveTab] = useState<'symptoms' | 'hospitals' | 'appointments' | 'telemedicine' | 'iot' | 'insights' | 'accessibility' | 'records' | 'emergency' | 'voice-health' | 'report-summary' | 'pattern-recognition' | 'skin-scanner' | 'timeline'>('symptoms')
   const [location, setLocation] = useState<{ lat: number; lng: number } | null>(null)
   const [subscription, setSubscription] = useState<{ plan: string; status: string } | null>(null)
   const [isPremium, setIsPremium] = useState(false)
@@ -58,10 +64,46 @@ export default function PatientDashboard() {
             lng: position.coords.longitude
           })
         },
-        (error) => {
-          console.error('Geolocation error:', error)
+        (error: GeolocationPositionError) => {
+          // Handle different geolocation error types
+          let errorMessage = 'Unable to get your location'
+          
+          switch (error.code) {
+            case error.PERMISSION_DENIED:
+              errorMessage = 'Location access denied. Please enable location permissions to use location-based features.'
+              break
+            case error.POSITION_UNAVAILABLE:
+              errorMessage = 'Location information is unavailable.'
+              break
+            case error.TIMEOUT:
+              errorMessage = 'Location request timed out.'
+              break
+            default:
+              errorMessage = `Location error: ${error.message || 'Unknown error'}`
+              break
+          }
+          
+          // Only log non-permission errors (permission denied is expected in some cases)
+          if (error.code !== error.PERMISSION_DENIED) {
+            console.warn('Geolocation error:', {
+              code: error.code,
+              message: error.message,
+              type: error.code === error.PERMISSION_DENIED ? 'PERMISSION_DENIED' :
+                    error.code === error.POSITION_UNAVAILABLE ? 'POSITION_UNAVAILABLE' :
+                    error.code === error.TIMEOUT ? 'TIMEOUT' : 'UNKNOWN'
+            })
+          }
+          
+          // Location will remain null, which is fine - components should handle null location gracefully
+        },
+        {
+          enableHighAccuracy: false,
+          timeout: 10000,
+          maximumAge: 300000 // 5 minutes
         }
       )
+    } else {
+      console.warn('Geolocation is not supported by this browser')
     }
 
     // Fetch subscription status
@@ -190,6 +232,66 @@ export default function PatientDashboard() {
               >
                 Appointments
               </button>
+              <button
+                onClick={() => setActiveTab('emergency')}
+                className={`px-4 py-4 text-sm font-medium whitespace-nowrap ${
+                  activeTab === 'emergency'
+                    ? 'border-b-2 border-cyan-500 text-cyan-500'
+                    : 'text-cyan-500 hover:text-cyan-600'
+                }`}
+              >
+                🚨 Emergency Contacts
+              </button>
+              <button
+                onClick={() => setActiveTab('voice-health')}
+                className={`px-4 py-4 text-sm font-medium whitespace-nowrap ${
+                  activeTab === 'voice-health'
+                    ? 'border-b-2 border-cyan-500 text-cyan-500'
+                    : 'text-cyan-500 hover:text-cyan-600'
+                }`}
+              >
+                🎤 Voice Health
+              </button>
+              <button
+                onClick={() => setActiveTab('report-summary')}
+                className={`px-4 py-4 text-sm font-medium whitespace-nowrap ${
+                  activeTab === 'report-summary'
+                    ? 'border-b-2 border-cyan-500 text-cyan-500'
+                    : 'text-cyan-500 hover:text-cyan-600'
+                }`}
+              >
+                📄 Report Summary
+              </button>
+              <button
+                onClick={() => setActiveTab('pattern-recognition')}
+                className={`px-4 py-4 text-sm font-medium whitespace-nowrap ${
+                  activeTab === 'pattern-recognition'
+                    ? 'border-b-2 border-cyan-500 text-cyan-500'
+                    : 'text-cyan-500 hover:text-cyan-600'
+                }`}
+              >
+                🔍 Pattern Recognition
+              </button>
+              <button
+                onClick={() => setActiveTab('skin-scanner')}
+                className={`px-4 py-4 text-sm font-medium whitespace-nowrap ${
+                  activeTab === 'skin-scanner'
+                    ? 'border-b-2 border-cyan-500 text-cyan-500'
+                    : 'text-cyan-500 hover:text-cyan-600'
+                }`}
+              >
+                📷 Skin Scanner
+              </button>
+              <button
+                onClick={() => setActiveTab('timeline')}
+                className={`px-4 py-4 text-sm font-medium whitespace-nowrap ${
+                  activeTab === 'timeline'
+                    ? 'border-b-2 border-cyan-500 text-cyan-500'
+                    : 'text-cyan-500 hover:text-cyan-600'
+                }`}
+              >
+                ⏰ Health Timeline
+              </button>
               {isPremium ? (
                 <>
                   <button
@@ -258,6 +360,12 @@ export default function PatientDashboard() {
             {activeTab === 'symptoms' && <SymptomChecker location={location} />}
             {activeTab === 'hospitals' && <HospitalMap location={location} />}
             {activeTab === 'appointments' && <AppointmentsList />}
+            {activeTab === 'emergency' && <EmergencyContactsManager isDark={isDark} />}
+            {activeTab === 'voice-health' && <VoiceHealthAnalysis />}
+            {activeTab === 'report-summary' && <MedicalReportSummary />}
+            {activeTab === 'pattern-recognition' && <SymptomPatternRecognition />}
+            {activeTab === 'skin-scanner' && <SkinLesionScanner />}
+            {activeTab === 'timeline' && <HealthTimeMachine />}
             {isPremium ? (
               <>
                 {activeTab === 'telemedicine' && <Telemedicine />}

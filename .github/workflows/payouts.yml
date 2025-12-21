@@ -1,0 +1,28 @@
+name: Payouts CI
+
+on:
+  push:
+    paths:
+      - 'scripts/**'
+      - 'lib/**'
+      - '.github/workflows/payouts.yml'
+
+jobs:
+  payouts-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Use Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+      - name: Install deps
+        run: |
+          npm ci
+      - name: Generate Prisma client
+        run: npx prisma generate
+      - name: Run payout tests
+        run: npm run test:payouts
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+

@@ -25,7 +25,7 @@ interface Doctor {
   name: string
   email: string
   specialization: string
-  hospital: string | null
+  currentInstitution: string | null
 }
 
 export default function AppointmentsList() {
@@ -48,10 +48,18 @@ export default function AppointmentsList() {
   const fetchAppointments = async () => {
     try {
       const response = await fetch('/api/appointments')
-      const data = await response.json()
-      if (response.ok) {
-        setAppointments(data.appointments || [])
+      if (!response.ok) {
+        const contentType = response.headers.get('content-type')
+        if (contentType && contentType.includes('application/json')) {
+          const error = await response.json()
+          console.error('Error fetching appointments:', error.error || 'Failed to fetch appointments')
+        } else {
+          console.error('Error fetching appointments: Server returned non-JSON response')
+        }
+        return
       }
+      const data = await response.json()
+      setAppointments(data.appointments || [])
     } catch (error) {
       console.error('Error fetching appointments:', error)
     } finally {
@@ -62,10 +70,18 @@ export default function AppointmentsList() {
   const fetchDoctors = async () => {
     try {
       const response = await fetch('/api/doctors')
-      const data = await response.json()
-      if (response.ok) {
-        setDoctors(data.doctors || [])
+      if (!response.ok) {
+        const contentType = response.headers.get('content-type')
+        if (contentType && contentType.includes('application/json')) {
+          const error = await response.json()
+          console.error('Error fetching doctors:', error.error || 'Failed to fetch doctors')
+        } else {
+          console.error('Error fetching doctors: Server returned non-JSON response')
+        }
+        return
       }
+      const data = await response.json()
+      setDoctors(data.doctors || [])
     } catch (error) {
       console.error('Error fetching doctors:', error)
     }
