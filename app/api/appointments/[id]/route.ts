@@ -3,12 +3,9 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
-export async function PATCH(
-  req: NextRequest,
-  props: { params: Promise<{ id: string }> }
-) {
-  // 1. Await the params object before accessing properties
-  const params = await props.params
+export async function PATCH(req: NextRequest, context: any) {
+  // Resolve params whether it's a Promise or a direct object
+  const params = await Promise.resolve(context.params)
   
   try {
     const session = await getServerSession(authOptions)
