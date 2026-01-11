@@ -3,12 +3,9 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
-export async function GET(
-  req: NextRequest,
-  props: { params: Promise<{ id: string }> } // FIX: Change to use Promise type
-) {
-  // FIX: Await the params object
-  const params = await props.params;
+export async function GET(req: NextRequest, context: any) {
+  // Resolve params whether it's a Promise or a direct object
+  const params = await Promise.resolve(context.params)
 
   const session = await getServerSession(authOptions)
   if (!session?.user?.id) {
