@@ -5,6 +5,7 @@ import { prisma } from '@/lib/prisma'
 
 export async function PATCH(req: NextRequest, context: any) {
   // Resolve params whether it's a Promise or a direct object
+  // Fixed for Next.js compatibility - handles both Promise and direct params
   const params = await Promise.resolve(context.params)
   
   try {
