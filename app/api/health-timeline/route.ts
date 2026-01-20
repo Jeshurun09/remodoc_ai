@@ -2,15 +2,6 @@ import { NextRequest, NextResponse } from 'next/server'
 import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
-import type {
-  HealthTimeline,
-  SymptomReport,
-  Appointment,
-  MedicationPrescription,
-  VitalSign,
-  SkinLesionScan,
-  MedicalReportSummary
-} from '@prisma/client'
 
 export async function GET(req: NextRequest) {
   try {
@@ -102,7 +93,7 @@ export async function GET(req: NextRequest) {
 
     // Combine all events into a unified timeline
     const allEvents: any[] = [
-      ...timelineEvents.map((e: HealthTimeline) => ({
+      ...timelineEvents.map(e => ({
         id: e.id,
         type: e.eventType,
         title: e.title,
@@ -111,7 +102,7 @@ export async function GET(req: NextRequest) {
         category: e.category || 'medical',
         metadata: e.metadata ? JSON.parse(e.metadata) : null
       })),
-      ...symptoms.map((s: SymptomReport) => ({
+      ...symptoms.map(s => ({
         id: s.id,
         type: 'symptom',
         title: 'Symptom Report',
@@ -120,7 +111,7 @@ export async function GET(req: NextRequest) {
         category: 'medical',
         metadata: { urgency: s.urgency, reportId: s.id }
       })),
-      ...appointments.map((a: Appointment) => ({
+      ...appointments.map(a => ({
         id: a.id,
         type: 'appointment',
         title: 'Medical Appointment',
@@ -129,7 +120,7 @@ export async function GET(req: NextRequest) {
         category: 'medical',
         metadata: { status: a.status, appointmentId: a.id }
       })),
-      ...prescriptions.map((p: MedicationPrescription) => ({
+      ...prescriptions.map(p => ({
         id: p.id,
         type: 'medication',
         title: 'Prescription',
@@ -138,7 +129,7 @@ export async function GET(req: NextRequest) {
         category: 'medication',
         metadata: { prescriptionId: p.id }
       })),
-      ...vitals.map((v: VitalSign) => ({
+      ...vitals.map(v => ({
         id: v.id,
         type: 'vital',
         title: `${v.type} Recorded`,
@@ -147,16 +138,16 @@ export async function GET(req: NextRequest) {
         category: 'medical',
         metadata: { type: v.type, value: v.value, unit: v.unit }
       })),
-      ...scans.map((scan: SkinLesionScan) => ({
-        id: scan.id,
+      ...scans.map(s => ({
+        id: s.id,
         type: 'scan',
         title: 'Skin Lesion Scan',
-        description: `Risk Level: ${scan.riskLevel || 'Unknown'}`,
-        date: scan.createdAt,
+        description: `Risk Level: ${s.riskLevel || 'Unknown'}`,
+        date: s.createdAt,
         category: 'diagnostic',
-        metadata: { scanId: scan.id, riskLevel: scan.riskLevel }
+        metadata: { scanId: s.id, riskLevel: s.riskLevel }
       })),
-      ...reports.map((r: MedicalReportSummary) => ({
+      ...reports.map(r => ({
         id: r.id,
         type: 'report',
         title: `Medical Report - ${r.reportType}`,

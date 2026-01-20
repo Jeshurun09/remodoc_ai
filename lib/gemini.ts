@@ -71,6 +71,18 @@ Respond in JSON format:
   }
 }
 
+// Generic Gemini text helper used by some legacy API routes.
+export async function analyzeWithGemini(prompt: string): Promise<string> {
+  try {
+    const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
+    const result = await model.generateContent(prompt)
+    return result.response.text()
+  } catch (error) {
+    console.error('analyzeWithGemini Error:', error)
+    return '{"error":"AI unavailable"}'
+  }
+}
+
 function extractConditions(text: string): string[] {
   const conditions: string[] = []
   const conditionPatterns = [

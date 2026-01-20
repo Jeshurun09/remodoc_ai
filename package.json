@@ -62,7 +62,7 @@
     "npm": "^11.7.0",
     "prisma": "^5.18.0",
     "tailwindcss": "^4",
-    "ts-node": "^10.9.2",
+    "ts-node": "^1.7.1",
     "typescript": "^5",
     "vitest": "^4.0.15"
   }

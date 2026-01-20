@@ -3,7 +3,6 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { recognizeSymptomPattern } from '@/lib/gemini'
 import { prisma } from '@/lib/prisma'
-import type { SymptomReport } from '@prisma/client'
 
 export async function POST(req: NextRequest) {
   try {
@@ -39,7 +38,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Prepare historical data
-    const historicalData = user.patientProfile.symptoms.map((s: SymptomReport) => ({
+    const historicalData = user.patientProfile.symptoms.map(s => ({
       symptoms: s.symptoms,
       urgency: s.urgency,
       createdAt: s.createdAt

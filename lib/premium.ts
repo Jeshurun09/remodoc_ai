@@ -30,6 +30,75 @@ export async function userHasPlan(userId: string, minPlan: SubscriptionPlan): Pr
 }
 
 /**
+ * Check if user is group moderator
+ */
+export async function isGroupModerator(userId: string): Promise<boolean> {
+  const subscription = await prisma.subscription.findUnique({
+    where: { userId }
+  })
+  return subscription?.isGroupModerator ?? false
+}
+
+/**
+ * Get group members for a moderator
+ */
+export async function getGroupMembers(userId: string) {
+  const subscription = await prisma.subscription.findUnique({
+    where: { userId }
+  })
+
+  if (!subscription?.groupId || !subscription.isGroupModerator) {
+    return []
+  }
+
+  const members = await prisma.subscription.findMany({
+    where: { groupId: subscription.groupId },
+    include: { user: true }
+  })
+
+  return members
+}
+
+/**
+ * Check if user has access to a specific feature
+ */
+export async function userHasFeatureAccess(userId: string, featureName: string): Promise<boolean> {
+  const subscription = await prisma.subscription.findUnique({
+    where: { userId }
+  })
+
+  if (!subscription || subscription.status !== 'ACTIVE') {
+    return false
+  }
+
+  // If not in a group, use default feature access
+  if (!subscription.groupId) {
+    const features = await getUserFeatureAccess(userId)
+    return features[featureName as keyof typeof features] ?? false
+  }
+
+  // Check custom feature restrictions for group members
+  const featureAccess = await prisma.groupFeatureAccess.findUnique({
+    where: {
+      groupId_memberId_featureName: {
+        groupId: subscription.groupId,
+        memberId: userId,
+        featureName
+      }
+    }
+  })
+
+  // If there's a custom restriction, use it
+  if (featureAccess) {
+    return featureAccess.allowed
+  }
+
+  // Otherwise use default access for the plan
+  const features = await getUserFeatureAccess(userId)
+  return features[featureName as keyof typeof features] ?? false
+}
+
+/**
  * Get feature access level for a user
  */
 export async function getUserFeatureAccess(userId: string) {
@@ -39,6 +108,7 @@ export async function getUserFeatureAccess(userId: string) {
     aiSymptomChecker: true,
     appointmentBooking: true,
     messaging: true,
+    emergencyAlerts: true,
   }
 
   if (!subscription || subscription.status !== 'ACTIVE') {
@@ -58,6 +128,7 @@ export async function getUserFeatureAccess(userId: string) {
     prioritySupport: true,
     prescriptionManagement: true,
     lifeStyleTracking: true,
+    familySharing: true,
   }
 
   switch (subscription.plan) {
@@ -71,3 +142,23 @@ export async function getUserFeatureAccess(userId: string) {
       return baseFeatures
   }
 }
+
+/**
+ * Get plan change history for a user
+ */
+export async function getPlanChangeHistory(userId: string) {
+  const aiLogs = await prisma.aILog.findMany({
+    where: {
+      userId,
+      model: 'plan-change'
+    },
+    orderBy: { createdAt: 'desc' },
+    take: 10
+  })
+
+  return aiLogs.map(log => ({
+    timestamp: log.createdAt,
+    details: log.output ? JSON.parse(log.output) : null
+  }))
+}
+
