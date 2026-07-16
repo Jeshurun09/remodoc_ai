@@ -1,8 +1,8 @@
 import { NextResponse } from 'next/server'
 import Stripe from 'stripe'
-import { PrismaClient, PayoutStatus } from '@prisma/client'
+import { PayoutStatus } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
 
-const prisma = new PrismaClient()
 const stripeSecret = process.env.STRIPE_WEBHOOK_SECRET || ''
 const stripe = process.env.STRIPE_SECRET_KEY ? new Stripe(process.env.STRIPE_SECRET_KEY, { apiVersion: '2023-10-16' }) : null
 

@@ -1,11 +1,10 @@
-import { PrismaClient, DoctorPayout, PayoutProvider, PayoutStatus } from '@prisma/client';
+import { DoctorPayout, PayoutProvider, PayoutStatus } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import Stripe from 'stripe';
 
 const stripeSecret = process.env.STRIPE_SECRET_KEY || process.env.STRIPE_API_KEY;
 // Use a Stripe API version compatible with installed types
 const stripe = stripeSecret ? new Stripe(stripeSecret, { apiVersion: '2023-10-16' }) : null;
-
-const prisma = new PrismaClient();
 
 /**
  * Provider runner: routes payout to provider-specific implementation.

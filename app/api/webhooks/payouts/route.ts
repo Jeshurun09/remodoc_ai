@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient, PayoutStatus } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import { PayoutStatus } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 
 // Generic webhook endpoint for payout provider callbacks.
 // Providers should POST { payoutId, status, providerReference, meta? }

@@ -1,8 +1,6 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
 import crypto from 'crypto'
-
-const prisma = new PrismaClient()
 
 // Verify Safaricom M-Pesa callback signature (if provided)
 function verifyMpesaSignature(body: string, signature: string | null): boolean {
@@ -41,7 +39,7 @@ export async function POST(req: Request) {
       const amount = result.Amount || (result.ResultParameters && result.ResultParameters.ResultParameter && result.ResultParameters.ResultParameter.find && result.ResultParameters.ResultParameter.find((p:any)=>p.Key==='TransactionAmount')?.Value)
       const candidates = await prisma.doctorPayout.findMany({ where: { status: { in: ['PROCESSING', 'APPROVED', 'READY'] } }, orderBy: { createdAt: 'desc' } })
       // naive match
-      const found = candidates.find(p => Math.abs((p.amountDue || 0) - (Number(amount) || 0)) < 1)
+      const found = candidates.find((p: any) => Math.abs((p.amountDue || 0) - (Number(amount) || 0)) < 1)
       if (found) {
         await prisma.doctorPayout.update({ where: { id: found.id }, data: { status: 'PAID' as any, providerReference: conv, processedAt: new Date() } })
         return NextResponse.json({ ok: true, data: found.id })

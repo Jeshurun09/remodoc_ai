@@ -1,6 +1,5 @@
-import { PrismaClient, SubscriptionPlan } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { SubscriptionPlan } from '@prisma/client'
+import { prisma } from '@/lib/prisma'
 
 /**
  * Check if a user has a premium subscription
@@ -26,7 +25,7 @@ export async function userHasPlan(userId: string, minPlan: SubscriptionPlan): Pr
     FAMILY: 4,
   }
 
-  return planHierarchy[subscription.plan] >= planHierarchy[minPlan] && subscription.status === 'ACTIVE'
+  return planHierarchy[subscription.plan as SubscriptionPlan] >= planHierarchy[minPlan] && subscription.status === 'ACTIVE'
 }
 
 /**
@@ -119,7 +118,7 @@ export async function getPlanChangeHistory(userId: string) {
     take: 10
   })
 
-  return aiLogs.map(log => ({
+  return aiLogs.map((log: any) => ({
     timestamp: log.createdAt,
     details: log.output ? JSON.parse(log.output) : null
   }))

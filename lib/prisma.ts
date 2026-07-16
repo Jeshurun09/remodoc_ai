@@ -1,61 +1,69 @@
-// Lazy-initialize Prisma Client to avoid crashing at module import time
-// if `@prisma/client` hasn't been generated yet. This is especially helpful
-// during `npm install`/build steps or when developers forget to run
-// `npx prisma generate` after cloning.
+import { PrismaClient } from '@prisma/client'
 
-let _PrismaClient: any = null
-let _prismaInstance: any = undefined
+/**
+ * Resolve and sanitize the MongoDB connection string.
+ * Common Vercel misconfigurations that trigger:
+ *   "the URL must start with the protocol `mongo`"
+ * include wrapping quotes, leading/trailing whitespace, or accidentally
+ * pasting `DATABASE_URL=` into the value field.
+ */
+function resolveDatabaseUrl(): string {
+  // Bracket access avoids some bundlers statically replacing the identifier
+  // with a build-time empty/wrong literal.
+  const raw = process.env['DATABASE_URL']
 
-function loadPrismaClient() {
-  if (_PrismaClient) return _PrismaClient
-  try {
-    // eslint-disable-next-line @typescript-eslint/no-var-requires
-    const pkg = require('@prisma/client')
-    _PrismaClient = pkg.PrismaClient || pkg.default?.PrismaClient || pkg
-    return _PrismaClient
-  } catch (err) {
-    // Don't throw here so the server can start; throw when someone actually
-    // attempts to use the client so we can provide a helpful message then.
-    _PrismaClient = null
-    return null
+  // Temporary diagnostics (never log the full secret)
+  const exists = typeof raw === 'string' && raw.length > 0
+  const preview = exists ? raw.slice(0, 15) : '(missing)'
+  console.log('[prisma] DATABASE_URL exists:', exists)
+  console.log('[prisma] DATABASE_URL prefix:', preview)
+
+  if (!exists) {
+    throw new Error(
+      'DATABASE_URL is not set. Add a mongodb:// or mongodb+srv:// connection string to the environment.'
+    )
   }
+
+  let url = raw.trim()
+
+  // Strip accidental wrapping quotes from Vercel / .env paste
+  if (
+    (url.startsWith('"') && url.endsWith('"')) ||
+    (url.startsWith("'") && url.endsWith("'"))
+  ) {
+    url = url.slice(1, -1).trim()
+  }
+
+  // Strip accidental `DATABASE_URL=` prefix if the whole line was pasted as the value
+  if (url.startsWith('DATABASE_URL=')) {
+    url = url.slice('DATABASE_URL='.length).trim()
+  }
+
+  if (!url.startsWith('mongo')) {
+    throw new Error(
+      `Invalid DATABASE_URL: value must start with "mongodb://" or "mongodb+srv://". ` +
+        `Received prefix: ${JSON.stringify(url.slice(0, 15))}`
+    )
+  }
+
+  return url
 }
 
-function createPrismaInstance() {
-  if (typeof globalThis !== 'undefined') {
-    const g = globalThis as any
-    if (g.__prisma_instance) return g.__prisma_instance
-    const PrismaClientClass = loadPrismaClient()
-    if (!PrismaClientClass) {
-      throw new Error('Prisma client not generated. Run `npx prisma generate` and restart the server.')
-    }
-    const inst = new PrismaClientClass()
-    if (process.env.NODE_ENV !== 'production') g.__prisma_instance = inst
-    return inst
-  }
-  const PrismaClientClass = loadPrismaClient()
-  if (!PrismaClientClass) throw new Error('Prisma client not generated. Run `npx prisma generate` and restart the server.')
-  return new PrismaClientClass()
+const globalForPrisma = globalThis as unknown as {
+  __prisma?: PrismaClient
 }
 
-// Export a proxy object so existing imports using `prisma.user.findUnique(...)`
-// continue to work. The proxy will create the real PrismaClient on first use
-// and surface a clear error if the generated client is missing.
-export const prisma: any = new Proxy(
-  {},
-  {
-    get(_, prop) {
-      if (!_prismaInstance) {
-        _prismaInstance = createPrismaInstance()
-      }
-      return Reflect.get(_prismaInstance, prop)
-    },
-    apply(_, thisArg, args) {
-      if (!_prismaInstance) {
-        _prismaInstance = createPrismaInstance()
-      }
-      return Reflect.apply(_prismaInstance, thisArg, args)
-    },
-  }
-)
+function createPrismaClient(): PrismaClient {
+  const datasourceUrl = resolveDatabaseUrl()
+  return new PrismaClient({
+    datasourceUrl,
+    log: process.env.NODE_ENV === 'development' ? ['error', 'warn'] : ['error'],
+  })
+}
 
+export const prisma: any =
+  globalForPrisma.__prisma ?? createPrismaClient()
+
+if (process.env.NODE_ENV !== 'production') {
+  globalForPrisma.__prisma = prisma
+}

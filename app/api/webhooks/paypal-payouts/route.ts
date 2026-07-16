@@ -1,7 +1,5 @@
 import { NextResponse } from 'next/server'
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from '@/lib/prisma'
 
 // Verify PayPal webhook signature
 async function verifyPayPalSignature(req: Request, body: string): Promise<boolean> {

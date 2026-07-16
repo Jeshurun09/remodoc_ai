@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
-import { PrismaClient } from '@prisma/client';
+import { prisma } from '@/lib/prisma';
 import { requireAdmin } from '@/lib/session';
 import { markPayoutAsApproved, triggerPayout } from '@/lib/payouts';
-
-const prisma = new PrismaClient();
 
 export async function POST(req: Request) {
   try {
