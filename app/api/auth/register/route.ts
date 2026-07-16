@@ -173,19 +173,29 @@ export async function POST(req: NextRequest) {
         )
       }
       
-      // Email configuration error
-      if (error.message.includes('Email transport is not configured')) {
+      // Email configuration / delivery error
+      if (
+        error.message.includes('Email transport is not configured') ||
+        error.message.includes('Invalid login') ||
+        /smtp|nodemailer/i.test(error.message)
+      ) {
         return NextResponse.json(
           {
             error:
-              'Email delivery is not configured. Please set EMAIL_HOST, EMAIL_PORT, EMAIL_SECURE, EMAIL_USER, EMAIL_PASS, and EMAIL_FROM before registering users.'
+              'Email delivery failed. Please verify EMAIL_HOST, EMAIL_PORT, EMAIL_SECURE, EMAIL_USER, EMAIL_PASS, and EMAIL_FROM, then try again.'
           },
           { status: 500 }
         )
       }
       
-      // Database connection error
-      if (error.message.includes('connect') || error.message.includes('connection')) {
+      // Database connection / datasource URL error
+      if (
+        error.name === 'PrismaClientInitializationError' ||
+        error.message.includes('datasource') ||
+        error.message.includes('DATABASE_URL') ||
+        error.message.includes('connect') ||
+        error.message.includes('connection')
+      ) {
         return NextResponse.json(
           { error: 'Database connection error. Please try again later.' },
           { status: 500 }

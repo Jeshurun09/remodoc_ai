@@ -381,7 +381,7 @@ export default function RegisterPage() {
               value={formData.name}
               onChange={handleNameChange}
               required
-              pattern="[a-zA-Z\\s'\\-]+"
+              pattern="[A-Za-z '\-]+"
               title="Name should only contain letters, spaces, hyphens, and apostrophes"
               className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-[var(--foreground)] bg-transparent"
             />
@@ -437,7 +437,7 @@ export default function RegisterPage() {
                     type="tel"
                     value={formData.phone}
                     onChange={handlePhoneChange}
-                    pattern="[\\d\\s()\\-]+"
+                    pattern="[0-9 ()\-]+"
                     title="Phone number should only contain digits, spaces, hyphens, and parentheses"
                     placeholder="123 456 789"
                     className="w-full px-4 py-2 border border-gray-300 rounded-r-lg focus:ring-2 focus:ring-blue-500 text-black bg-transparent"
