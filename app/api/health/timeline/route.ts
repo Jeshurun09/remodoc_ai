@@ -58,7 +58,7 @@ export async function GET(request: NextRequest) {
 
     // Enrich timeline with related data
     const enrichedTimeline = await Promise.all(
-      timeline.map(async (event) => {
+      timeline.map(async (event: any) => {
         let relatedData: any = null;
 
         switch (event.eventType) {
@@ -196,7 +196,7 @@ async function getTimelineSummary(request: NextRequest) {
 
       // Group by category
       const grouped: Record<string, typeof events> = {};
-      events.forEach((event) => {
+      events.forEach((event: any) => {
         const cat = event.category || 'Other';
         if (!grouped[cat]) grouped[cat] = [];
         grouped[cat].push(event);

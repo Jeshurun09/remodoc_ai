@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      streaks: streaks.map((s) => ({
+      streaks: streaks.map((s: any) => ({
         ...s,
         badges: s.badges ? JSON.parse(s.badges) : [],
       })),

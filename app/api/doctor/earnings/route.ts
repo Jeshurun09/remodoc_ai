@@ -176,8 +176,8 @@ export async function GET(request: NextRequest) {
         },
       });
 
-      const totalEarnings = earnings.reduce((sum, e) => sum + e.amountEarned, 0);
-      const pendingAmount = pendingPayouts.reduce((sum, p) => sum + p.amountDue, 0);
+      const totalEarnings = earnings.reduce((sum: number, e: { amountEarned: number }) => sum + e.amountEarned, 0);
+      const pendingAmount = pendingPayouts.reduce((sum: number, p: { amountDue: number }) => sum + p.amountDue, 0);
 
       // Get performance metrics
       const metrics = await prisma.doctorPerformanceMetric.findFirst({
@@ -246,7 +246,7 @@ async function getDoctorAutoNotes(request: NextRequest) {
         orderBy: { createdAt: 'desc' },
       });
 
-      const enriched = notes.map((note) => ({
+      const enriched = notes.map((note: { keyPoints?: string | null; followUpActions?: string | null }) => ({
         ...note,
         keyPoints: note.keyPoints ? JSON.parse(note.keyPoints) : [],
         followUpActions: note.followUpActions ? JSON.parse(note.followUpActions) : [],

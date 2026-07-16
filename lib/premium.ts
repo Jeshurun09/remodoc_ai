@@ -30,33 +30,19 @@ export async function userHasPlan(userId: string, minPlan: SubscriptionPlan): Pr
 }
 
 /**
- * Check if user is group moderator
+ * Check if user is group moderator.
+ * Group fields are not in the current Subscription schema yet.
  */
-export async function isGroupModerator(userId: string): Promise<boolean> {
-  const subscription = await prisma.subscription.findUnique({
-    where: { userId }
-  })
-  return subscription?.isGroupModerator ?? false
+export async function isGroupModerator(_userId: string): Promise<boolean> {
+  return false
 }
 
 /**
- * Get group members for a moderator
+ * Get group members for a moderator.
+ * Group fields are not in the current Subscription schema yet.
  */
-export async function getGroupMembers(userId: string) {
-  const subscription = await prisma.subscription.findUnique({
-    where: { userId }
-  })
-
-  if (!subscription?.groupId || !subscription.isGroupModerator) {
-    return []
-  }
-
-  const members = await prisma.subscription.findMany({
-    where: { groupId: subscription.groupId },
-    include: { user: true }
-  })
-
-  return members
+export async function getGroupMembers(_userId: string) {
+  return []
 }
 
 /**
@@ -71,29 +57,6 @@ export async function userHasFeatureAccess(userId: string, featureName: string):
     return false
   }
 
-  // If not in a group, use default feature access
-  if (!subscription.groupId) {
-    const features = await getUserFeatureAccess(userId)
-    return features[featureName as keyof typeof features] ?? false
-  }
-
-  // Check custom feature restrictions for group members
-  const featureAccess = await prisma.groupFeatureAccess.findUnique({
-    where: {
-      groupId_memberId_featureName: {
-        groupId: subscription.groupId,
-        memberId: userId,
-        featureName
-      }
-    }
-  })
-
-  // If there's a custom restriction, use it
-  if (featureAccess) {
-    return featureAccess.allowed
-  }
-
-  // Otherwise use default access for the plan
   const features = await getUserFeatureAccess(userId)
   return features[featureName as keyof typeof features] ?? false
 }

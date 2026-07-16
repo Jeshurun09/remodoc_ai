@@ -218,8 +218,8 @@ async function smartRouteToDoctor(symptomReport: any, urgencyLevel: string) {
 
   // Filter by specialization match and load
   const candidates = availableDoctors
-    .filter((doc) => !matchSpecialization || doc.doctor.specialization.includes(matchSpecialization))
-    .sort((a, b) => a.doctor.appointments.length - b.doctor.appointments.length)
+    .filter((doc: any) => !matchSpecialization || doc.doctor.specialization.includes(matchSpecialization))
+    .sort((a: any, b: any) => a.doctor.appointments.length - b.doctor.appointments.length)
     .slice(0, 3);
 
   if (candidates.length === 0) {

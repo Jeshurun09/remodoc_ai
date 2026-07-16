@@ -38,7 +38,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Prepare historical data
-    const historicalData = user.patientProfile.symptoms.map(s => ({
+    const historicalData = user.patientProfile.symptoms.map((s: any) => ({
       symptoms: s.symptoms,
       urgency: s.urgency,
       createdAt: s.createdAt

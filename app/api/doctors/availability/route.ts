@@ -56,7 +56,7 @@ export async function GET(req: NextRequest) {
     // Filter by specialization if provided
     let filtered = availabilities;
     if (specialization) {
-      filtered = filtered.filter((av) =>
+      filtered = filtered.filter((av: any) =>
         av.doctor.specialization.toLowerCase().includes(specialization.toLowerCase())
       );
     }
@@ -67,16 +67,16 @@ export async function GET(req: NextRequest) {
       const lng = parseFloat(longitude);
 
       filtered = filtered
-        .map((av) => ({
+        .map((av: any) => ({
           ...av,
           distance: calculateDistance(lat, lng, 0, 0),
         }))
-        .filter((av) => av.distance <= radiusKm)
-        .sort((a, b) => a.distance - b.distance);
+        .filter((av: any) => av.distance <= radiusKm)
+        .sort((a: any, b: any) => a.distance - b.distance);
     }
 
     // Format response
-    const doctors = filtered.map((av) => ({
+    const doctors = filtered.map((av: any) => ({
       id: av.doctorId,
       name: av.doctor.user.name,
       email: av.doctor.user.email,
