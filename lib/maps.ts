@@ -8,9 +8,9 @@ export function getDirectionsUrl(
   originLng?: number
 ): string {
   if (originLat != null && originLng != null) {
-    return `https://www.google.com/maps/dir/?api=1&origin=${originLat},${originLng}&destination=${destinationLat},${destinationLng}`
+    return `https://www.openstreetmap.org/directions?engine=fossgis_osrm_car&route=${originLat},${originLng};${destinationLat},${destinationLng}`
   }
 
-  return `https://www.google.com/maps/search/?api=1&query=${destinationLat},${destinationLng}`
+  return `https://www.openstreetmap.org/?mlat=${destinationLat}&mlon=${destinationLng}#map=16/${destinationLat}/${destinationLng}`
 }
 
