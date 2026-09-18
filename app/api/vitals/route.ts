@@ -3,8 +3,20 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { prisma } from '@/lib/prisma'
 
+import { isDbUnavailable } from '@/lib/errors'
+
 export async function GET(req: NextRequest) {
-  const session = await getServerSession(authOptions)
+  let session: any
+  try {
+    session = await getServerSession(authOptions)
+  } catch (err: any) {
+    console.error('Session retrieval error:', err)
+    if (isDbUnavailable(err)) {
+      return NextResponse.json({ error: 'Service unavailable' }, { status: 503 })
+    }
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
@@ -24,7 +36,17 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  const session = await getServerSession(authOptions)
+  let session: any
+  try {
+    session = await getServerSession(authOptions)
+  } catch (err: any) {
+    console.error('Session retrieval error:', err)
+    if (isDbUnavailable(err)) {
+      return NextResponse.json({ error: 'Service unavailable' }, { status: 503 })
+    }
+    return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+  }
+
   if (!session?.user?.id) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }

@@ -3,10 +3,21 @@ import { getServerSession } from 'next-auth'
 import { authOptions } from '@/lib/auth'
 import { analyzeVoiceHealth } from '@/lib/gemini'
 import { prisma } from '@/lib/prisma'
+import { isDbUnavailable } from '@/lib/errors'
 
 export async function POST(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    let session: any
+    try {
+      session = await getServerSession(authOptions)
+    } catch (err: any) {
+      console.error('Session retrieval error:', err)
+      if (isDbUnavailable(err)) {
+        return NextResponse.json({ error: 'Service unavailable' }, { status: 503 })
+      }
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     if (!session || session.user.role !== 'PATIENT') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
@@ -72,7 +83,17 @@ export async function POST(req: NextRequest) {
 
 export async function GET(req: NextRequest) {
   try {
-    const session = await getServerSession(authOptions)
+    let session: any
+    try {
+      session = await getServerSession(authOptions)
+    } catch (err: any) {
+      console.error('Session retrieval error:', err)
+      if (isDbUnavailable(err)) {
+        return NextResponse.json({ error: 'Service unavailable' }, { status: 503 })
+      }
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
+    }
+
     if (!session || session.user.role !== 'PATIENT') {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
     }
