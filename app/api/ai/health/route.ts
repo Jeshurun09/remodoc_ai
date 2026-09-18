@@ -50,7 +50,7 @@ Symptoms: ${symptomList}
 ${additionalInfo ? `Additional information: ${additionalInfo}` : ''}
 ${medicationContext ? `Current medications: ${medicationContext}` : ''}
 
-IMPORTANT: 
+IMPORTANT:
 - Provide confidence scores as decimal numbers (e.g., 0.85)
 - Be cautious and recommend professional medical consultation
 - Do NOT provide a definitive diagnosis
@@ -167,7 +167,7 @@ async function handleDrugInteractions(request: NextRequest) {
     // Use AI for unknown interactions
     const prompt = `
 Check for drug interactions between:
-1. ${med1.name} (${med1.strength}) - ${med1.genericName || 'no generic name'} 
+1. ${med1.name} (${med1.strength}) - ${med1.genericName || 'no generic name'}
 2. ${med2.name} (${med2.strength}) - ${med2.genericName || 'no generic name'}
 
 Provide:

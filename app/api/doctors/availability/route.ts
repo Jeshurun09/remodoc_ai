@@ -22,7 +22,7 @@ export async function GET(req: NextRequest) {
     const radiusKm = parseInt(searchParams.get('radius') || '50');
 
     let whereClause: any = {};
-    
+
     if (includeOnlineOnly) {
       whereClause.isOnline = true;
     }

@@ -34,7 +34,7 @@ export async function POST(req: NextRequest) {
 
     // Get primary emergency contact or fallback to legacy contact info
     const primaryContact = user.patientProfile.emergencyContacts[0]
-    
+
     if (!primaryContact) {
       return NextResponse.json(
         { error: 'No emergency contact configured. Please add one in settings.' },
@@ -42,7 +42,7 @@ export async function POST(req: NextRequest) {
       )
     }
 
-    const emergencyMessage = message || 
+    const emergencyMessage = message ||
       `EMERGENCY ALERT from ${user.name}. Please respond immediately. Location: https://maps.google.com/?q=${location?.lat || 'unknown'},${location?.lng || 'unknown'}`
 
     const notificationResults = {
@@ -67,11 +67,11 @@ export async function POST(req: NextRequest) {
       try {
         await sendEmail({
           to: primaryContact.email,
-          subject: '🚨 EMERGENCY ALERT - RemoDoc',
+          subject: 'EMERGENCY ALERT - RemoDoc',
           html: `
             <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
               <div style="background-color: #dc2626; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0;">
-                <h1 style="margin: 0; font-size: 24px;">🚨 EMERGENCY ALERT</h1>
+                <h1 style="margin: 0; font-size: 24px;">EMERGENCY ALERT</h1>
               </div>
               <div style="padding: 20px; background-color: #f9fafb; border: 1px solid #e5e7eb;">
                 <p style="margin: 0 0 15px 0; font-size: 16px; color: #333;">
@@ -83,7 +83,7 @@ export async function POST(req: NextRequest) {
                 </div>
                 ${location ? `
                   <div style="margin: 15px 0;">
-                    <p style="margin: 0 0 10px 0; color: #333;"><strong>📍 Location:</strong></p>
+                    <p style="margin: 0 0 10px 0; color: #333;"><strong>Location:</strong></p>
                     <a href="https://maps.google.com/?q=${location.lat},${location.lng}" style="color: #2563eb; text-decoration: none; word-break: break-all;">
                       View on Maps
                     </a>

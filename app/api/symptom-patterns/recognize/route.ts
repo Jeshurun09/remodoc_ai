@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
     // Get patient profile and historical symptom data
     const user = await prisma.user.findUnique({
       where: { id: session.user.id },
-      include: { 
+      include: {
         patientProfile: {
           include: {
             symptoms: {

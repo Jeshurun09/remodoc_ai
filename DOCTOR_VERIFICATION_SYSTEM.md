@@ -136,13 +136,13 @@ POST /api/uploads/s3-presign
 Every admin action creates an AuditLog entry:
 ```prisma
 model AuditLog {
-  id          String   @id @default(cuid())
-  actorId     String   // Admin user ID
-  action      String   // APPROVE_VERIFICATION, REJECT_VERIFICATION, REQUEST_BACKGROUND_CHECK
-  targetType  String   // DoctorVerificationRequest
-  targetId    String   // ID of verification request
-  details     String   // JSON stringified details (doctorId, reason, reference, etc)
-  createdAt   DateTime @default(now())
+  id String @id @default(cuid())
+  actorId String // Admin user ID
+  action String // APPROVE_VERIFICATION, REJECT_VERIFICATION, REQUEST_BACKGROUND_CHECK
+  targetType String // DoctorVerificationRequest
+  targetId String // ID of verification request
+  details String // JSON stringified details (doctorId, reason, reference, etc)
+  createdAt DateTime @default(now())
 }
 ```
 
@@ -267,7 +267,7 @@ tests/verification-endpoints.test.ts
 
 **Run Tests:**
 ```bash
-npm run test          # Watch mode
+npm run test # Watch mode
 npm run test -- --run # Single run
 ```
 
@@ -278,7 +278,7 @@ For S3 production upload mode:
 AWS_ACCESS_KEY_ID=your_access_key
 AWS_SECRET_ACCESS_KEY=your_secret_key
 AWS_S3_BUCKET=your_bucket_name
-AWS_S3_REGION=us-east-1  # Optional, defaults to us-east-1
+AWS_S3_REGION=us-east-1 # Optional, defaults to us-east-1
 ```
 
 For SMS/OTP:

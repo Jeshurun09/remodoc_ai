@@ -234,16 +234,16 @@ export default function PlanComparisonPage() {
             <div>
               <h3 className="font-semibold text-lg text-gray-900 mb-3">Individual Plans</h3>
               <ul className="space-y-2 text-gray-600">
-                <li>✓ <span className="font-medium">FREE</span> - Basic features only</li>
-                <li>✓ <span className="font-medium">STUDENT</span> - For students with limited needs</li>
-                <li>✓ <span className="font-medium">INDIVIDUAL</span> - Full personal health management</li>
+                <li> <span className="font-medium">FREE</span> - Basic features only</li>
+                <li> <span className="font-medium">STUDENT</span> - For students with limited needs</li>
+                <li> <span className="font-medium">INDIVIDUAL</span> - Full personal health management</li>
               </ul>
             </div>
             <div>
               <h3 className="font-semibold text-lg text-gray-900 mb-3">Group Plans</h3>
               <ul className="space-y-2 text-gray-600">
-                <li>✓ <span className="font-medium">SMALL_GROUP</span> - Up to 4 members with moderator control</li>
-                <li>✓ <span className="font-medium">FAMILY</span> - Up to 10 members with full management</li>
+                <li> <span className="font-medium">SMALL_GROUP</span> - Up to 4 members with moderator control</li>
+                <li> <span className="font-medium">FAMILY</span> - Up to 10 members with full management</li>
               </ul>
             </div>
           </div>

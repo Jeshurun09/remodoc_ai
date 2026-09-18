@@ -303,13 +303,13 @@ function parseBluetoothDevice(btDevice: any): BluetoothDevice {
 
 export function getDeviceIcon(deviceType: BluetoothDevice['type']): string {
   const icons: Record<BluetoothDevice['type'], string> = {
-    smartwatch: '⌚',
-    fitness_band: '📟',
-    smart_ring: '💍',
-    bp_monitor: '💓',
-    scale: '⚖️',
-    glucose_meter: '💉',
-    unknown: '🔷'
+    smartwatch: 'Watch',
+    fitness_band: 'Band',
+    smart_ring: 'Ring',
+    bp_monitor: 'BP',
+    scale: 'Scale',
+    glucose_meter: 'Glucose',
+    unknown: 'Device'
   }
   return icons[deviceType] || icons.unknown
 }

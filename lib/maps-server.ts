@@ -22,7 +22,7 @@ export async function findNearestHospitals(
   // Typically this would call out to a geocoding/places service.
   // For now, we'll query the database and compute distances locally.
   const { prisma } = await import('./prisma')
-  
+
   const hospitals: PrismaHospital[] = await prisma.hospital.findMany({
     where: {
       active: true,

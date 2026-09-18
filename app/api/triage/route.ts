@@ -76,7 +76,7 @@ export async function POST(request: NextRequest) {
             updatedAt: new Date(),
           },
         });
-        
+
         // Log audit
         await prisma.enhancedAuditLog.create({
           data: {

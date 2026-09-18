@@ -30,7 +30,7 @@ async function handleGetRequest(req: NextRequest): Promise<NextResponse> {
       console.error('Session error:', sessionError)
       return NextResponse.json(
         { error: 'Authentication error' },
-        { 
+        {
           status: 500,
           headers: { 'Content-Type': 'application/json' }
         }
@@ -40,7 +40,7 @@ async function handleGetRequest(req: NextRequest): Promise<NextResponse> {
     if (!session?.user?.id) {
       return NextResponse.json(
         { error: 'Unauthorized' },
-        { 
+        {
           status: 401,
           headers: { 'Content-Type': 'application/json' }
         }
@@ -67,7 +67,7 @@ async function handleGetRequest(req: NextRequest): Promise<NextResponse> {
       })
       return NextResponse.json(
         { error: 'Failed to fetch user data', appointments: [] },
-        { 
+        {
           status: 500,
           headers: { 'Content-Type': 'application/json' }
         }
@@ -77,7 +77,7 @@ async function handleGetRequest(req: NextRequest): Promise<NextResponse> {
     if (!user) {
       return NextResponse.json(
         { error: 'User not found' },
-        { 
+        {
           status: 404,
           headers: { 'Content-Type': 'application/json' }
         }
@@ -141,7 +141,7 @@ async function handleGetRequest(req: NextRequest): Promise<NextResponse> {
                   return null
                 }
               }
-              
+
               // Return null if doctor exists but has no user (will be filtered out)
               if (apt.doctor && !doctorWithUser) {
                 return null
@@ -157,7 +157,7 @@ async function handleGetRequest(req: NextRequest): Promise<NextResponse> {
             }
           })
         )
-        
+
         // Extract successful results and filter out nulls
         appointments = appointmentResults
           .filter((result): result is PromiseFulfilledResult<any> => result.status === 'fulfilled')
@@ -219,7 +219,7 @@ async function handleGetRequest(req: NextRequest): Promise<NextResponse> {
                   return null
                 }
               }
-              
+
               // Return null if patient exists but has no user (will be filtered out)
               if (apt.patient && !patientWithUser) {
                 return null
@@ -235,7 +235,7 @@ async function handleGetRequest(req: NextRequest): Promise<NextResponse> {
             }
           })
         )
-        
+
         // Extract successful results and filter out nulls
         appointments = appointmentResults
           .filter((result): result is PromiseFulfilledResult<any> => result.status === 'fulfilled')
@@ -278,7 +278,7 @@ async function handleGetRequest(req: NextRequest): Promise<NextResponse> {
       console.error('JSON serialization error:', jsonError)
       return NextResponse.json(
         { error: 'Failed to serialize response', appointments: [] },
-        { 
+        {
           status: 500,
           headers: { 'Content-Type': 'application/json' }
         }
@@ -291,7 +291,7 @@ async function handleGetRequest(req: NextRequest): Promise<NextResponse> {
     try {
       return NextResponse.json(
         { error: errorMessage },
-        { 
+        {
           status: 500,
           headers: { 'Content-Type': 'application/json' }
         }
@@ -417,7 +417,7 @@ export async function POST(req: NextRequest) {
     const errorMessage = error?.message || 'Failed to create appointment'
     return NextResponse.json(
       { error: errorMessage },
-      { 
+      {
         status: 500,
         headers: { 'Content-Type': 'application/json' }
       }

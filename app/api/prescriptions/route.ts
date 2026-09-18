@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
     }
 
     let whereClause: any = {}
-    
+
     if (session.user.role === 'DOCTOR' && user.doctorProfile) {
       whereClause.doctorId = user.doctorProfile.id
       if (patientId) {

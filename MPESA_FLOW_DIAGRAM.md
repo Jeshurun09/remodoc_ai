@@ -4,99 +4,99 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────┐
-│                        RemoDoc Premium Subscription                         │
+│ RemoDoc Premium Subscription │
 └─────────────────────────────────────────────────────────────────────────────┘
 
 STEP 1: User Selects Plan
 ┌──────────────────┐
-│   /premium page  │
-│  (Plan selection)│
+│ /premium page │
+│ (Plan selection)│
 └────────┬─────────┘
          │
          ▼
 ┌──────────────────────────┐
-│ User clicks "Subscribe"  │
+│ User clicks "Subscribe" │
 └────────┬─────────────────┘
          │
          ▼
 
 STEP 2: User Enters M-Pesa Phone
 ┌────────────────────────────────────────┐
-│  /subscribe/payment?plan=individual    │
-│  ┌─────────────────────────────────┐   │
-│  │ Select Payment Method:          │   │
-│  │ [💳 Card] [💳 PayPal] [📱 M-Pesa] │   │
-│  │ ✓ Selected: M-Pesa              │   │
-│  ├─────────────────────────────────┤   │
-│  │ Phone Number: +254712345678     │   │
-│  │ [Pay $5.99/month]               │   │
-│  └─────────────────────────────────┘   │
+│ /subscribe/payment?plan=individual │
+│ ┌─────────────────────────────────┐ │
+│ │ Select Payment Method: │ │
+│ │ [ Card] [ PayPal] [ M-Pesa] │ │
+│ │  Selected: M-Pesa │ │
+│ ├─────────────────────────────────┤ │
+│ │ Phone Number: +254712345678 │ │
+│ │ [Pay $5.99/month] │ │
+│ └─────────────────────────────────┘ │
 └────────┬─────────────────────────────────┘
          │
          ▼
 
 STEP 3: Frontend Calls Payment API
 ┌────────────────────────────────────────────┐
-│  Frontend: fetch('/api/payment', {         │
-│    plan: 'individual',                     │
-│    paymentMethod: 'mpesa',                 │
-│    paymentDetails: {                       │
-│      phoneNumber: '+254712345678'          │
-│    }                                       │
-│  })                                        │
+│ Frontend: fetch('/api/payment', { │
+│ plan: 'individual', │
+│ paymentMethod: 'mpesa', │
+│ paymentDetails: { │
+│ phoneNumber: '+254712345678' │
+│ } │
+│ }) │
 └────────┬─────────────────────────────────────┘
          │
          ▼
 
 STEP 4: Backend Processes Payment
 ┌─────────────────────────────────────────────┐
-│  /api/payment (POST)                        │
-│  ├─ Validate session & phone number         │
-│  ├─ Format phone: +254712345678             │
-│  ├─ Call getMpesaToken()                    │
-│  │  └─ Get OAuth token from Safaricom       │
-│  ├─ Call initiateStkPush()                  │
-│  │  └─ Send to Safaricom STK Push endpoint  │
-│  └─ Create PaymentTransaction record        │
-│     └─ status: 'pending'                    │
+│ /api/payment (POST) │
+│ ├─ Validate session & phone number │
+│ ├─ Format phone: +254712345678 │
+│ ├─ Call getMpesaToken() │
+│ │ └─ Get OAuth token from Safaricom │
+│ ├─ Call initiateStkPush() │
+│ │ └─ Send to Safaricom STK Push endpoint │
+│ └─ Create PaymentTransaction record │
+│ └─ status: 'pending' │
 └────────┬────────────────────────────────────┘
          │
          ▼
 ┌──────────────────────────────────────┐
-│  Safaricom Response:                 │
-│  {                                   │
-│    CheckoutRequestID: "ws_CO_...",   │
-│    MerchantRequestID: "28033-...",   │
-│    ResponseCode: "0",                │
-│    CustomerMessage: "Success..."     │
-│  }                                   │
+│ Safaricom Response: │
+│ { │
+│ CheckoutRequestID: "ws_CO_...", │
+│ MerchantRequestID: "28033-...", │
+│ ResponseCode: "0", │
+│ CustomerMessage: "Success..." │
+│ } │
 └────────┬─────────────────────────────┘
          │
          ▼
 
 STEP 5: Frontend Receives Checkout ID
 ┌──────────────────────────────────────────────────┐
-│  Frontend Response:                              │
-│  {                                               │
-│    checkoutRequestId: "ws_CO_...",               │
-│    transactionId: "mpesa_ws_CO_...",             │
-│    message: "Payment prompt sent to your phone..." │
-│  }                                               │
+│ Frontend Response: │
+│ { │
+│ checkoutRequestId: "ws_CO_...", │
+│ transactionId: "mpesa_ws_CO_...", │
+│ message: "Payment prompt sent to your phone..." │
+│ } │
 └────────┬─────────────────────────────────────────┘
          │
          ▼
 
 STEP 6: STK Push Sent to Phone
 ┌──────────────────────────────────────────┐
-│  User's Phone:                           │
-│  ┌────────────────────────────────────┐  │
-│  │  Safaricom                         │  │
-│  │  Enter M-Pesa PIN                  │  │
-│  │  Amount: KES 599                   │  │
-│  │  Pay To: RemoDoc                   │  │
-│  │                                    │  │
-│  │  [Enter PIN]   [Cancel]            │  │
-│  └────────────────────────────────────┘  │
+│ User's Phone: │
+│ ┌────────────────────────────────────┐ │
+│ │ Safaricom │ │
+│ │ Enter M-Pesa PIN │ │
+│ │ Amount: KES 599 │ │
+│ │ Pay To: RemoDoc │ │
+│ │ │ │
+│ │ [Enter PIN] [Cancel] │ │
+│ └────────────────────────────────────┘ │
 └────────┬───────────────────────────────────┘
          │
          ├─ User enters PIN
@@ -105,119 +105,119 @@ STEP 6: STK Push Sent to Phone
 
 STEP 7: Frontend Shows Waiting Screen
 ┌────────────────────────────────────────┐
-│  /subscribe/payment (waiting state)    │
-│  ┌──────────────────────────────────┐  │
-│  │  📱 Payment Prompt Sent          │  │
-│  │  Check your phone for the        │  │
-│  │  M-Pesa payment prompt and       │  │
-│  │  enter your PIN to complete      │  │
-│  │  the transaction.                │  │
-│  │                                  │  │
-│  │  ⏳ Page auto-redirects when     │  │
-│  │     payment is confirmed...      │  │
-│  │  [Cancel]                        │  │
-│  └──────────────────────────────────┘  │
+│ /subscribe/payment (waiting state) │
+│ ┌──────────────────────────────────┐ │
+│ │ Payment Prompt Sent │ │
+│ │ Check your phone for the │ │
+│ │ M-Pesa payment prompt and │ │
+│ │ enter your PIN to complete │ │
+│ │ the transaction. │ │
+│ │ │ │
+│ │ Page auto-redirects when │ │
+│ │ payment is confirmed... │ │
+│ │ [Cancel] │ │
+│ └──────────────────────────────────┘ │
 └────────┬───────────────────────────────────┘
          │
          │ Frontend: setTimeout(() => {
-         │   polling loop:
-         │   GET /api/subscription?checkoutRequestId=...
-         │   every 3 seconds (max 5 min)
+         │ polling loop:
+         │ GET /api/subscription?checkoutRequestId=...
+         │ every 3 seconds (max 5 min)
          │ }, 1000)
          │
          ▼
 
 STEP 8: Safaricom Processes Payment
 ┌───────────────────────────────────────────┐
-│  Safaricom Gateway                        │
-│  ├─ Validate M-Pesa PIN                  │
-│  ├─ Charge customer account              │
-│  ├─ Credit merchant (RemoDoc) account    │
-│  └─ Prepare callback response            │
+│ Safaricom Gateway │
+│ ├─ Validate M-Pesa PIN │
+│ ├─ Charge customer account │
+│ ├─ Credit merchant (RemoDoc) account │
+│ └─ Prepare callback response │
 └────────┬────────────────────────────────────┘
          │
          ▼
 
 STEP 9: Safaricom Sends Webhook Callback
 ┌─────────────────────────────────────────────┐
-│  Safaricom: POST /api/webhooks/mpesa        │
-│  {                                          │
-│    Body: {                                  │
-│      stkCallback: {                         │
-│        MerchantRequestID: "28033-...",      │
-│        CheckoutRequestID: "ws_CO_...",      │
-│        ResultCode: 0,  ← 0 = success        │
-│        ResultDesc: "Success...",            │
-│        CallbackMetadata: {                  │
-│          Item: [                            │
-│            {Name: "Amount", Value: 599},    │
-│            {Name: "MpesaReceiptNumber", ... │
-│            {Name: "TransactionDate", ...    │
-│          ]                                  │
-│        }                                    │
-│      }                                      │
-│    }                                        │
-│  }                                          │
+│ Safaricom: POST /api/webhooks/mpesa │
+│ { │
+│ Body: { │
+│ stkCallback: { │
+│ MerchantRequestID: "28033-...", │
+│ CheckoutRequestID: "ws_CO_...", │
+│ ResultCode: 0, ← 0 = success │
+│ ResultDesc: "Success...", │
+│ CallbackMetadata: { │
+│ Item: [ │
+│ {Name: "Amount", Value: 599}, │
+│ {Name: "MpesaReceiptNumber", ... │
+│ {Name: "TransactionDate", ... │
+│ ] │
+│ } │
+│ } │
+│ } │
+│ } │
 └────────┬────────────────────────────────────┘
          │
          ▼
 
 STEP 10: Backend Webhook Handler
 ┌────────────────────────────────────────────────┐
-│  /api/webhooks/mpesa (POST)                    │
-│  ├─ Parse callback payload                     │
-│  ├─ Verify signature (security)                │
-│  ├─ Find PaymentTransaction by checkoutId      │
-│  ├─ Update status: 'completed'                 │
-│  │                                             │
-│  ├─ If successful (ResultCode = 0):            │
-│  │  ├─ Get plan name from transaction          │
-│  │  ├─ Create/update Subscription:             │
-│  │  │  ├─ plan: 'INDIVIDUAL'                   │
-│  │  │  ├─ status: 'ACTIVE'                     │
-│  │  │  ├─ endDate: 1 month from now            │
-│  │  │  └─ paymentMethod: 'mpesa'               │
-│  │  └─ Store receipt number                    │
-│  │                                             │
-│  └─ Return 200 OK (acknowledge receipt)        │
+│ /api/webhooks/mpesa (POST) │
+│ ├─ Parse callback payload │
+│ ├─ Verify signature (security) │
+│ ├─ Find PaymentTransaction by checkoutId │
+│ ├─ Update status: 'completed' │
+│ │ │
+│ ├─ If successful (ResultCode = 0): │
+│ │ ├─ Get plan name from transaction │
+│ │ ├─ Create/update Subscription: │
+│ │ │ ├─ plan: 'INDIVIDUAL' │
+│ │ │ ├─ status: 'ACTIVE' │
+│ │ │ ├─ endDate: 1 month from now │
+│ │ │ └─ paymentMethod: 'mpesa' │
+│ │ └─ Store receipt number │
+│ │ │
+│ └─ Return 200 OK (acknowledge receipt) │
 └────────┬─────────────────────────────────────────┘
          │
          ▼
 
 STEP 11: Frontend Polling Detects Success
 ┌────────────────────────────────────────────┐
-│  Frontend: GET /api/subscription?...       │
-│  Response:                                 │
-│  {                                         │
-│    transaction: {                          │
-│      status: "completed" ← SUCCESS!        │
-│    },                                      │
-│    subscription: {                         │
-│      plan: "INDIVIDUAL",                   │
-│      status: "ACTIVE",                     │
-│      endDate: "2024-07-15T..."             │
-│    }                                       │
-│  }                                         │
+│ Frontend: GET /api/subscription?... │
+│ Response: │
+│ { │
+│ transaction: { │
+│ status: "completed" ← SUCCESS! │
+│ }, │
+│ subscription: { │
+│ plan: "INDIVIDUAL", │
+│ status: "ACTIVE", │
+│ endDate: "2024-07-15T..." │
+│ } │
+│ } │
 └────────┬────────────────────────────────────┘
          │
          ▼
 
 STEP 12: Auto-Redirect to Dashboard
 ┌────────────────────────────────────┐
-│  router.push(                      │
-│    '/dashboard/patient?            │
-│     premium=activated'             │
-│  )                                 │
+│ router.push( │
+│ '/dashboard/patient? │
+│ premium=activated' │
+│ ) │
 └────────┬───────────────────────────────┘
          │
          ▼
 ┌────────────────────────────────────┐
-│  /dashboard/patient               │
-│  ✅ Premium features unlocked!    │
-│  ✅ Telemedicine available        │
-│  ✅ IoT integrations enabled      │
-│  ✅ Analytics available           │
-│  ✅ Priority support              │
+│ /dashboard/patient │
+│ Premium features unlocked! │
+│ Telemedicine available │
+│ IoT integrations enabled │
+│ Analytics available │
+│ Priority support │
 └────────────────────────────────────┘
 ```
 
@@ -263,28 +263,28 @@ User can manually check dashboard or retry
 ## Database State Timeline
 
 ```
-Time    Database State
+Time Database State
 ─────────────────────────────────────────────────────────────────
 
-T0      User submits payment
+T0 User submits payment
         PaymentTransaction:
         - status: "pending"
         - checkoutRequestId: "ws_CO_..."
 
-T1      Frontend polls every 3 seconds
+T1 Frontend polls every 3 seconds
         (Database unchanged)
 
-T2      Safaricom calls webhook
+T2 Safaricom calls webhook
         PaymentTransaction:
         - status: "completed" ← UPDATED
         - receiptNumber: "LHG31..."
-        
+
         Subscription:
         - plan: "INDIVIDUAL" ← CREATED
         - status: "ACTIVE"
         - endDate: "2024-07-15T..."
 
-T3      Frontend detects status change
+T3 Frontend detects status change
         (Polls and gets updated subscription)
         Auto-redirects to dashboard
 ```
@@ -293,12 +293,12 @@ T3      Frontend detects status change
 
 ```
 ┌─────────────┬──────────────────┬──────────────┬──────────────┐
-│ Method      │ Flow Type        │ UI           │ Time         │
+│ Method │ Flow Type │ UI │ Time │
 ├─────────────┼──────────────────┼──────────────┼──────────────┤
-│ M-Pesa      │ Async (webhook)  │ STK Push     │ 5-30 seconds │
-│ Stripe      │ Sync (form)      │ Card form    │ 1-3 seconds  │
-│ PayPal      │ Sync (redirect)  │ PayPal page  │ 5-10 seconds │
-│ Bank        │ Manual           │ Info shown   │ 1-5 days     │
+│ M-Pesa │ Async (webhook) │ STK Push │ 5-30 seconds │
+│ Stripe │ Sync (form) │ Card form │ 1-3 seconds │
+│ PayPal │ Sync (redirect) │ PayPal page │ 5-10 seconds │
+│ Bank │ Manual │ Info shown │ 1-5 days │
 └─────────────┴──────────────────┴──────────────┴──────────────┘
 ```
 

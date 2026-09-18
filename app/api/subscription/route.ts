@@ -12,7 +12,7 @@ export async function GET(req: NextRequest) {
   try {
     // Check if querying by checkoutRequestId (for M-Pesa polling)
     const checkoutRequestId = req.nextUrl.searchParams.get('checkoutRequestId')
-    
+
     if (checkoutRequestId) {
       // Find payment transaction by checkoutRequestId
       const transaction = await prisma.paymentTransaction.findUnique({

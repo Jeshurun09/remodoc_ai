@@ -102,7 +102,7 @@ export async function POST(req: NextRequest) {
     })
   } catch (error: any) {
     console.error('Error creating emergency contact:', error)
-    
+
     if (error.code === 'P2002') {
       return NextResponse.json(
         { error: 'This contact already exists for this patient' },

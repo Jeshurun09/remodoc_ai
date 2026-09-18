@@ -109,13 +109,13 @@ export default function PremiumPage() {
               <button
                 onClick={toggleTheme}
                 className={`px-4 py-2 border rounded-lg text-lg transition-all duration-200 ${
-                  isDark 
-                    ? 'border-white/40 hover:bg-white/10 text-yellow-400 hover:text-yellow-300' 
+                  isDark
+                    ? 'border-white/40 hover:bg-white/10 text-yellow-400 hover:text-yellow-300'
                     : 'border-gray-300 hover:bg-gray-100 text-yellow-500 hover:text-yellow-600'
                 }`}
                 title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
               >
-                {isDark ? '🌙' : '☀️'}
+                {isDark ? 'Light' : 'Dark'}
               </button>
             </div>
           </div>
@@ -137,29 +137,28 @@ export default function PremiumPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
           {/* Telemedicine & Doctor Access */}
           <div className="surface rounded-lg p-6 shadow-sm border subtle-border">
-            <div className="text-4xl mb-4">💬</div>
             <h3 className="text-xl font-bold text-cyan-500 mb-3">
               Telemedicine & Doctor Access
             </h3>
             <ul className="space-y-2 text-cyan-500">
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Chat or video call with verified doctors</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Upload medical files (lab results, reports, images)</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Get digital prescriptions</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Request follow-up consultations</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Receive medicine delivery (via pharmacy APIs)</span>
               </li>
             </ul>
@@ -167,25 +166,24 @@ export default function PremiumPage() {
 
           {/* Appointment Booking */}
           <div className="surface rounded-lg p-6 shadow-sm border subtle-border">
-            <div className="text-4xl mb-4">📅</div>
             <h3 className="text-xl font-bold text-cyan-500 mb-3">
               Appointment Booking With Hospitals
             </h3>
             <ul className="space-y-2 text-cyan-500">
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>View doctors' availability in real-time</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Book and manage appointments seamlessly</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Receive automated reminders and updates</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Reschedule or cancel with ease</span>
               </li>
             </ul>
@@ -193,25 +191,24 @@ export default function PremiumPage() {
 
           {/* IoT & Wearable Health Sync */}
           <div className="surface rounded-lg p-6 shadow-sm border subtle-border">
-            <div className="text-4xl mb-4">⌚</div>
             <h3 className="text-xl font-bold text-cyan-500 mb-3">
               IoT & Wearable Health Sync
             </h3>
             <ul className="space-y-2 text-cyan-500">
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Connect via Bluetooth to smartwatches</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Sync with fitness bands and smart rings</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Collect vitals: HR, SpO₂, BP, temperature & glucose</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Real-time health monitoring</span>
               </li>
             </ul>
@@ -219,25 +216,24 @@ export default function PremiumPage() {
 
           {/* Preventive & Personal Health Insights */}
           <div className="surface rounded-lg p-6 shadow-sm border subtle-border">
-            <div className="text-4xl mb-4">💡</div>
             <h3 className="text-xl font-bold text-cyan-500 mb-3">
               Preventive & Personal Health Insights
             </h3>
             <ul className="space-y-2 text-cyan-500">
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Personalized health tips and recommendations</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Lifestyle tracking: sleep, hydration, activity</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Outbreak alerts (WHO/CDC API integration)</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Daily check-ins and health goals</span>
               </li>
             </ul>
@@ -245,25 +241,24 @@ export default function PremiumPage() {
 
           {/* Elderly-Friendly & Accessibility */}
           <div className="surface rounded-lg p-6 shadow-sm border subtle-border">
-            <div className="text-4xl mb-4">👴</div>
             <h3 className="text-xl font-bold text-cyan-500 mb-3">
               Elderly-Friendly + Accessibility
             </h3>
             <ul className="space-y-2 text-cyan-500">
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Voice-based navigation and symptom entry</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Large-text UI mode for better visibility</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Local language switch (multilingual support)</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>AI voice guidance for medical instructions</span>
               </li>
             </ul>
@@ -271,25 +266,24 @@ export default function PremiumPage() {
 
           {/* Secure Cloud Health Records */}
           <div className="surface rounded-lg p-6 shadow-sm border subtle-border">
-            <div className="text-4xl mb-4">🔒</div>
             <h3 className="text-xl font-bold text-cyan-500 mb-3">
               Secure Cloud Health Records
             </h3>
             <ul className="space-y-2 text-cyan-500">
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Encrypted record storage (HIPAA compliant)</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Unlimited medical history entries</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Downloadable/Shareable health reports</span>
               </li>
               <li className="flex items-start">
-                <span className="mr-2">✓</span>
+                <span className="mr-2"></span>
                 <span>Cross-platform access</span>
               </li>
             </ul>
@@ -342,7 +336,7 @@ export default function PremiumPage() {
                 <ul className="space-y-3 mb-6">
                   {plan.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start text-sm text-cyan-500">
-                      <span className="mr-2 text-green-500">✓</span>
+                      <span className="mr-2 text-green-500"></span>
                       <span>{feature}</span>
                     </li>
                   ))}
@@ -371,23 +365,18 @@ export default function PremiumPage() {
           </h3>
           <div className="flex flex-wrap justify-center items-center gap-6">
             <div className="text-center">
-              <div className="text-3xl mb-2">💳</div>
               <p className="text-sm text-cyan-500">Stripe</p>
             </div>
             <div className="text-center">
-              <div className="text-3xl mb-2">💳</div>
               <p className="text-sm text-cyan-500">PayPal</p>
             </div>
             <div className="text-center">
-              <div className="text-3xl mb-2">📱</div>
               <p className="text-sm text-cyan-500">M-Pesa</p>
             </div>
             <div className="text-center">
-              <div className="text-3xl mb-2">🏦</div>
               <p className="text-sm text-cyan-500">Bank Cards</p>
             </div>
             <div className="text-center">
-              <div className="text-3xl mb-2">💼</div>
               <p className="text-sm text-cyan-500">Mobile Wallets</p>
             </div>
           </div>

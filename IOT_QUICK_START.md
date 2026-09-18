@@ -15,7 +15,7 @@
 4. This opens the device pairing modal
 
 ### Step 3: Scan for Devices
-1. Click **"📡 Scan for Bluetooth Devices"** button
+1. Click **" Scan for Bluetooth Devices"** button
 2. Your browser will ask for permission - click **"Allow"**
 3. The system will scan for 5-10 seconds
 4. Your device should appear in the list below
@@ -33,40 +33,40 @@
 3. Latest readings show in **"Latest Vitals"** cards
 4. Historical data appears in **"Vitals History"** table
 
-**That's it! Your device is now syncing.** ✅
+**That's it! Your device is now syncing.**
 
 ---
 
 ## Supported Devices
 
-### Smartwatches ⌚
+### Smartwatches
 - Apple Watch Series 7, 8, 9
 - Samsung Galaxy Watch 4, 5, 6
 - Garmin Forerunner 245, 255, 955
 - Fitbit Versa 3, 4
 - Google Pixel Watch
 
-### Fitness Bands 📟
+### Fitness Bands
 - Fitbit Charge 6
 - Xiaomi Mi Band 7, 8
 - Amazfit Band series
 - Huami devices
 
-### Smart Rings 💍
+### Smart Rings
 - Oura Ring Gen 3
 - Samsung Galaxy Ring
 - Ultrahuman Ring
 
-### Blood Pressure Monitors 💓
+### Blood Pressure Monitors
 - Withings BPM+
 - Omron Bluetooth enabled
 - Qardio devices
 
-### Smart Scales ⚖️
+### Smart Scales
 - Withings Body Scale
 - Xiaomi Mi Scale 2
 
-### Glucose Meters 💉
+### Glucose Meters
 - Dexcom G6+
 - FreeStyle Libre with Bluetooth
 
@@ -78,12 +78,12 @@ Your wearable device can send:
 
 | Data | Symbol | Unit |
 |------|--------|------|
-| Heart Rate | ❤️ | bpm (beats per minute) |
-| Oxygen Level | 💨 | % saturation |
-| Blood Pressure | 📊 | mmHg (systolic/diastolic) |
-| Temperature | 🌡️ | °F or °C |
-| Weight | ⚖️ | lbs or kg |
-| Blood Sugar | 🩸 | mg/dL |
+| Heart Rate | | bpm (beats per minute) |
+| Oxygen Level | | % saturation |
+| Blood Pressure | | mmHg (systolic/diastolic) |
+| Temperature | | °F or °C |
+| Weight | | lbs or kg |
+| Blood Sugar | | mg/dL |
 
 ---
 
@@ -92,7 +92,7 @@ Your wearable device can send:
 ### View Connected Devices
 All your connected devices appear in the "Connected Devices" section with:
 - Device name and type
-- Connection status (Connected ✓ or Disconnected ✗)
+- Connection status (Connected  or Disconnected )
 - Battery percentage
 - Last sync time
 
@@ -112,11 +112,11 @@ Click on a connected device to:
 
 ## Troubleshooting
 
-### ❌ "No Bluetooth support"
+### "No Bluetooth support"
 **Problem**: Browser doesn't support Bluetooth
 **Solution**: Use Chrome, Edge, or Opera browser
 
-### ❌ "No devices found"
+### "No devices found"
 **Problem**: Your device isn't appearing in scan
 **Solutions**:
 1. Make sure device is **powered on**
@@ -125,7 +125,7 @@ Click on a connected device to:
 4. Check device **Bluetooth is discoverable**
 5. Try **scanning again**
 
-### ❌ "Permission denied"
+### "Permission denied"
 **Problem**: You rejected browser Bluetooth access
 **Solutions**:
 1. **Reload the page**
@@ -133,7 +133,7 @@ Click on a connected device to:
 3. Check browser permission settings
 4. Try **incognito/private browsing**
 
-### ❌ "Connection failed"
+### "Connection failed"
 **Problem**: Device discovered but won't connect
 **Solutions**:
 1. **Restart your device** (power off/on)
@@ -142,7 +142,7 @@ Click on a connected device to:
 4. Move **closer** to computer
 5. Try **different browser** (Chrome vs Edge)
 
-### ❌ "Device disconnected during sync"
+### "Device disconnected during sync"
 **Problem**: Connection lost while syncing
 **Solutions**:
 1. Move **closer** to computer
@@ -150,7 +150,7 @@ Click on a connected device to:
 3. Check for **Bluetooth interference** (move away from microwaves, WiFi routers)
 4. Update device **firmware** if available
 
-### ❌ "Vitals not syncing"
+### "Vitals not syncing"
 **Problem**: Device connected but no data
 **Solutions**:
 1. Verify device still shows as **"Connected"**
@@ -162,16 +162,16 @@ Click on a connected device to:
 
 ## Browser Compatibility
 
-### ✅ Recommended
+### Recommended
 - Chrome 56+ (Windows, Mac, Linux, Android)
 - Edge 79+ (Windows, Mac)
 - Opera 43+ (Windows, Mac, Linux)
 
-### ⚠️ Limited Support
+### Limited Support
 - Safari 14+ (Mac) - requires system permissions
 - iOS Safari - only iOS 13.1+
 
-### ❌ Not Supported
+### Not Supported
 - Firefox
 - Internet Explorer
 
@@ -192,33 +192,33 @@ Click on a connected device to:
 
 ## Vitals Explained
 
-### ❤️ Heart Rate (HR)
+### Heart Rate (HR)
 - Normal: 60-100 bpm at rest
 - Higher when active/stressed
 - Monitor trends over time
 
-### 💨 Oxygen Saturation (SpO₂)
+### Oxygen Saturation (SpO₂)
 - Normal: 95-100%
 - Below 90% needs medical attention
 - Check if you have respiratory issues
 
-### 📊 Blood Pressure (BP)
+### Blood Pressure (BP)
 - Format: Systolic/Diastolic
 - Normal: Under 120/80
 - High: 140/90 or above
 - Monitor for hypertension
 
-### 🌡️ Temperature
+### Temperature
 - Normal: 97-99°F (36-37°C)
 - Over 100.4°F = fever
 - Under 95°F = hypothermia
 
-### ⚖️ Weight
+### Weight
 - Track trends weekly
 - Daily weight varies 2-3 lbs
 - Useful for health monitoring
 
-### 🩸 Glucose (Blood Sugar)
+### Glucose (Blood Sugar)
 - Normal fasting: 70-100 mg/dL
 - After meals: Under 140 mg/dL
 - Critical if under 70 or over 250
@@ -247,12 +247,12 @@ Click on a connected device to:
 ## Data Privacy
 
 Your vitals data:
-- ✅ Only **you** can see
-- ✅ **Encrypted** during transmission
-- ✅ Securely stored on server
-- ✅ **Never** shared without permission
-- ✅ Can be **deleted anytime**
-- ✅ Protected by **authentication**
+- Only **you** can see
+- **Encrypted** during transmission
+- Securely stored on server
+- **Never** shared without permission
+- Can be **deleted anytime**
+- Protected by **authentication**
 
 ---
 
@@ -279,7 +279,7 @@ By default, vitals sync every 5 minutes. To change:
 
 ## When to Call Doctor
 
-📞 Contact doctor if you see:
+ Contact doctor if you see:
 - SpO₂ below 90%
 - Heart rate above 120 or below 50
 - Temperature over 101°F
@@ -303,19 +303,19 @@ By default, vitals sync every 5 minutes. To change:
 
 ## Next Steps
 
-1. ✅ Gather your Bluetooth device
-2. ✅ Enable pairing mode
-3. ✅ Open patient dashboard
-4. ✅ Click "+ Add Device"
-5. ✅ Click "Scan for Bluetooth Devices"
-6. ✅ Select your device
-7. ✅ Click "Connect"
-8. ✅ View your synced vitals!
+1. Gather your Bluetooth device
+2. Enable pairing mode
+3. Open patient dashboard
+4. Click "+ Add Device"
+5. Click "Scan for Bluetooth Devices"
+6. Select your device
+7. Click "Connect"
+8. View your synced vitals!
 
 **Questions?** Check the main documentation or contact support.
 
 ---
 
-**Happy Syncing!** 🎉
+**Happy Syncing!**
 
 Last updated: 2024

@@ -1,9 +1,9 @@
 # Emergency Contacts - Quick Reference
 
-## 🚀 Quick Start
+## Quick Start
 
 ### Patient Usage:
-1. Go to Patient Dashboard → "🚨 Emergency Contacts" tab
+1. Go to Patient Dashboard → "Emergency Contacts" tab
 2. Click "Add Contact"
 3. Fill in: Name, Relationship, Phone/Email, Notification Preference
 4. Choose how to notify: Phone, Email, or Both
@@ -14,7 +14,7 @@
 - When triggered, system sends alert to primary contact via preferred method
 - Contact receives SMS and/or email with location info
 
-## 📱 Notification Methods
+## Notification Methods
 
 | Method | Channel | When to Use |
 |--------|---------|------------|
@@ -22,7 +22,7 @@
 | **EMAIL** | Email | Detailed alert with location map link |
 | **BOTH** | SMS + Email | Maximum chance of being reached |
 
-## 🔧 Technical Stack
+## Technical Stack
 
 **Database**: MongoDB
 - Collection: `EmergencyContact`
@@ -37,41 +37,41 @@
 
 **Component**: `EmergencyContactsManager.tsx` (380 lines)
 
-## ✅ Requirements Met
+## Requirements Met
 
-✅ Patients enter emergency contact name
-✅ Patients enter contact relationship
-✅ Patients enter phone number (optional)
-✅ Patients enter email address (optional)
-✅ Patients choose notification method:
+ Patients enter emergency contact name
+ Patients enter contact relationship
+ Patients enter phone number (optional)
+ Patients enter email address (optional)
+ Patients choose notification method:
   - Phone (SMS)
   - Email
   - Both
-✅ Multiple contacts supported
-✅ Primary contact designated
-✅ Full CRUD operations
-✅ Integration with emergency beacon
-✅ Dashboard UI integration
-✅ Dark mode support
+ Multiple contacts supported
+ Primary contact designated
+ Full CRUD operations
+ Integration with emergency beacon
+ Dashboard UI integration
+ Dark mode support
 
-## 📊 Data Fields
+## Data Fields
 
 ```typescript
 {
-  id: "cuid123"              // Auto-generated
-  name: string               // Required
-  relationship: string       // parent|spouse|sibling|friend|other
-  phone: string?             // Optional (at least one required)
-  email: string?             // Optional (at least one required)
+  id: "cuid123" // Auto-generated
+  name: string // Required
+  relationship: string // parent|spouse|sibling|friend|other
+  phone: string? // Optional (at least one required)
+  email: string? // Optional (at least one required)
   notificationPreference: "EMAIL" | "PHONE" | "BOTH"
-  isPrimary: boolean         // Only one per patient
-  verified: boolean          // For future verification flow
-  createdAt: Date            // Auto-generated
-  updatedAt: Date            // Auto-updated
+  isPrimary: boolean // Only one per patient
+  verified: boolean // For future verification flow
+  createdAt: Date // Auto-generated
+  updatedAt: Date // Auto-updated
 }
 ```
 
-## 🔐 Security
+## Security
 
 - NextAuth session required for all endpoints
 - Ownership validation (can't access other patient's contacts)
@@ -79,7 +79,7 @@
 - Input validation on frontend and backend
 - Cascade delete when patient deleted
 
-## 🧪 Test These Scenarios
+## Test These Scenarios
 
 - [ ] Add contact with phone only
 - [ ] Add contact with email only
@@ -97,7 +97,7 @@
 - [ ] Missing name error
 - [ ] Missing notification preference error
 
-## 📂 Files Overview
+## Files Overview
 
 | File | Purpose | Lines |
 |------|---------|-------|
@@ -110,7 +110,7 @@
 | `app/dashboard/patient/page.tsx` | Dashboard integration (modified) | +12 |
 | `EMERGENCY_CONTACTS_GUIDE.md` | Full documentation | 400+ |
 
-## 🎯 Core Logic
+## Core Logic
 
 ### Creating Contact:
 ```
@@ -141,30 +141,30 @@ Send Email (if EMAIL or BOTH)
 Return status: {sms_sent, email_sent, errors}
 ```
 
-## 🔔 Alert Template
+## Alert Template
 
-**SMS**: 
+**SMS**:
 ```
-EMERGENCY ALERT from [NAME]. Please respond immediately. 
+EMERGENCY ALERT from [NAME]. Please respond immediately.
 Location: [LAT],[LNG]
 ```
 
 **Email**:
 ```
-Subject: 🚨 EMERGENCY ALERT - RemoDoc
+Subject: EMERGENCY ALERT - RemoDoc
 
 [NAME] has triggered an emergency beacon and needs immediate assistance.
 
 Message: [EMERGENCY_MESSAGE]
 
-📍 Location: [MAP_LINK]
+ Location: [MAP_LINK]
 
 Time: [TIMESTAMP]
 
 Please respond immediately.
 ```
 
-## 💡 Usage Tips
+## Usage Tips
 
 1. **Always set at least one primary contact** before emergencies happen
 2. **Keep contact info updated** - verify numbers/emails are current
@@ -175,7 +175,7 @@ Please respond immediately.
 4. **Test emergency beacon** at least once to verify workflow
 5. **Inform contacts** they're emergency contacts so they expect alerts
 
-## 🚨 Emergency Scenarios
+## Emergency Scenarios
 
 ### Scenario 1: Lost in hospital parking lot
 - Add: Spouse, +254712345678, phone preference
@@ -195,7 +195,7 @@ Please respond immediately.
 - Trigger emergency → SMS + Email to spouse
 - Spouse can notify hospital/doctor
 
-## 📞 Provider Requirements
+## Provider Requirements
 
 For SMS:
 - Configure in `lib/sms.ts`
@@ -205,7 +205,7 @@ For Email:
 - Configure in `lib/email.ts`
 - Supported: SendGrid, AWS SES, Gmail SMTP, etc.
 
-## ❓ FAQs
+## FAQs
 
 **Q: Can I have more than one primary contact?**
 A: No, only one. If you set another as primary, the previous one is automatically unset.
@@ -225,7 +225,7 @@ A: SMS is best-effort delivery. Email is more reliable for detailed info.
 **Q: Can someone else access my emergency contacts?**
 A: No, only you can see/manage your contacts (authenticated session required).
 
-## 📈 Performance
+## Performance
 
 - Database query: ~5ms (indexed by patientId)
 - API response time: ~50-100ms
@@ -233,7 +233,7 @@ A: No, only you can see/manage your contacts (authenticated session required).
 - SMS send: ~500ms-2 seconds (depends on provider)
 - Component render: <100ms
 
-## 🔄 What Happens Next
+## What Happens Next
 
 1. **Manual Testing**
    - Test all CRUD operations
@@ -263,8 +263,8 @@ A: No, only you can see/manage your contacts (authenticated session required).
 
 ---
 
-**Status**: ✅ Ready to Use
+**Status**: Ready to Use
 **Authentication**: Required (NextAuth)
 **Premium Required**: No
-**Tested**: ✅ Yes
-**Production Ready**: ✅ Yes
+**Tested**: Yes
+**Production Ready**: Yes

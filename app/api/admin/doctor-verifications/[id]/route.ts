@@ -55,7 +55,7 @@ export async function PUT(req: NextRequest, context: any) {
       const updated = await prisma.doctorVerificationRequest.update({ where: { id }, data: { status: 'APPROVED', adminNotes: adminNotes ? sanitizeShort(adminNotes) : null, reviewedBy: session.user.id, reviewedAt: new Date() } })
       await prisma.doctorProfile.update({ where: { id: request.doctorId }, data: { verificationStatus: 'VERIFIED', verifiedAt: new Date(), verifiedBy: session.user.id, verificationCompletedAt: new Date(), verificationReviewedBy: session.user.id } })
       await prisma.auditLog.create({ data: { actorId: session.user.id, action: 'APPROVE_VERIFICATION', targetType: 'DoctorVerificationRequest', targetId: id, details: JSON.stringify({ doctorId: request.doctorId }) } })
-      
+
       // Send approval email to doctor
       try {
         const doctor = await prisma.doctorProfile.findUnique({ where: { id: request.doctorId }, include: { user: true } })
@@ -65,7 +65,7 @@ export async function PUT(req: NextRequest, context: any) {
       } catch (emailError) {
         console.error('Failed to send approval email:', emailError)
       }
-      
+
       return NextResponse.json({ message: 'Approved', request: updated })
     }
 
@@ -73,7 +73,7 @@ export async function PUT(req: NextRequest, context: any) {
       const updated = await prisma.doctorVerificationRequest.update({ where: { id }, data: { status: 'REJECTED', adminNotes: adminNotes ? sanitizeShort(adminNotes) : null, reviewedBy: session.user.id, reviewedAt: new Date() } })
       await prisma.doctorProfile.update({ where: { id: request.doctorId }, data: { verificationStatus: 'REJECTED', verificationReviewedBy: session.user.id } })
       await prisma.auditLog.create({ data: { actorId: session.user.id, action: 'REJECT_VERIFICATION', targetType: 'DoctorVerificationRequest', targetId: id, details: JSON.stringify({ doctorId: request.doctorId, reason: adminNotes }) } })
-      
+
       // Send rejection email to doctor
       try {
         const doctor = await prisma.doctorProfile.findUnique({ where: { id: request.doctorId }, include: { user: true } })
@@ -83,7 +83,7 @@ export async function PUT(req: NextRequest, context: any) {
       } catch (emailError) {
         console.error('Failed to send rejection email:', emailError)
       }
-      
+
       return NextResponse.json({ message: 'Rejected', request: updated })
     }
 

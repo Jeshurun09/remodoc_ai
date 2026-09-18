@@ -45,10 +45,10 @@ export async function POST(req: NextRequest) {
     if (newLevel > currentLevel && prorationPolicy === 'charge_difference') {
       // Calculate refund/charge based on remaining days
       const now = new Date()
-      const daysRemaining = subscription.endDate 
+      const daysRemaining = subscription.endDate
         ? Math.ceil((subscription.endDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
         : 30
-      
+
       // Plan pricing (example - customize based on your pricing)
       const pricing: Record<SubscriptionPlan, number> = {
         FREE: 0,
@@ -79,8 +79,8 @@ export async function POST(req: NextRequest) {
         userId: session.user.id,
         inputType: 'text',
         input: `Plan change: ${subscription.plan} -> ${newPlan}`,
-        output: JSON.stringify({ 
-          fromPlan: subscription.plan, 
+        output: JSON.stringify({
+          fromPlan: subscription.plan,
           toPlan: newPlan,
           proratedAmount,
           timestamp: new Date().toISOString()

@@ -122,7 +122,7 @@ export const authOptions: NextAuthOptions = {
         if (!session) {
           return session
         }
-        
+
         if (!session.user) {
           session.user = {
             id: '',
@@ -146,20 +146,20 @@ export const authOptions: NextAuthOptions = {
         if (token.role) {
           session.user.role = token.role as string
         }
-        
+
         if (token.id) {
           session.user.id = token.id as string
         }
-        
+
         if (token.isVerified !== undefined) {
           session.user.isVerified = token.isVerified as boolean
         }
-        
+
         // Only set these if they exist
         if (token.doctorProfile) {
           session.user.doctorProfile = token.doctorProfile as any
         }
-        
+
         if (token.patientProfile) {
           session.user.patientProfile = token.patientProfile as any
         }

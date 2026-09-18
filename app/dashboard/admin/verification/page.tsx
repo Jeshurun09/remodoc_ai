@@ -216,13 +216,13 @@ export default function AdminVerificationPage() {
                               ref.verified ? 'bg-green-100 text-green-800' : 'bg-gray-100 hover:bg-green-100'
                             }`}
                           >
-                            ✓ Verified
+                             Verified
                           </button>
                           <button
                             onClick={() => verifyReference(ref.id, false, 'Not verified')}
                             className="px-2 py-1 text-xs rounded bg-red-100 hover:bg-red-200 text-red-800"
                           >
-                            ✗ Unverified
+                             Unverified
                           </button>
                         </div>
                       </div>

@@ -47,13 +47,13 @@ export default function Home() {
               <button
                 onClick={toggleTheme}
                 className={`px-4 py-2 border rounded-lg text-lg transition-all duration-200 ${
-                  isDark 
-                    ? 'border-white/40 hover:bg-white/10 text-yellow-400 hover:text-yellow-300' 
+                  isDark
+                    ? 'border-white/40 hover:bg-white/10 text-yellow-400 hover:text-yellow-300'
                     : 'border-gray-300 hover:bg-gray-100 text-yellow-500 hover:text-yellow-600'
                 }`}
                 title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
               >
-                {isDark ? '🌙' : '☀️'}
+                {isDark ? 'Light' : 'Dark'}
               </button>
             </div>
           </div>
@@ -93,7 +93,6 @@ export default function Home() {
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mt-16">
           <div className={cardClass}>
-            <div className="text-4xl mb-4">🩺</div>
             <h3 className={`text-xl font-semibold mb-2 ${sectionHeaderClass}`}>For Patients</h3>
             <p className="text-[var(--foreground)]/80">
               Symptom input (text/voice/image), AI triage, hospital maps, appointments, and offline access
@@ -101,7 +100,6 @@ export default function Home() {
           </div>
 
           <div className={cardClass}>
-            <div className="text-4xl mb-4">👨‍⚕️</div>
             <h3 className={`text-xl font-semibold mb-2 ${sectionHeaderClass}`}>For Doctors</h3>
             <p className="text-[var(--foreground)]/80">
               Verified login, case management, chat, prescriptions, and AI feedback review
@@ -109,7 +107,6 @@ export default function Home() {
           </div>
 
           <div className={cardClass}>
-            <div className="text-4xl mb-4">🧑‍💼</div>
             <h3 className={`text-xl font-semibold mb-2 ${sectionHeaderClass}`}>Admin Dashboard</h3>
             <p className="text-[var(--foreground)]/80">
               Verify doctors, manage hospitals, monitor AI logs, configure system, and view analytics
@@ -123,13 +120,13 @@ export default function Home() {
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <h3 className={`font-semibold mb-2 ${sectionHeaderClass}`}>🧠 Gemini AI</h3>
+              <h3 className={`font-semibold mb-2 ${sectionHeaderClass}`}>Gemini AI</h3>
               <p className="text-[var(--foreground)]/80">
                 Processes text & image data, returns likely conditions, urgency, and care advice
               </p>
             </div>
             <div>
-              <h3 className={`font-semibold mb-2 ${sectionHeaderClass}`}>🗺️ Google Maps</h3>
+              <h3 className={`font-semibold mb-2 ${sectionHeaderClass}`}>Google Maps</h3>
               <p className="text-[var(--foreground)]/80">
                 Hospital discovery, directions, and emergency routing with Google Maps integration
               </p>

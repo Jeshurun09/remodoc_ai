@@ -87,7 +87,7 @@ export default function EmergencyBeacon({ location }: EmergencyBeaconProps) {
             : 'bg-red-600 hover:bg-red-700 active:scale-95'
         } disabled:opacity-50 z-50`}
       >
-        {sent ? '✓ Beacon Sent' : loading ? 'Sending...' : '🚨 Emergency'}
+        {sent ? 'Beacon Sent' : loading ? 'Sending...' : 'Emergency'}
       </button>
     </>
   )

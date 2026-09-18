@@ -155,13 +155,13 @@ export default function SubscribePage() {
               <button
                 onClick={toggleTheme}
                 className={`px-4 py-2 border rounded-lg text-lg transition-all duration-200 ${
-                  isDark 
-                    ? 'border-white/40 hover:bg-white/10 text-yellow-400 hover:text-yellow-300' 
+                  isDark
+                    ? 'border-white/40 hover:bg-white/10 text-yellow-400 hover:text-yellow-300'
                     : 'border-gray-300 hover:bg-gray-100 text-yellow-500 hover:text-yellow-600'
                 }`}
                 title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
               >
-                {isDark ? '🌙' : '☀️'}
+                {isDark ? 'Light' : 'Dark'}
               </button>
               <Link
                 href="/dashboard/patient"
@@ -195,7 +195,7 @@ export default function SubscribePage() {
           {plans.map((plan) => {
             const isCurrentPlan = currentSubscription?.plan?.toLowerCase() === plan.id
             const isFree = plan.id === 'free'
-            
+
             return (
               <div
                 key={plan.id}
@@ -232,7 +232,7 @@ export default function SubscribePage() {
                 <ul className="space-y-3 mb-6">
                   {plan.features.map((feature, idx) => (
                     <li key={idx} className="flex items-start text-sm text-cyan-500">
-                      <span className="mr-2 text-green-500">✓</span>
+                      <span className="mr-2 text-green-500"></span>
                       <span>{feature}</span>
                     </li>
                   ))}

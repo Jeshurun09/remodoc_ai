@@ -6,7 +6,7 @@ All tasks have been successfully completed. The RemoDoc platform now has a compr
 
 ## Completed Features
 
-### 1. ✅ Customer Payment System (M-Pesa, Stripe, PayPal, Bank)
+### 1. Customer Payment System (M-Pesa, Stripe, PayPal, Bank)
 
 **Files:**
 - `lib/mpesa.ts` — M-Pesa STK push and B2C transfer helpers
@@ -25,7 +25,7 @@ All tasks have been successfully completed. The RemoDoc platform now has a compr
 - All payment methods create audit trail in `PaymentTransaction`
 - Webhook handlers reconcile provider callbacks to subscriptions
 
-### 2. ✅ Doctor Payout System
+### 2. Doctor Payout System
 
 **Models (Prisma):**
 - `DoctorPayout` — monthly payout record
@@ -39,7 +39,7 @@ All tasks have been successfully completed. The RemoDoc platform now has a compr
 - `mpesaPhoneNumber` — for M-Pesa B2C payouts
 - `bankDetails` — JSON field for bank account info
 
-### 3. ✅ Payout Calculation Job
+### 3. Payout Calculation Job
 
 **File:** `scripts/calc_payouts.ts`
 
@@ -56,7 +56,7 @@ All tasks have been successfully completed. The RemoDoc platform now has a compr
 npx ts-node scripts/calc_payouts.ts --start=2025-01-01 --end=2025-01-31 --rate=500
 ```
 
-### 4. ✅ Payout Provider Runners
+### 4. Payout Provider Runners
 
 **File:** `lib/payouts.ts`
 
@@ -72,7 +72,7 @@ npx ts-node scripts/calc_payouts.ts --start=2025-01-01 --end=2025-01-31 --rate=5
 - Status transitions: APPROVED → PROCESSING → PAID/FAILED
 - Error logging in `DoctorPayout.notes`
 
-### 5. ✅ Webhook Handlers & Reconciliation
+### 5. Webhook Handlers & Reconciliation
 
 **Files:**
 - `app/api/webhooks/stripe-payouts/route.ts` — Stripe payout events (new)
@@ -89,7 +89,7 @@ npx ts-node scripts/calc_payouts.ts --start=2025-01-01 --end=2025-01-31 --rate=5
 - Sets `processedAt` timestamp
 - Stores provider response in `notes`
 
-### 6. ✅ Admin APIs
+### 6. Admin APIs
 
 **Endpoints:**
 - `GET /api/admin/payouts` — List with filters (status, doctor, provider, date range)
@@ -109,7 +109,7 @@ npx ts-node scripts/calc_payouts.ts --start=2025-01-01 --end=2025-01-31 --rate=5
 - NextAuth session-based guards via `requireAdmin()`
 - Falls back to header check for scripts
 
-### 7. ✅ Doctor APIs
+### 7. Doctor APIs
 
 **Endpoints:**
 - `GET /api/doctor/payouts` — View own payout history with filtering
@@ -120,7 +120,7 @@ npx ts-node scripts/calc_payouts.ts --start=2025-01-01 --end=2025-01-31 --rate=5
 - NextAuth session-based guard
 - Doctors can only see their own payouts
 
-### 8. ✅ Admin UI Components
+### 8. Admin UI Components
 
 **Files:**
 - `app/dashboard/admin/payouts/page.tsx` — Admin payout management page
@@ -133,7 +133,7 @@ npx ts-node scripts/calc_payouts.ts --start=2025-01-01 --end=2025-01-31 --rate=5
 - CSV export
 - Payout item details modal
 
-### 9. ✅ Premium Feature Gating
+### 9. Premium Feature Gating
 
 **File:** `lib/premium.ts` (new)
 
@@ -147,7 +147,7 @@ npx ts-node scripts/calc_payouts.ts --start=2025-01-01 --end=2025-01-31 --rate=5
 - **STUDENT/INDIVIDUAL**: Premium features (health records, vitals, history)
 - **SMALL_GROUP/FAMILY**: Advanced features (analytics, priority support, lifestyle tracking)
 
-### 10. ✅ Setup & Documentation
+### 10. Setup & Documentation
 
 **File:** `PAYOUTS_SETUP.md` (comprehensive guide)
 
@@ -169,12 +169,12 @@ npx ts-node scripts/calc_payouts.ts --start=2025-01-01 --end=2025-01-31 --rate=5
 **File:** `scripts/tests/e2e_tests.ts` (new)
 
 **Tests:**
-1. ✅ Monthly payout calculation logic
-2. ✅ Payout listing with filters
-3. ✅ Payout detail retrieval
-4. ✅ Premium feature gating
-5. ✅ Webhook reconciliation paths
-6. ✅ Doctor payout history
+1. Monthly payout calculation logic
+2. Payout listing with filters
+3. Payout detail retrieval
+4. Premium feature gating
+5. Webhook reconciliation paths
+6. Doctor payout history
 
 **Running tests:**
 ```bash

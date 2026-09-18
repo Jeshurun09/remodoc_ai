@@ -115,7 +115,7 @@ export default function DoctorAvailabilityMap() {
                     <span className="w-3 h-3 bg-green-500 rounded-full" title="Online" />
                   )}
                   {doctor.credentialVerified && (
-                    <span className="text-blue-600 text-sm" title="Verified">✓</span>
+                    <span className="text-blue-600 text-sm" title="Verified"></span>
                   )}
                 </div>
               </div>

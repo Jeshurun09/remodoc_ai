@@ -39,7 +39,7 @@ describe('Doctor Verification Endpoints - Integration Tests', () => {
 
     it('should validate national ID format', async () => {
       const { isLikelyNationalId } = await import('../lib/validators')
-      
+
       expect(isLikelyNationalId('ABC123')).toBe(true)
       expect(isLikelyNationalId('A')).toBe(false)
       expect(isLikelyNationalId('VERYLONGNATIONALIDTHATEXCEEDSTWENTYCHARS')).toBe(false)
@@ -47,7 +47,7 @@ describe('Doctor Verification Endpoints - Integration Tests', () => {
 
     it('should validate email format', async () => {
       const { isValidEmail } = await import('../lib/validators')
-      
+
       expect(isValidEmail('doctor@hospital.com')).toBe(true)
       expect(isValidEmail('invalid-email')).toBe(false)
       expect(isValidEmail('test@domain.co.uk')).toBe(true)
@@ -55,7 +55,7 @@ describe('Doctor Verification Endpoints - Integration Tests', () => {
 
     it('should validate URL format', async () => {
       const { isValidUrl } = await import('../lib/validators')
-      
+
       expect(isValidUrl('https://example.com/document.pdf')).toBe(true)
       expect(isValidUrl('http://cdn.example.com/cert.pdf')).toBe(true)
       expect(isValidUrl('not-a-url')).toBe(false)
@@ -64,7 +64,7 @@ describe('Doctor Verification Endpoints - Integration Tests', () => {
 
     it('should sanitize HTML in short text fields', async () => {
       const { sanitizeShort } = await import('../lib/validators')
-      
+
       expect(sanitizeShort('John Doe')).toBe('John Doe')
       // sanitizeShort removes special chars (&<>") and trims - tags become plain text
       const sanitized = sanitizeShort('<script>alert(1)</script>John')
@@ -86,7 +86,7 @@ describe('Doctor Verification Endpoints - Integration Tests', () => {
     it('should validate OTP format', async () => {
       const validOtp = '123456'
       const invalidOtp = '12345' // too short
-      
+
       expect(/^\d{6}$/.test(validOtp)).toBe(true)
       expect(/^\d{6}$/.test(invalidOtp)).toBe(false)
     })
@@ -103,7 +103,7 @@ describe('Doctor Verification Endpoints - Integration Tests', () => {
 
     it('should sanitize admin notes', async () => {
       const { sanitizeShort } = await import('../lib/validators')
-      
+
       const notes = 'Doctor credentials verified. Approved for practice.'
       const sanitized = sanitizeShort(notes)
       expect(sanitized).toBeDefined()
@@ -123,7 +123,7 @@ describe('Doctor Verification Endpoints - Integration Tests', () => {
         fileName: '',
         contentType: 'application/pdf'
       }
-      
+
       expect(payload.fileName).toBe('')
       expect(!payload.fileName).toBe(true)
     })
@@ -135,7 +135,7 @@ describe('Doctor Verification Endpoints - Integration Tests', () => {
         'image/png',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
       ]
-      
+
       expect(supportedTypes.includes('application/pdf')).toBe(true)
       expect(supportedTypes.includes('application/xml')).toBe(false)
     })
@@ -179,14 +179,14 @@ describe('Doctor Verification Endpoints - Integration Tests', () => {
     it('should store verification status correctly', async () => {
       const status = 'PENDING'
       const validStatuses = ['PENDING', 'UNDER_REVIEW', 'APPROVED', 'REJECTED']
-      
+
       expect(validStatuses.includes(status)).toBe(true)
     })
 
     it('should store background check status correctly', async () => {
       const bgStatus = 'PENDING'
       const validBgStatuses = ['NOT_REQUESTED', 'PENDING', 'APPROVED', 'REJECTED']
-      
+
       expect(validBgStatuses.includes(bgStatus)).toBe(true)
     })
 

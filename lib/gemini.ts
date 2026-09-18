@@ -90,14 +90,14 @@ function extractConditions(text: string): string[] {
     /possible conditions?:?\s*([^\n]+)/i,
     /may be:\s*([^\n]+)/i
   ]
-  
+
   for (const pattern of conditionPatterns) {
     const match = text.match(pattern)
     if (match) {
       conditions.push(...match[1].split(',').map(c => c.trim()))
     }
   }
-  
+
   return conditions.length > 0 ? conditions : ['Unknown condition']
 }
 
@@ -113,7 +113,7 @@ function extractUrgency(text: string): 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL' {
 export async function analyzeVoiceHealth(audioTranscript: string, duration: number) {
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
-    
+
     const prompt = `You are a medical AI assistant specializing in voice health analysis. Analyze the following voice recording transcript and provide health insights.
 
 Transcript: ${audioTranscript}
@@ -165,7 +165,7 @@ Respond in JSON format:
 export async function summarizeMedicalReport(reportText: string, reportType: string) {
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
-    
+
     const prompt = `You are a medical AI assistant. Summarize the following medical report in clear, patient-friendly language.
 
 Report Type: ${reportType}
@@ -222,14 +222,14 @@ function extractFindings(text: string): string[] {
     /findings?:?\s*([^\n]+)/i,
     /results?:?\s*([^\n]+)/i
   ]
-  
+
   for (const pattern of findingPatterns) {
     const match = text.match(pattern)
     if (match) {
       findings.push(...match[1].split(/[,\n]/).map(f => f.trim()).filter(f => f.length > 0))
     }
   }
-  
+
   return findings.length > 0 ? findings : ['No specific findings extracted']
 }
 
@@ -237,7 +237,7 @@ function extractFindings(text: string): string[] {
 export async function recognizeSymptomPattern(symptoms: string[], historicalData?: any) {
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-pro' })
-    
+
     const prompt = `You are a medical AI assistant specializing in pattern recognition. Analyze the following symptoms and identify patterns that human doctors might miss.
 
 Current Symptoms: ${symptoms.join(', ')}
@@ -296,7 +296,7 @@ Respond in JSON format:
 export async function analyzeSkinLesion(imageBase64: string, bodyLocation?: string) {
   try {
     const model = genAI.getGenerativeModel({ model: 'gemini-pro-vision' })
-    
+
     const prompt = `You are a medical AI assistant specializing in dermatology. Analyze this skin lesion image and provide insights.
 
 ${bodyLocation ? `Body Location: ${bodyLocation}` : ''}

@@ -358,13 +358,13 @@ export default function EmergencyContactsManager({ isDark = false }: EmergencyCo
 
                   <div className={`mt-3 space-y-1 text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                     {contact.phone && (
-                      <p>📱 {contact.phone}</p>
+                      <p>Phone: {contact.phone}</p>
                     )}
                     {contact.email && (
-                      <p>✉️ {contact.email}</p>
+                      <p>Email: {contact.email}</p>
                     )}
                     <p>
-                      🔔 Notify via:{' '}
+                      Notify via:{' '}
                       <span className={`font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'}`}>
                         {contact.notificationPreference === 'BOTH'
                           ? 'Phone & Email'
@@ -400,7 +400,7 @@ export default function EmergencyContactsManager({ isDark = false }: EmergencyCo
 
       {/* Info Box */}
       <div className={`mt-6 p-4 rounded-lg border-l-4 ${isDark ? 'bg-blue-900 border-blue-500 text-blue-200' : 'bg-blue-50 border-blue-500 text-blue-800'}`}>
-        <p className="text-sm font-medium mb-1">💡 About Emergency Contacts</p>
+        <p className="text-sm font-medium mb-1">About Emergency Contacts</p>
         <p className="text-sm">
           When you trigger an emergency beacon, we'll notify your primary contact using their preferred method. Make sure to keep this information up-to-date.
         </p>

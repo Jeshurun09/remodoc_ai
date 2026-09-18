@@ -92,8 +92,8 @@ export async function POST(req: NextRequest) {
 
       // Check group size
       if (group.members.length >= group.maxMembers) {
-        return NextResponse.json({ 
-          error: `Group is full (${group.maxMembers} members max)` 
+        return NextResponse.json({
+          error: `Group is full (${group.maxMembers} members max)`
         }, { status: 400 })
       }
 

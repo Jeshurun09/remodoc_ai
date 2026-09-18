@@ -67,7 +67,7 @@ export default function PatientDashboard() {
         (error: GeolocationPositionError) => {
           // Handle different geolocation error types
           let errorMessage = 'Unable to get your location'
-          
+
           switch (error.code) {
             case error.PERMISSION_DENIED:
               errorMessage = 'Location access denied. Please enable location permissions to use location-based features.'
@@ -82,7 +82,7 @@ export default function PatientDashboard() {
               errorMessage = `Location error: ${error.message || 'Unknown error'}`
               break
           }
-          
+
           // Only log non-permission errors (permission denied is expected in some cases)
           if (error.code !== error.PERMISSION_DENIED) {
             console.warn('Geolocation error:', {
@@ -93,7 +93,7 @@ export default function PatientDashboard() {
                     error.code === error.TIMEOUT ? 'TIMEOUT' : 'UNKNOWN'
             })
           }
-          
+
           // Location will remain null, which is fine - components should handle null location gracefully
         },
         {
@@ -172,19 +172,19 @@ export default function PatientDashboard() {
                   href="/subscribe"
                   className="px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-600 text-white rounded-lg hover:from-cyan-600 hover:to-blue-700 text-sm font-semibold"
                 >
-                  ⭐ Upgrade to Premium
+                  Upgrade to Premium
                 </Link>
               )}
               <button
                 onClick={toggleTheme}
                 className={`px-4 py-2 border rounded-lg text-lg transition-all duration-200 ${
-                  isDark 
-                    ? 'border-white/40 hover:bg-white/10 text-yellow-400 hover:text-yellow-300' 
+                  isDark
+                    ? 'border-white/40 hover:bg-white/10 text-yellow-400 hover:text-yellow-300'
                     : 'border-gray-300 hover:bg-gray-100 text-yellow-500 hover:text-yellow-600'
                 }`}
                 title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
               >
-                {isDark ? '🌙' : '☀️'}
+                {isDark ? 'Light' : 'Dark'}
               </button>
               <span className="text-cyan-500">{session.user.name}</span>
               <button
@@ -240,7 +240,7 @@ export default function PatientDashboard() {
                     : 'text-cyan-500 hover:text-cyan-600'
                 }`}
               >
-                🚨 Emergency Contacts
+                Emergency Contacts
               </button>
               <button
                 onClick={() => setActiveTab('voice-health')}
@@ -250,7 +250,7 @@ export default function PatientDashboard() {
                     : 'text-cyan-500 hover:text-cyan-600'
                 }`}
               >
-                🎤 Voice Health
+                Voice Health
               </button>
               <button
                 onClick={() => setActiveTab('report-summary')}
@@ -260,7 +260,7 @@ export default function PatientDashboard() {
                     : 'text-cyan-500 hover:text-cyan-600'
                 }`}
               >
-                📄 Report Summary
+                Report Summary
               </button>
               <button
                 onClick={() => setActiveTab('pattern-recognition')}
@@ -270,7 +270,7 @@ export default function PatientDashboard() {
                     : 'text-cyan-500 hover:text-cyan-600'
                 }`}
               >
-                🔍 Pattern Recognition
+                Pattern Recognition
               </button>
               <button
                 onClick={() => setActiveTab('skin-scanner')}
@@ -280,7 +280,7 @@ export default function PatientDashboard() {
                     : 'text-cyan-500 hover:text-cyan-600'
                 }`}
               >
-                📷 Skin Scanner
+                Skin Scanner
               </button>
               <button
                 onClick={() => setActiveTab('timeline')}
@@ -290,7 +290,7 @@ export default function PatientDashboard() {
                     : 'text-cyan-500 hover:text-cyan-600'
                 }`}
               >
-                ⏰ Health Timeline
+                Health Timeline
               </button>
               {isPremium ? (
                 <>
@@ -302,7 +302,7 @@ export default function PatientDashboard() {
                         : 'text-cyan-500 hover:text-cyan-600'
                     }`}
                   >
-                    💬 Telemedicine
+                    Telemedicine
                   </button>
                   <button
                     onClick={() => setActiveTab('iot')}
@@ -312,7 +312,7 @@ export default function PatientDashboard() {
                         : 'text-cyan-500 hover:text-cyan-600'
                     }`}
                   >
-                    ⌚ IoT Sync
+                    IoT Sync
                   </button>
                   <button
                     onClick={() => setActiveTab('insights')}
@@ -322,7 +322,7 @@ export default function PatientDashboard() {
                         : 'text-cyan-500 hover:text-cyan-600'
                     }`}
                   >
-                    💡 Insights
+                    Insights
                   </button>
                   <button
                     onClick={() => setActiveTab('accessibility')}
@@ -332,7 +332,7 @@ export default function PatientDashboard() {
                         : 'text-cyan-500 hover:text-cyan-600'
                     }`}
                   >
-                    ♿ Accessibility
+                    Accessibility
                   </button>
                   <button
                     onClick={() => setActiveTab('records')}
@@ -342,7 +342,7 @@ export default function PatientDashboard() {
                         : 'text-cyan-500 hover:text-cyan-600'
                     }`}
                   >
-                    🔒 Health Records
+                    Health Records
                   </button>
                 </>
               ) : (
@@ -350,7 +350,7 @@ export default function PatientDashboard() {
                   onClick={() => router.push('/subscribe')}
                   className="px-4 py-4 text-sm font-medium whitespace-nowrap text-cyan-500 hover:text-cyan-600 border-b-2 border-transparent hover:border-cyan-300"
                 >
-                  ⭐ Premium Features
+                  Premium Features
                 </button>
               )}
             </nav>
@@ -377,7 +377,6 @@ export default function PatientDashboard() {
             ) : (
               (activeTab === 'telemedicine' || activeTab === 'iot' || activeTab === 'insights' || activeTab === 'accessibility' || activeTab === 'records') && (
                 <div className="text-center py-12">
-                  <div className="text-6xl mb-4">⭐</div>
                   <h3 className="text-2xl font-bold text-cyan-500 mb-4">Premium Feature</h3>
                   <p className="text-cyan-500 mb-6">
                     This feature is available with a premium subscription

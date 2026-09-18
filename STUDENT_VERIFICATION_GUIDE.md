@@ -210,7 +210,7 @@ Revoke student verification.
 ```prisma
 model User {
   // ... existing fields ...
-  
+
   // Student verification fields
   studentVerified Boolean @default(false)
   studentVerificationProvider String? // SheerID, UNiDAYS, StudentBeans
@@ -390,12 +390,12 @@ if (!isValid && user.studentVerified) {
 | Feature | FREE | STUDENT | INDIVIDUAL |
 |---------|------|---------|-----------|
 | Price | Free | $2.99/mo | $9.99/mo |
-| AI Symptom Checker | ✗ | ✓ | ✓ |
+| AI Symptom Checker |  |  |  |
 | Health Records | Limited | Full | Full |
-| Appointment History | ✗ | ✓ | ✓ |
-| Doctor Messaging | ✗ | ✓ | ✓ |
-| Advanced Analytics | ✗ | ✗ | ✓ |
-| Priority Support | ✗ | ✓ | ✓ |
+| Appointment History |  |  |  |
+| Doctor Messaging |  |  |  |
+| Advanced Analytics |  |  |  |
+| Priority Support |  |  |  |
 
 ---
 

@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client'
 const prisma = new PrismaClient()
 
 async function main() {
-  console.log('🔎 Checking seeded data via Prisma...')
+  console.log('Checking seeded data via Prisma...')
 
   const counts = {
     User: await prisma.user.count(),

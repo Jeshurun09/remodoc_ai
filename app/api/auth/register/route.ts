@@ -162,7 +162,7 @@ export async function POST(req: NextRequest) {
     })
   } catch (error) {
     console.error('Registration error:', error)
-    
+
     // Handle specific error types
     if (error instanceof Error) {
       // Prisma unique constraint violation (duplicate email)
@@ -172,7 +172,7 @@ export async function POST(req: NextRequest) {
           { status: 400 }
         )
       }
-      
+
       // Email configuration / delivery error
       if (
         error.message.includes('Email transport is not configured') ||
@@ -187,7 +187,7 @@ export async function POST(req: NextRequest) {
           { status: 500 }
         )
       }
-      
+
       // Database connection / datasource URL error
       if (
         error.name === 'PrismaClientInitializationError' ||
@@ -201,7 +201,7 @@ export async function POST(req: NextRequest) {
           { status: 500 }
         )
       }
-      
+
       // Log the full error for debugging
       console.error('Full registration error details:', {
         message: error.message,

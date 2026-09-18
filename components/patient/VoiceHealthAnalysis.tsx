@@ -43,7 +43,7 @@ export default function VoiceHealthAnalysis() {
     setError(null)
     resetTranscript()
     startListening()
-    
+
     intervalRef.current = setInterval(() => {
       setDuration(prev => prev + 1)
     }, 1000)
@@ -165,7 +165,7 @@ export default function VoiceHealthAnalysis() {
           {analysis && (
             <div className="mt-6 space-y-4">
               <h3 className="text-xl font-bold text-cyan-500">Analysis Results</h3>
-              
+
               <div className="p-4 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg">
                 <p className="text-sm font-semibold text-cyan-700 dark:text-cyan-300 mb-2">
                   Confidence: {(analysis.confidence * 100).toFixed(1)}%

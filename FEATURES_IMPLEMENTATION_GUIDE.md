@@ -60,7 +60,7 @@ const status = await fetch('/api/triage?patientId=...');
 - **Real-time Status**: Shows which doctors are online
 - **Live Location**: GPS coordinates for map display
 - **Wait Time Estimation**: Shows average wait time per doctor
-- **Performance Metrics**: 
+- **Performance Metrics**:
   - Acceptance rate
   - Cancellation rate
   - Average response time
@@ -211,9 +211,9 @@ PUT /api/admin/reviews/:reviewId/action
 
 ### 4. End-to-End Encryption (Architecture)
 
-**Current Implementation**: 
+**Current Implementation**:
 - Data in transit: HTTPS/TLS
-- Future Enhancement: 
+- Future Enhancement:
   - AES-256 for sensitive fields
   - Public key infrastructure for doctor-patient comms
 
@@ -275,7 +275,7 @@ GET /api/promo-codes/student
 POST /api/promo-codes (admin-only, to create)
 ```
 
-**Database Models**: 
+**Database Models**:
 - `PromoCode`
 - `PromoCodeUsage`
 
@@ -764,7 +764,7 @@ PUT /api/admin/overrides/:overrideId (log action taken)
 
 ## Implementation Status
 
-### ✅ Completed
+### Completed
 
 - [x] Smart triage system with urgency scoring
 - [x] Doctor availability & live status map
@@ -787,7 +787,7 @@ PUT /api/admin/overrides/:overrideId (log action taken)
 - [x] Doctor performance metrics
 - [x] Admin override panel
 
-### 🔄 In Progress / Ready for Frontend
+### In Progress / Ready for Frontend
 
 - [ ] Frontend UI components for all features
 - [ ] Real-time WebSocket updates for doctor availability
@@ -796,7 +796,7 @@ PUT /api/admin/overrides/:overrideId (log action taken)
 - [ ] ML model for no-show prediction
 - [ ] SMS integration for emergency alerts
 
-### 📋 Future Enhancements
+### Future Enhancements
 
 - [ ] Multi-language support
 - [ ] Video call integration with WebRTC

@@ -2,13 +2,13 @@
 
 Complete guide to set up Stripe credit/debit card payments for RemoDoc.
 
-## 📋 Prerequisites
+## Prerequisites
 
 - Stripe account (https://stripe.com)
 - Test API keys
 - Webhook endpoint (public HTTPS URL)
 
-## 🔑 Getting Stripe Credentials
+## Getting Stripe Credentials
 
 ### Step 1: Create Stripe Account
 1. Visit https://stripe.com
@@ -42,7 +42,7 @@ Save both keys securely.
 8. Click "Reveal signing secret"
 9. Copy it (whsec_...)
 
-## 🛠️ Configuration
+## Configuration
 
 ### 1. Update .env
 
@@ -64,7 +64,7 @@ npm install stripe @stripe/react-stripe-js @stripe/stripe-js
 npx prisma db push
 ```
 
-## 💳 How Stripe Payments Work
+## How Stripe Payments Work
 
 ```
 1. User enters card details on checkout
@@ -77,7 +77,7 @@ npx prisma db push
 8. Frontend redirects to dashboard
 ```
 
-## 🧪 Testing with Stripe
+## Testing with Stripe
 
 ### Test Mode
 
@@ -106,7 +106,7 @@ Your keys are automatically in test mode. Test payments won't charge actual card
 
 Expected: Payment succeeds, subscription activated, redirected to dashboard
 
-## 📡 Webhook Testing
+## Webhook Testing
 
 ### Using ngrok (Local Testing)
 
@@ -135,13 +135,13 @@ ngrok http 3000
 5. Click "Send test event"
 6. Check your app logs for webhook receipt
 
-## 🔄 Payment Intent Flow
+## Payment Intent Flow
 
 ### Creating Payment Intent
 
 ```typescript
 const paymentIntent = await stripe.paymentIntents.create({
-  amount: 599,           // $5.99 in cents
+  amount: 599, // $5.99 in cents
   currency: 'usd',
   metadata: {
     plan: 'individual',
@@ -174,18 +174,18 @@ const { paymentIntent } = await stripe.confirmCardPayment(
 )
 ```
 
-## 🔐 Security Best Practices
+## Security Best Practices
 
-✅ **Never log card numbers**
-✅ **Use HTTPS only** (Stripe requires it)
-✅ **Use Stripe Elements** - No card data touches your server
-✅ **Verify webhook signatures** - Check stripe-signature header
-✅ **Use test keys in development** - Never production keys in dev
-✅ **Rotate webhook signing secrets** - Periodically
-✅ **Cache API tokens** - Don't call API on every request
-✅ **Validate server-side** - Never trust client input
+ **Never log card numbers**
+ **Use HTTPS only** (Stripe requires it)
+ **Use Stripe Elements** - No card data touches your server
+ **Verify webhook signatures** - Check stripe-signature header
+ **Use test keys in development** - Never production keys in dev
+ **Rotate webhook signing secrets** - Periodically
+ **Cache API tokens** - Don't call API on every request
+ **Validate server-side** - Never trust client input
 
-## 🚨 Common Issues
+## Common Issues
 
 ### Issue: "Invalid API Key provided"
 **Solution**: Check that sk_test_ key is in `STRIPE_SECRET_KEY`
@@ -200,13 +200,13 @@ const { paymentIntent } = await stripe.confirmCardPayment(
 **Solution**: This is expected for test card 4000 0025 0000 3155. Click "Authenticate" in Stripe's modal.
 
 ### Issue: Webhook not received
-**Solution**: 
+**Solution**:
 - Check endpoint URL is public HTTPS
 - Verify webhook is enabled in Stripe dashboard
 - Check app logs for errors
 - Use ngrok for local testing
 
-## 📊 Monitoring
+## Monitoring
 
 Track these Stripe events:
 
@@ -218,7 +218,7 @@ Track these Stripe events:
 
 Access in Stripe Dashboard → Logs → Events
 
-## 🔄 Refunds
+## Refunds
 
 ### Full Refund
 ```typescript
@@ -235,7 +235,7 @@ const refund = await stripe.refunds.create({
 })
 ```
 
-## 📈 Production Checklist
+## Production Checklist
 
 - [ ] Switch from test keys to live keys
 - [ ] Update all API endpoints to use live URLs
@@ -248,7 +248,7 @@ const refund = await stripe.refunds.create({
 - [ ] Verify PCI compliance
 - [ ] Monitor webhook delivery rate
 
-## 🔀 Moving to Production
+## Moving to Production
 
 1. **Get Live Keys**
    - Stripe requires business verification
@@ -281,7 +281,7 @@ const refund = await stripe.refunds.create({
    - Verify subscription activates
    - Verify webhook received
 
-## 📞 Support
+## Support
 
 - **Stripe Documentation**: https://stripe.com/docs
 - **Stripe Support**: https://support.stripe.com
@@ -289,5 +289,5 @@ const refund = await stripe.refunds.create({
 
 ---
 
-**Status**: ✅ Production Ready
+**Status**: Production Ready
 **Last Updated**: November 30, 2025

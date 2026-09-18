@@ -71,7 +71,7 @@ export default function IoTHealthSync() {
   useEffect(() => {
     fetchConnectedDevices()
     fetchVitalsHistory()
-    
+
     // Refresh devices and vitals every 5 minutes
     const interval = setInterval(() => {
       fetchConnectedDevices()
@@ -156,7 +156,6 @@ export default function IoTHealthSync() {
           <div className="text-center py-4 text-gray-500">Loading devices...</div>
         ) : connectedDevices.length === 0 ? (
           <div className="text-center py-8">
-            <div className="text-4xl mb-2">📱</div>
             <p className="text-gray-600 mb-4">No devices connected yet</p>
             <button
               onClick={() => setShowPairing(true)}
@@ -176,7 +175,7 @@ export default function IoTHealthSync() {
                 className="flex items-center justify-between p-4 bg-gray-50 rounded-lg border border-gray-200 hover:shadow-md transition-shadow"
               >
                 <div className="flex items-center gap-3 flex-1">
-                  <span className="text-3xl">{getDeviceIcon(device.type as any)}</span>
+                  <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">{getDeviceIcon(device.type as any)}</span>
                   <div>
                     <p className="font-semibold text-gray-900">{device.name}</p>
                     <p className="text-sm text-gray-600">{getDeviceTypeName(device.type as any)}</p>
@@ -222,21 +221,21 @@ export default function IoTHealthSync() {
             <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
               {vitalsHistory[0].heartRate && (
                 <div className="p-4 bg-gradient-to-br from-red-50 to-red-100 rounded-lg border border-red-200">
-                  <div className="text-sm text-red-600 font-semibold">❤️ Heart Rate</div>
+                  <div className="text-sm text-red-600 font-semibold">Heart Rate</div>
                   <div className="text-3xl font-bold text-red-600 mt-1">{vitalsHistory[0].heartRate}</div>
                   <div className="text-xs text-red-500 mt-1">bpm</div>
                 </div>
               )}
               {vitalsHistory[0].spO2 && (
                 <div className="p-4 bg-gradient-to-br from-blue-50 to-blue-100 rounded-lg border border-blue-200">
-                  <div className="text-sm text-blue-600 font-semibold">💨 SpO₂</div>
+                  <div className="text-sm text-blue-600 font-semibold">SpO2</div>
                   <div className="text-3xl font-bold text-blue-600 mt-1">{vitalsHistory[0].spO2}%</div>
                   <div className="text-xs text-blue-500 mt-1">Oxygen</div>
                 </div>
               )}
               {vitalsHistory[0].bloodPressureSystolic && (
                 <div className="p-4 bg-gradient-to-br from-purple-50 to-purple-100 rounded-lg border border-purple-200">
-                  <div className="text-sm text-purple-600 font-semibold">📊 BP</div>
+                  <div className="text-sm text-purple-600 font-semibold">BP</div>
                   <div className="text-2xl font-bold text-purple-600 mt-1">
                     {vitalsHistory[0].bloodPressureSystolic}/{vitalsHistory[0].bloodPressureDiastolic}
                   </div>
@@ -245,21 +244,21 @@ export default function IoTHealthSync() {
               )}
               {vitalsHistory[0].temperature && (
                 <div className="p-4 bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg border border-orange-200">
-                  <div className="text-sm text-orange-600 font-semibold">🌡️ Temp</div>
+                  <div className="text-sm text-orange-600 font-semibold">Temp</div>
                   <div className="text-3xl font-bold text-orange-600 mt-1">{vitalsHistory[0].temperature}°</div>
                   <div className="text-xs text-orange-500 mt-1">°F</div>
                 </div>
               )}
               {vitalsHistory[0].glucose && (
                 <div className="p-4 bg-gradient-to-br from-green-50 to-green-100 rounded-lg border border-green-200">
-                  <div className="text-sm text-green-600 font-semibold">🩸 Glucose</div>
+                  <div className="text-sm text-green-600 font-semibold">Glucose</div>
                   <div className="text-3xl font-bold text-green-600 mt-1">{vitalsHistory[0].glucose}</div>
                   <div className="text-xs text-green-500 mt-1">mg/dL</div>
                 </div>
               )}
               {vitalsHistory[0].deviceName && (
                 <div className="p-4 bg-gradient-to-br from-gray-50 to-gray-100 rounded-lg border border-gray-200">
-                  <div className="text-sm text-gray-600 font-semibold">📱 Device</div>
+                  <div className="text-sm text-gray-600 font-semibold">Device</div>
                   <div className="text-sm font-semibold text-gray-700 mt-1">{vitalsHistory[0].deviceName}</div>
                   <div className="text-xs text-gray-500 mt-1">
                     {new Date(vitalsHistory[0].recordedAt).toLocaleTimeString()}
@@ -279,11 +278,11 @@ export default function IoTHealthSync() {
             <thead>
               <tr className="border-b border-gray-200">
                 <th className="text-left p-3 text-cyan-600 font-semibold">Date & Time</th>
-                <th className="text-left p-3 text-cyan-600 font-semibold">❤️ HR</th>
-                <th className="text-left p-3 text-cyan-600 font-semibold">💨 SpO₂</th>
-                <th className="text-left p-3 text-cyan-600 font-semibold">📊 BP</th>
-                <th className="text-left p-3 text-cyan-600 font-semibold">🌡️ Temp</th>
-                <th className="text-left p-3 text-cyan-600 font-semibold">🩸 Glucose</th>
+                <th className="text-left p-3 text-cyan-600 font-semibold">HR</th>
+                <th className="text-left p-3 text-cyan-600 font-semibold">SpO2</th>
+                <th className="text-left p-3 text-cyan-600 font-semibold">BP</th>
+                <th className="text-left p-3 text-cyan-600 font-semibold">Temp</th>
+                <th className="text-left p-3 text-cyan-600 font-semibold">Glucose</th>
                 <th className="text-left p-3 text-cyan-600 font-semibold">Device</th>
               </tr>
             </thead>

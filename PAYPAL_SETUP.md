@@ -2,14 +2,14 @@
 
 Complete guide to set up PayPal payments for RemoDoc.
 
-## 📋 Prerequisites
+## Prerequisites
 
 - PayPal account (https://paypal.com)
 - PayPal Developer account (https://developer.paypal.com)
 - Business account for live payments
 - Webhook endpoint (public HTTPS URL)
 
-## 🔑 Getting PayPal Credentials
+## Getting PayPal Credentials
 
 ### Step 1: Create PayPal Developer Account
 1. Visit https://developer.paypal.com
@@ -46,7 +46,7 @@ Save both securely.
 7. Find your webhook in list
 8. Click on it → Copy "Webhook ID"
 
-## 🛠️ Configuration
+## Configuration
 
 ### 1. Update .env
 
@@ -66,7 +66,7 @@ PAYPAL_ENV=live
 Already included via `stripe` package installation. PayPal uses `axios` which is already installed.
 
 ```bash
-npm install axios  # If not already installed
+npm install axios # If not already installed
 ```
 
 ### 3. Update Database
@@ -75,7 +75,7 @@ npm install axios  # If not already installed
 npx prisma db push
 ```
 
-## 💳 How PayPal Payments Work
+## How PayPal Payments Work
 
 ```
 1. User clicks "Pay with PayPal" button
@@ -91,7 +91,7 @@ npx prisma db push
 11. User redirected to dashboard
 ```
 
-## 🧪 Testing with PayPal Sandbox
+## Testing with PayPal Sandbox
 
 ### Sandbox vs Live
 
@@ -133,7 +133,7 @@ Use the personal account for testing payments.
 
 Expected: Payment succeeds, subscription activated, redirected to dashboard
 
-## 📡 Webhook Testing
+## Webhook Testing
 
 ### Setup Local Webhook Testing (ngrok)
 
@@ -162,7 +162,7 @@ ngrok http 3000
 6. Click "Send sample event"
 7. Check your app logs for webhook receipt
 
-## 🔄 PayPal Order Flow
+## PayPal Order Flow
 
 ### Creating an Order
 
@@ -215,22 +215,22 @@ const result = await capturePayPalOrder(orderId)
 }
 ```
 
-## 🔐 Security Best Practices
+## Security Best Practices
 
-✅ **Never expose secret** - Only use client ID on frontend
-✅ **Use HTTPS** - PayPal requires it
-✅ **Verify signatures** - Check X-PAYPAL-TRANSMISSION-SIG header
-✅ **Use sandbox first** - Never test on live
-✅ **Validate amounts server-side** - Don't trust client input
-✅ **Check order status** - Verify before activating subscription
-✅ **Cache tokens** - Reuse OAuth token (60s TTL)
-✅ **Log transactions** - Track for audits
-✅ **Handle duplicates** - Same order ID might webhook twice
+ **Never expose secret** - Only use client ID on frontend
+ **Use HTTPS** - PayPal requires it
+ **Verify signatures** - Check X-PAYPAL-TRANSMISSION-SIG header
+ **Use sandbox first** - Never test on live
+ **Validate amounts server-side** - Don't trust client input
+ **Check order status** - Verify before activating subscription
+ **Cache tokens** - Reuse OAuth token (60s TTL)
+ **Log transactions** - Track for audits
+ **Handle duplicates** - Same order ID might webhook twice
 
-## 🚨 Common Issues
+## Common Issues
 
 ### Issue: "Webhook not received"
-**Solution**: 
+**Solution**:
 - Ensure webhook URL is public HTTPS
 - Check webhook is enabled in developer dashboard
 - Use ngrok for local testing
@@ -240,19 +240,19 @@ const result = await capturePayPalOrder(orderId)
 **Solution**: Verify client ID in .env matches PayPal developer dashboard
 
 ### Issue: "Order creation fails"
-**Solution**: 
+**Solution**:
 - Check amount format (must be string: "5.99")
 - Check currency is supported (USD, EUR, etc.)
 - Verify API credentials are correct
 
 ### Issue: "Capture fails with 'Order not approved'"
-**Solution**: 
+**Solution**:
 - User didn't click "Approve" on PayPal
 - Order already captured (check database)
 - Payment token expired (redirect to payment again)
 
 ### Issue: "Cannot find test accounts"
-**Solution**: 
+**Solution**:
 - Go to PayPal Developer Dashboard
 - Select "Sandbox" (top right)
 - Click "Accounts"
@@ -266,7 +266,7 @@ const result = await capturePayPalOrder(orderId)
 - Check timestamp is within 4 minutes
 - Check transmission ID isn't reused
 
-## 📊 Monitoring
+## Monitoring
 
 Track these PayPal events:
 
@@ -278,7 +278,7 @@ Track these PayPal events:
 
 View in PayPal Developer → Webhooks → Event log
 
-## 🔄 Refunds
+## Refunds
 
 ### Full Refund
 ```typescript
@@ -296,7 +296,7 @@ const capture = await paypal.get('/v2/payments/captures/{captureId}')
 // capture.status will show: COMPLETED, REFUNDED, etc.
 ```
 
-## 📈 Production Checklist
+## Production Checklist
 
 - [ ] Upgrade to business account
 - [ ] Submit for production approval
@@ -309,7 +309,7 @@ const capture = await paypal.get('/v2/payments/captures/{captureId}')
 - [ ] Verify SSL certificate
 - [ ] Test error scenarios
 
-## 🔀 Moving to Production
+## Moving to Production
 
 1. **Upgrade to Business Account**
    - Log in to PayPal.com
@@ -350,7 +350,7 @@ const capture = await paypal.get('/v2/payments/captures/{captureId}')
    git push production
    ```
 
-## 💡 Pro Tips
+## Pro Tips
 
 **Webhook Verification**: Always verify TRANSMISSION-ID hasn't been processed before to prevent duplicate payments
 
@@ -362,7 +362,7 @@ const capture = await paypal.get('/v2/payments/captures/{captureId}')
 
 **Currency**: PayPal supports 100+ currencies - check current exchange rates
 
-## 📞 Support
+## Support
 
 - **PayPal Developer**: https://developer.paypal.com
 - **API Reference**: https://developer.paypal.com/docs/api/overview/
@@ -371,5 +371,5 @@ const capture = await paypal.get('/v2/payments/captures/{captureId}')
 
 ---
 
-**Status**: ✅ Production Ready
+**Status**: Production Ready
 **Last Updated**: November 30, 2025

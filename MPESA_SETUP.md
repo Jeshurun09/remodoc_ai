@@ -6,28 +6,28 @@ RemoDoc now supports M-Pesa payments for premium subscriptions! This guide walks
 ## What's Been Implemented
 
 ### Backend
-- ✅ **M-Pesa Library** (`lib/mpesa.ts`): Complete Safaricom Daraja API integration
+- **M-Pesa Library** (`lib/mpesa.ts`): Complete Safaricom Daraja API integration
   - OAuth token generation
   - STK Push initiation (sends payment prompt to user's phone)
   - STK status querying
   - Callback signature verification
-  
-- ✅ **Payment Endpoint** (`app/api/payment/route.ts`): Handles M-Pesa requests
+
+- **Payment Endpoint** (`app/api/payment/route.ts`): Handles M-Pesa requests
   - Validates phone numbers
   - Creates PaymentTransaction records
   - Returns checkout request ID for frontend polling
-  
-- ✅ **Webhook Endpoint** (`app/api/webhooks/mpesa/route.ts`): Receives payment confirmations
+
+- **Webhook Endpoint** (`app/api/webhooks/mpesa/route.ts`): Receives payment confirmations
   - Receives async callbacks from Safaricom
   - Updates payment status and subscription
   - Activates premium plan on success
-  
-- ✅ **Database**: Added `PaymentTransaction` model to track all payments
+
+- **Database**: Added `PaymentTransaction` model to track all payments
   - Stores transaction IDs, amounts, phone numbers
   - Full audit trail for compliance
 
 ### Frontend
-- ✅ **Payment Form** (`app/subscribe/payment/page.tsx`): M-Pesa UI
+- **Payment Form** (`app/subscribe/payment/page.tsx`): M-Pesa UI
   - Phone number input field
   - "Payment Prompt Sent" waiting screen
   - Auto-polling every 3 seconds for payment confirmation
@@ -68,8 +68,8 @@ MPESA_SHORTCODE=your_business_shortcode_here
 MPESA_PASSKEY=your_passkey_here
 MPESA_INITIATOR_NAME=your_initiator_name_here
 MPESA_INITIATOR_PASSWORD=your_initiator_password_here
-MPESA_ENV=sandbox  # Use 'sandbox' for testing, 'production' for live
-MPESA_CALLBACK_URL=http://localhost:3000/api/webhooks/mpesa  # Update for production
+MPESA_ENV=sandbox # Use 'sandbox' for testing, 'production' for live
+MPESA_CALLBACK_URL=http://localhost:3000/api/webhooks/mpesa # Update for production
 ```
 
 ### Step 4: Test in Sandbox
@@ -142,7 +142,7 @@ MPESA_CALLBACK_URL=https://yourdomain.com/api/webhooks/mpesa
    ↓
 10. Frontend detects status change and redirects to dashboard
     ↓
-11. User now has premium access! 🎉
+11. User now has premium access!
 ```
 
 ## Phone Number Formats Supported
@@ -187,7 +187,7 @@ MPESA_CALLBACK_URL=https://your-ngrok-url.ngrok.io/api/webhooks/mpesa
 - Format must be: `254XXXXXXXXX` (12 digits total)
 
 ### Issue: Callback not received
-- **Solution**: 
+- **Solution**:
   - Verify callback URL is publicly accessible (HTTPS required for production)
   - Check firewall/security rules
   - Use ngrok for local testing
@@ -215,4 +215,4 @@ For code issues with RemoDoc, check the M-Pesa library at `lib/mpesa.ts`
 
 ---
 
-Happy payments! 💰
+Happy payments!

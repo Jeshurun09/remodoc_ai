@@ -176,7 +176,7 @@ export default function CloudHealthRecords() {
                     <span className="text-xs text-gray-500">
                       {new Date(record.createdAt).toLocaleDateString()}
                     </span>
-                    <span className="text-xs text-green-600">🔒 Encrypted</span>
+                    <span className="text-xs text-green-600">Encrypted</span>
                   </div>
                 </div>
                 <div className="flex space-x-2">

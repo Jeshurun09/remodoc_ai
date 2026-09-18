@@ -140,29 +140,29 @@ If issues occur after deployment:
 
 ### Key API Endpoints
 ```
-POST   /api/doctor/verification          - Submit credentials
-GET    /api/doctor/verification          - List own requests
-POST   /api/doctor/verification/send-otp - Send OTP
-POST   /api/doctor/verification/verify-otp - Verify OTP
-GET    /api/admin/doctor-verifications   - List all (admin)
-GET    /api/admin/doctor-verifications/{id} - View detail (admin)
-PUT    /api/admin/doctor-verifications/{id} - Admin action (admin)
-POST   /api/uploads                      - Dev file upload
-POST   /api/uploads/s3-presign           - S3 presigned URL
+POST /api/doctor/verification - Submit credentials
+GET /api/doctor/verification - List own requests
+POST /api/doctor/verification/send-otp - Send OTP
+POST /api/doctor/verification/verify-otp - Verify OTP
+GET /api/admin/doctor-verifications - List all (admin)
+GET /api/admin/doctor-verifications/{id} - View detail (admin)
+PUT /api/admin/doctor-verifications/{id} - Admin action (admin)
+POST /api/uploads - Dev file upload
+POST /api/uploads/s3-presign - S3 presigned URL
 ```
 
 ### Key Components
 ```
-DoctorProfileEditor      - Doctor credential form
+DoctorProfileEditor - Doctor credential form
 DoctorVerificationReview - Admin review interface
 ```
 
 ### Key Validators
 ```
-isValidEmail()         - Email format
-isValidUrl()           - URL format
-isLikelyNationalId()   - National ID heuristic
-sanitizeShort()        - HTML sanitization
+isValidEmail() - Email format
+isValidUrl() - URL format
+isLikelyNationalId() - National ID heuristic
+sanitizeShort() - HTML sanitization
 ```
 
 ## Questions to Answer

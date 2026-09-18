@@ -1,4 +1,4 @@
-# 🚀 Deployment Guide (Vercel, Docker, Self-Hosted)
+# Deployment Guide (Vercel, Docker, Self-Hosted)
 
 ## Option 1: Vercel Deployment (Recommended for Next.js)
 
@@ -535,7 +535,7 @@ model DoctorPayout {
 // prisma/schema.prisma
 datasource db {
   provider = "mongodb"
-  url      = env("DATABASE_URL")
+  url = env("DATABASE_URL")
   shadowDatabaseUrl = env("SHADOW_DATABASE_URL")
 }
 ```

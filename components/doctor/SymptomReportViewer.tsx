@@ -137,7 +137,7 @@ export default function SymptomReportViewer({ report, patientName }: SymptomRepo
               onClick={() => setExpanded(!expanded)}
               className="text-sm font-semibold text-blue-600 hover:text-blue-700 mb-2 flex items-center gap-2"
             >
-              {expanded ? '▼' : '▶'} AI Analysis Details
+              {expanded ? '▼' : ''} AI Analysis Details
             </button>
             {expanded && (
               <pre className="text-xs bg-black/5 dark:bg-white/5 p-3 rounded overflow-auto max-h-96">

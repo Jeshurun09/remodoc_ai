@@ -125,7 +125,7 @@ export default function HospitalMap({ location }: HospitalMapProps) {
     console.error = (...args: any[]) => {
       const message = args.join(' ')
       // Only intercept if it's a Google Maps billing error
-      if (message.includes('BillingNotEnabledMapError') || 
+      if (message.includes('BillingNotEnabledMapError') ||
           (message.includes('Google Maps') && message.includes('BillingNotEnabled'))) {
         setMapError('Google Maps billing is not enabled. Please enable billing in your Google Cloud Console.')
         // Suppress the console error since we're showing a user-friendly message
@@ -138,7 +138,7 @@ export default function HospitalMap({ location }: HospitalMapProps) {
     // Listen for Google Maps API errors from window error events
     const handleMapError = (event: ErrorEvent) => {
       const errorMessage = event.message || event.error?.message || String(event.error || '')
-      if (errorMessage.includes('BillingNotEnabledMapError') || 
+      if (errorMessage.includes('BillingNotEnabledMapError') ||
           (errorMessage.includes('Google Maps') && errorMessage.includes('BillingNotEnabled'))) {
         setMapError('Google Maps billing is not enabled. Please enable billing in your Google Cloud Console.')
         // Prevent the error from appearing in console
@@ -150,7 +150,7 @@ export default function HospitalMap({ location }: HospitalMapProps) {
     // Also listen for unhandled promise rejections that might contain Google Maps errors
     const handleUnhandledRejection = (event: PromiseRejectionEvent) => {
       const errorMessage = event.reason?.message || String(event.reason || '')
-      if (errorMessage.includes('BillingNotEnabledMapError') || 
+      if (errorMessage.includes('BillingNotEnabledMapError') ||
           (errorMessage.includes('Google Maps') && errorMessage.includes('BillingNotEnabled'))) {
         setMapError('Google Maps billing is not enabled. Please enable billing in your Google Cloud Console.')
         event.preventDefault()
@@ -159,7 +159,7 @@ export default function HospitalMap({ location }: HospitalMapProps) {
 
     window.addEventListener('error', handleMapError)
     window.addEventListener('unhandledrejection', handleUnhandledRejection)
-    
+
     return () => {
       window.removeEventListener('error', handleMapError)
       window.removeEventListener('unhandledrejection', handleUnhandledRejection)
@@ -187,7 +187,7 @@ export default function HospitalMap({ location }: HospitalMapProps) {
           <p className="text-red-800 font-semibold mb-2">Google Maps Error</p>
           <p className="text-red-700 text-sm">{mapError}</p>
           <p className="text-red-600 text-xs mt-2">
-            <a 
+            <a
               href="https://developers.google.com/maps/documentation/javascript/error-messages#billing-not-enabled-map-error"
               target="_blank"
               rel="noopener noreferrer"

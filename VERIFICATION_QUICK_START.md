@@ -1,6 +1,6 @@
 # Quick Start - Doctor Verification System
 
-## 🚀 5-Minute Setup
+## 5-Minute Setup
 
 ### Step 1: Environment Variables (1 min)
 
@@ -52,9 +52,9 @@ export default function AdminDashboard() {
 npm run test -- --run
 ```
 
-**Expected:** ✅ 25 tests passing
+**Expected:** 25 tests passing
 
-## 🧪 Test the Flow
+## Test the Flow
 
 1. **Doctor submits credentials**
    - Navigate to doctor dashboard
@@ -74,13 +74,13 @@ npm run test -- --run
    - Click "Review & Take Action"
    - Approve/reject/request background check
 
-## 📚 Key Files
+## Key Files
 
 - `DOCTOR_VERIFICATION_SYSTEM.md` - Complete guide
 - `INTEGRATION_CHECKLIST.md` - Full integration steps
 - `lib/validators.ts` - Validation functions
 
-## ✅ Success Indicators
+## Success Indicators
 
 - [ ] Tests passing (25/25)
 - [ ] No TypeScript errors
@@ -88,14 +88,14 @@ npm run test -- --run
 - [ ] Doctor can submit credentials
 - [ ] Admin can approve/reject
 
-## 🎯 Next Steps
+## Next Steps
 
-1. ✅ Configure environment variables
-2. ✅ Add components to dashboards
-3. ✅ Run tests to verify
-4. ✅ Test the complete flow
-5. ✅ Deploy to staging
+1. Configure environment variables
+2. Add components to dashboards
+3. Run tests to verify
+4. Test the complete flow
+5. Deploy to staging
 
 ---
 
-**Everything is ready!** Start with Step 1 above. 🎉
+**Everything is ready!** Start with Step 1 above.

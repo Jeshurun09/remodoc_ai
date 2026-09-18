@@ -49,15 +49,15 @@ export default function HealthTimeMachine() {
 
   const getEventIcon = (type: string) => {
     const icons: Record<string, string> = {
-      symptom: '🩺',
-      appointment: '📅',
-      medication: '💊',
-      vital: '📊',
-      scan: '🔬',
-      report: '📄',
-      custom: '📝'
+      symptom: 'Symptom',
+      appointment: 'Visit',
+      medication: 'Med',
+      vital: 'Vitals',
+      scan: 'Scan',
+      report: 'Report',
+      custom: 'Note'
     }
-    return icons[type] || '📋'
+    return icons[type] || 'Event'
   }
 
   const getEventColor = (category: string) => {
@@ -162,7 +162,7 @@ export default function HealthTimeMachine() {
                         className="bg-gray-50 dark:bg-gray-900 rounded-lg p-4 border border-gray-200 dark:border-gray-700 hover:shadow-md transition-shadow"
                       >
                         <div className="flex items-start space-x-3">
-                          <span className="text-2xl">{getEventIcon(event.type)}</span>
+                          <span className="text-xs font-semibold uppercase tracking-wide">{getEventIcon(event.type)}</span>
                           <div className="flex-1">
                             <div className="flex items-center justify-between mb-1">
                               <h4 className="font-semibold text-gray-900 dark:text-gray-100">

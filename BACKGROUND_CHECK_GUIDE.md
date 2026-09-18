@@ -12,7 +12,7 @@ The doctor credential verification system includes background check tracking. Th
 
 ```prisma
 model DoctorVerificationRequest {
-  backgroundCheckStatus    String  // NOT_REQUESTED, PENDING, APPROVED, REJECTED
+  backgroundCheckStatus String // NOT_REQUESTED, PENDING, APPROVED, REJECTED
   backgroundCheckReference String? // External reference ID
 }
 ```
@@ -132,7 +132,7 @@ export async function POST(req: NextRequest) {
 
     // Verify webhook signature (provider-dependent)
     // if (!verifySignature(req, body)) {
-    //   return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
+    // return NextResponse.json({ error: 'Invalid signature' }, { status: 401 })
     // }
 
     // Update verification request
@@ -204,14 +204,14 @@ curl -X PUT http://localhost:3000/api/admin/doctor-verifications/{id} \
 
 ```prisma
 model DoctorVerificationRequest {
-  id                          String   @id @default(cuid())
-  doctorId                    String
-  doctor                      DoctorProfile @relation(fields: [doctorId], references: [id])
+  id String @id @default(cuid())
+  doctorId String
+  doctor DoctorProfile @relation(fields: [doctorId], references: [id])
 
   // Background Check Fields
-  backgroundCheckStatus       String   @default("NOT_REQUESTED")
+  backgroundCheckStatus String @default("NOT_REQUESTED")
   // Status: NOT_REQUESTED, PENDING, APPROVED, REJECTED
-  backgroundCheckReference    String?  // External service ID
+  backgroundCheckReference String? // External service ID
 
   // ... other fields
 }
@@ -226,14 +226,14 @@ model DoctorVerificationRequest {
   // ... existing fields
 
   // Enhanced background check tracking
-  backgroundCheckStatus      String   @default("NOT_REQUESTED")
-  backgroundCheckReference   String?
-  backgroundCheckProvider    String?  // checkr, jumio, gbg, etc.
+  backgroundCheckStatus String @default("NOT_REQUESTED")
+  backgroundCheckReference String?
+  backgroundCheckProvider String? // checkr, jumio, gbg, etc.
   backgroundCheckRequestedAt DateTime?
   backgroundCheckCompletedAt DateTime?
-  backgroundCheckResult      String?  // JSON with detailed results
-  backgroundCheckCost        Float?   // Track costs
-  backgroundCheckExpiresAt   DateTime? // Expiration date
+  backgroundCheckResult String? // JSON with detailed results
+  backgroundCheckCost Float? // Track costs
+  backgroundCheckExpiresAt DateTime? // Expiration date
 }
 ```
 
@@ -416,4 +416,4 @@ const totalCost = await prisma.doctorVerificationRequest.aggregate({
 
 ---
 
-You have a solid foundation. Add third-party integration when ready! 🚀
+You have a solid foundation. Add third-party integration when ready!

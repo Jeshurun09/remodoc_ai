@@ -33,7 +33,7 @@ export default function DoctorDashboard() {
   return (
     <div className="p-6">
       <h1>Doctor Dashboard</h1>
-      
+
       {/* Your existing content */}
       <div className="mt-8">
         <h2>Doctor Profile & Verification</h2>
@@ -57,7 +57,7 @@ export default function DoctorDashboard() {
   return (
     <div className="p-6">
       <h1>Doctor Dashboard</h1>
-      
+
       {/* Tab Navigation */}
       <div className="flex gap-4 mb-6 border-b">
         <button
@@ -127,7 +127,7 @@ export default function DoctorDashboard() {
                 onClick={() => setShowVerification(false)}
                 className="text-gray-500 hover:text-gray-700"
               >
-                ✕
+                
               </button>
             </div>
             <DoctorProfileEditor />
@@ -414,7 +414,7 @@ export default function Dashboard() {
           onClick={() => toggleSection('verification')}
           className="w-full px-4 py-3 bg-gray-100 font-medium text-left hover:bg-gray-200"
         >
-          📋 Credential Verification
+           Credential Verification
         </button>
         {expandedSections.includes('verification') && (
           <div className="p-4 border-t">
@@ -542,10 +542,10 @@ After adding components to your dashboards:
 
 ## Next Steps
 
-1. ✅ Add components to your dashboards
-2. ✅ Test the complete flow end-to-end
-3. ✅ Configure Twilio for OTP delivery
-4. ✅ Deploy to staging for QA
-5. ✅ Deploy to production
+1. Add components to your dashboards
+2. Test the complete flow end-to-end
+3. Configure Twilio for OTP delivery
+4. Deploy to staging for QA
+5. Deploy to production
 
-You're ready to go! 🚀
+You're ready to go!

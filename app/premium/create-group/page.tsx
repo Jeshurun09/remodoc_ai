@@ -83,7 +83,7 @@ export default function CreateGroupPage() {
           {/* Plan Selection */}
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-900 mb-6">Select Plan</h2>
-            
+
             <div className="space-y-3">
               {Object.entries(planDetails).map(([plan, details]) => (
                 <button
@@ -117,10 +117,10 @@ export default function CreateGroupPage() {
           {(selectedPlan === 'SMALL_GROUP' || selectedPlan === 'FAMILY') && (
             <div className="mb-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-4">Maximum Members</h2>
-              
+
               <div className="space-y-4">
                 <p className="text-gray-600">How many people do you want in this group?</p>
-                
+
                 <div className="flex gap-2">
                   <button
                     onClick={() => setMaxMembers(Math.max(2, maxMembers - 1))}
@@ -128,7 +128,7 @@ export default function CreateGroupPage() {
                   >
                     −
                   </button>
-                  
+
                   <input
                     type="number"
                     value={maxMembers}
@@ -140,7 +140,7 @@ export default function CreateGroupPage() {
                     max={10}
                     className="flex-1 px-4 py-2 text-center text-2xl font-bold border-2 border-purple-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                   />
-                  
+
                   <button
                     onClick={() => setMaxMembers(Math.min(10, maxMembers + 1))}
                     className="px-4 py-2 bg-gray-200 hover:bg-gray-300 text-gray-900 font-bold rounded-lg transition"
@@ -148,7 +148,7 @@ export default function CreateGroupPage() {
                     +
                   </button>
                 </div>
-                
+
                 <div className="bg-purple-50 border border-purple-200 rounded-lg p-4">
                   <p className="text-purple-900">
                     <span className="font-bold">Group size: </span>{maxMembers} members

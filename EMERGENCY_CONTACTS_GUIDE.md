@@ -38,19 +38,19 @@ The Emergency Contacts Management System allows patients to:
 ### EmergencyContact Model
 ```prisma
 model EmergencyContact {
-  id              String                   @id @default(cuid()) @map("_id")
-  patientId       String
-  name            String
-  relationship    String                   // "parent", "spouse", "sibling", "friend", "other"
-  phone           String?
-  email           String?
+  id String @id @default(cuid()) @map("_id")
+  patientId String
+  name String
+  relationship String // "parent", "spouse", "sibling", "friend", "other"
+  phone String?
+  email String?
   notificationPreference NotificationPreference @default(BOTH)
-  isPrimary       Boolean                  @default(false)
-  verified        Boolean                  @default(false)
+  isPrimary Boolean @default(false)
+  verified Boolean @default(false)
   verificationCode String?
   verificationExpires DateTime?
-  createdAt       DateTime                 @default(now())
-  updatedAt       DateTime                 @updatedAt
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   patient PatientProfile @relation(fields: [patientId], references: [id], onDelete: Cascade)
 
@@ -217,14 +217,14 @@ When a patient triggers an emergency beacon:
 ```html
 <div style="font-family: Arial, sans-serif; max-width: 600px;">
   <div style="background-color: #dc2626; color: white; padding: 20px; text-align: center;">
-    <h1>🚨 EMERGENCY ALERT</h1>
+    <h1> EMERGENCY ALERT</h1>
   </div>
   <div style="padding: 20px; background-color: #f9fafb;">
     <p><strong>{PATIENT_NAME}</strong> has triggered an emergency beacon and needs immediate assistance.</p>
     <div style="background-color: #fef2f2; border-left: 4px solid #dc2626; padding: 15px; margin: 15px 0;">
       <p><strong>Message:</strong> {MESSAGE}</p>
     </div>
-    <p><strong>📍 Location:</strong> <a href="https://maps.google.com/?q={LAT},{LNG}">View on Maps</a></p>
+    <p><strong>Location:</strong> <a href="https://maps.google.com/?q={LAT},{LNG}">View on Maps</a></p>
     <p style="font-size: 12px; color: #999;">Time: {TIMESTAMP}</p>
   </div>
 </div>
@@ -274,7 +274,7 @@ This creates the `EmergencyContact` collection with:
 
 ### 2. Add to Patient Dashboard
 The component is already integrated in `/app/dashboard/patient/page.tsx`:
-- New "🚨 Emergency Contacts" tab
+- New "Emergency Contacts" tab
 - Accessible to all authenticated patients
 - No premium requirement
 
@@ -308,7 +308,7 @@ export async function sendEmergencySMS(
 
 1. **Navigate to Dashboard**
    - Go to Patient Dashboard
-   - Click "🚨 Emergency Contacts" tab
+   - Click "Emergency Contacts" tab
 
 2. **Add Emergency Contact**
    - Click "Add Contact" button
@@ -328,7 +328,7 @@ export async function sendEmergencySMS(
 
 4. **Trigger Emergency Beacon**
    - Ensure at least one contact is added
-   - Click "🚨 Emergency" button (fixed position on page)
+   - Click " Emergency" button (fixed position on page)
    - Confirm action
    - System sends alert to primary contact via selected method
 
@@ -464,14 +464,14 @@ curl -X DELETE http://localhost:3000/api/patient/emergency-contacts/:id
 **Solution**: Add an emergency contact in the Emergency Contacts tab before triggering beacon
 
 ### Issue: SMS/Email not sent
-**Solution**: 
+**Solution**:
 1. Verify provider credentials in `.env`
 2. Check contact has phone/email matching notification preference
 3. Review SMS/email provider logs
 4. Check network connectivity
 
 ### Issue: Duplicate contact error
-**Solution**: 
+**Solution**:
 - Each patient can only have one contact per email/phone
 - Delete the existing contact if you need to update the number/email
 - Or use edit to modify details for existing contact

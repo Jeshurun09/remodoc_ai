@@ -1,6 +1,6 @@
 # M-Pesa Integration - Quick Start Checklist
 
-## ✅ What's Already Done
+## What's Already Done
 
 - [x] M-Pesa library created (`lib/mpesa.ts`)
 - [x] Payment API endpoint (`app/api/payment/route.ts`)
@@ -10,7 +10,7 @@
 - [x] Environment variables documented (`.env` + `env.example`)
 - [x] Dependencies added (axios in `package.json`)
 
-## 🚀 Next Steps (Do These)
+## Next Steps (Do These)
 
 ### 1. Install Dependencies
 ```bash
@@ -60,30 +60,30 @@ ngrok http 3000
 # Update MPESA_CALLBACK_URL=https://your-ngrok-id.ngrok.io/api/webhooks/mpesa
 ```
 
-## 📊 Testing Scenarios
+## Testing Scenarios
 
 ### Scenario 1: Successful Payment
 1. User enters phone: `254712345678`
 2. Frontend polls `/api/subscription?checkoutRequestId=...`
 3. Webhook updates status to "completed"
 4. Page auto-redirects to `/dashboard/patient?premium=activated`
-✅ Expected: Subscription activated
+ Expected: Subscription activated
 
 ### Scenario 2: Cancelled Payment
 1. User enters phone but doesn't complete on device
 2. Webhook receives ResultCode != 0
 3. PaymentTransaction status = "failed"
 4. Page stays on payment screen (user can retry)
-✅ Expected: Subscription NOT activated
+ Expected: Subscription NOT activated
 
 ### Scenario 3: Invalid Phone
 1. User enters: `invalid123`
 2. M-Pesa library formats to `254invalid123`
 3. Safaricom rejects (ResponseCode != 0)
 4. Frontend shows error: "STK push failed"
-✅ Expected: Error message displayed
+ Expected: Error message displayed
 
-## 🔧 Troubleshooting
+## Troubleshooting
 
 | Problem | Solution |
 |---------|----------|
@@ -94,7 +94,7 @@ ngrok http 3000
 | Callback not received | Check callback URL is correct and publicly accessible |
 | Phone number rejected | Ensure format is `254XXXXXXXXX` (12 digits) |
 
-## 📝 Key Endpoints
+## Key Endpoints
 
 | Endpoint | Method | Purpose |
 |----------|--------|---------|
@@ -104,14 +104,14 @@ ngrok http 3000
 | `/subscribe/payment` | GET | Payment checkout page |
 | `/premium` | GET | Plan selection page |
 
-## 💾 Database Tables
+## Database Tables
 
 New table created: `PaymentTransaction`
 - Stores all payment attempts (successful & failed)
 - Links to User and Subscription
 - Tracks transaction IDs, amounts, phone numbers, receipts
 
-## 🎯 Success Criteria
+## Success Criteria
 
 - [x] M-Pesa payment option appears on checkout page
 - [x] Phone number input accepts format validation
@@ -122,7 +122,7 @@ New table created: `PaymentTransaction`
 - [x] Subscription status updated to ACTIVE
 - [x] Error messages displayed for failed payments
 
-## 🔐 Security Checklist
+## Security Checklist
 
 - [x] Session authentication on payment endpoints
 - [x] Phone number validation before API call
@@ -131,13 +131,13 @@ New table created: `PaymentTransaction`
 - [x] Credentials stored in environment variables (not hardcoded)
 - [x] Timeout on polling (5 minutes max)
 
-## 📚 Documentation Files
+## Documentation Files
 
 - `MPESA_SETUP.md` - Full setup guide
 - `MPESA_FILE_REFERENCE.md` - Technical file reference
 - `MPESA_QUICK_START.md` - This file!
 
-## 🎓 Learning Resources
+## Learning Resources
 
 - Safaricom Daraja API: https://developer.safaricom.co.ke/
 - M-Pesa Documentation: https://developer.safaricom.co.ke/mpesa/apis
@@ -145,4 +145,4 @@ New table created: `PaymentTransaction`
 
 ---
 
-**Ready to test?** Start with step 1 above! 🚀
+**Ready to test?** Start with step 1 above!

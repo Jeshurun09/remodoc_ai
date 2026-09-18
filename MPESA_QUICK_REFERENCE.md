@@ -1,6 +1,6 @@
 # M-Pesa Integration - Quick Reference Card
 
-## 🚀 Quick Start (5 minutes)
+## Quick Start (5 minutes)
 
 ```bash
 # 1. Get credentials from Safaricom
@@ -27,7 +27,7 @@ npm run dev
 # Select plan → Subscribe → M-Pesa → Enter: +254712345678
 ```
 
-## 📚 API Endpoints
+## API Endpoints
 
 ### Payment Initiation
 ```bash
@@ -61,7 +61,7 @@ Payload:
     "stkCallback": {
       "MerchantRequestID": "28033-1111-1",
       "CheckoutRequestID": "ws_CO_...",
-      "ResultCode": 0,  # 0=success, 1=cancelled
+      "ResultCode": 0, # 0=success, 1=cancelled
       "ResultDesc": "The service request has been accepted successfully.",
       "CallbackMetadata": {
         "Item": [
@@ -83,7 +83,7 @@ Response:
 {
   "transaction": {
     "id": "cuid123",
-    "status": "completed"  # pending, completed, failed
+    "status": "completed" # pending, completed, failed
   },
   "subscription": {
     "plan": "INDIVIDUAL",
@@ -94,7 +94,7 @@ Response:
 }
 ```
 
-## 🔑 Environment Variables
+## Environment Variables
 
 ```env
 # Required for M-Pesa
@@ -108,60 +108,60 @@ MPESA_INITIATOR_NAME=your_initiator
 MPESA_INITIATOR_PASSWORD=your_password
 
 # Configuration
-MPESA_ENV=sandbox                    # or: production
+MPESA_ENV=sandbox # or: production
 MPESA_CALLBACK_URL=http://localhost:3000/api/webhooks/mpesa
 ```
 
-## 📱 Phone Number Formats
+## Phone Number Formats
 
 ```javascript
 // All these work:
-initiateStkPush("0712345678", ...)       // Kenyan local
-initiateStkPush("+254712345678", ...)    // International
-initiateStkPush("254712345678", ...)     // Without +
-initiateStkPush("  0712 345 678  ", ...) // With spaces
+initiateStkPush("0712345678", ...) // Kenyan local
+initiateStkPush("+254712345678", ...) // International
+initiateStkPush("254712345678", ...) // Without +
+initiateStkPush(" 0712 345 678 ", ...) // With spaces
 
 // All are converted to: 254712345678
 ```
 
-## 📊 Database Schema
+## Database Schema
 
 ### PaymentTransaction Table
 ```prisma
 model PaymentTransaction {
-  id                String   @id @default(cuid())
-  userId            String
-  transactionId     String   @unique
-  amount            Float         # In KES
-  currency          String        # KES, USD, etc
-  status            String        # pending, completed, failed, refunded
-  method            String        # mpesa, stripe, paypal, bank
-  phoneNumber       String?       # For M-Pesa
-  merchantRequestId String?       # Safaricom request
-  checkoutRequestId String?       # Safaricom checkout
-  receiptNumber     String?       # M-Pesa receipt
-  plan              String        # individual, family, etc
-  description       String?
-  metadata          String?       # JSON metadata
-  createdAt         DateTime
-  updatedAt         DateTime
+  id String @id @default(cuid())
+  userId String
+  transactionId String @unique
+  amount Float # In KES
+  currency String # KES, USD, etc
+  status String # pending, completed, failed, refunded
+  method String # mpesa, stripe, paypal, bank
+  phoneNumber String? # For M-Pesa
+  merchantRequestId String? # Safaricom request
+  checkoutRequestId String? # Safaricom checkout
+  receiptNumber String? # M-Pesa receipt
+  plan String # individual, family, etc
+  description String?
+  metadata String? # JSON metadata
+  createdAt DateTime
+  updatedAt DateTime
 }
 ```
 
 ### Subscription Table (Updated)
 ```prisma
 model Subscription {
-  id            String   @id @default(cuid())
-  userId        String   @unique
-  plan          SubscriptionPlan  # FREE, INDIVIDUAL, FAMILY, etc
-  status        SubscriptionStatus # ACTIVE, CANCELLED, EXPIRED
-  startDate     DateTime
-  endDate       DateTime?
-  paymentMethod String?  # mpesa, stripe, etc
+  id String @id @default(cuid())
+  userId String @unique
+  plan SubscriptionPlan # FREE, INDIVIDUAL, FAMILY, etc
+  status SubscriptionStatus # ACTIVE, CANCELLED, EXPIRED
+  startDate DateTime
+  endDate DateTime?
+  paymentMethod String? # mpesa, stripe, etc
 }
 ```
 
-## 🔄 Payment Status Flow
+## Payment Status Flow
 
 ```
 User initiates payment
@@ -171,12 +171,12 @@ User initiates payment
     Awaiting webhook from Safaricom
          ↓
     ┌────┴────┐
-    ↓         ↓
-completed   failed
-(Active)    (Retry)
+    ↓ ↓
+completed failed
+(Active) (Retry)
 ```
 
-## ✅ Testing Checklist
+## Testing Checklist
 
 - [ ] Credentials configured in `.env`
 - [ ] `npm install` successful
@@ -189,7 +189,7 @@ completed   failed
 - [ ] Transactions appear in database
 - [ ] Webhook callback successful
 
-## 🐛 Common Issues & Solutions
+## Common Issues & Solutions
 
 | Issue | Cause | Solution |
 |-------|-------|----------|
@@ -201,7 +201,7 @@ completed   failed
 | Webhook not received | URL not accessible | Use ngrok for local: `ngrok http 3000` |
 | Timeout on polling | Webhook delayed | Check webhook logs in Safaricom portal |
 
-## 🔐 Security Checklist
+## Security Checklist
 
 - [x] OAuth tokens cached with TTL
 - [x] Webhook signatures verified
@@ -211,7 +211,7 @@ completed   failed
 - [x] Phone numbers validated
 - [x] Idempotent webhook handling
 
-## 📈 Production Checklist
+## Production Checklist
 
 - [ ] Get production credentials from Safaricom
 - [ ] Change `MPESA_ENV=production`
@@ -224,7 +224,7 @@ completed   failed
 - [ ] Set up payment reconciliation
 - [ ] Document refund process
 
-## 📞 Support Resources
+## Support Resources
 
 | Resource | Link |
 |----------|------|
@@ -233,7 +233,7 @@ completed   failed
 | STK Push Guide | https://developer.safaricom.co.ke/docs#lipa-na-m-pesa-online-stk-push |
 | Troubleshooting | https://developer.safaricom.co.ke/docs#troubleshooting |
 
-## 📖 Documentation Files
+## Documentation Files
 
 - `MPESA_SETUP.md` - Detailed setup guide
 - `MPESA_QUICK_START.md` - Quick start checklist
@@ -241,17 +241,17 @@ completed   failed
 - `MPESA_FLOW_DIAGRAM.md` - Payment flow diagram
 - `MPESA_IMPLEMENTATION_SUMMARY.md` - Implementation overview
 
-## 💡 Code Examples
+## Code Examples
 
 ### Initiating Payment (Backend)
 ```typescript
 import { initiateStkPush } from '@/lib/mpesa'
 
 const response = await initiateStkPush(
-  "+254712345678",  // Phone number
-  599,              // Amount in KES
-  "user_123",       // Account reference
-  "Premium Plan"    // Description
+  "+254712345678", // Phone number
+  599, // Amount in KES
+  "user_123", // Account reference
+  "Premium Plan" // Description
 )
 
 console.log(response.CheckoutRequestID) // "ws_CO_..."
@@ -282,7 +282,7 @@ if (data.subscription?.status === 'ACTIVE') {
 }
 ```
 
-## 🎯 Next Steps After Implementation
+## Next Steps After Implementation
 
 1. Test with sandbox credentials
 2. Add error handling and retries
@@ -298,4 +298,4 @@ if (data.subscription?.status === 'ACTIVE') {
 ---
 
 **Last Updated**: November 30, 2025
-**Status**: ✅ Production Ready
+**Status**: Production Ready

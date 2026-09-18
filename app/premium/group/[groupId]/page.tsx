@@ -83,7 +83,7 @@ export default function GroupManagementPage() {
       )
       if (!res.ok) throw new Error('Failed to fetch features')
       const data = await res.json()
-      
+
       const features = ALL_FEATURES.map(f => ({
         ...f,
         allowed: data.features[f.name] ?? true
@@ -159,7 +159,7 @@ export default function GroupManagementPage() {
     try {
       const inviteCode = Math.random().toString(36).substring(2, 15)
       setInviteCode(inviteCode)
-      
+
       // Store in localStorage for now (in production, would save to DB)
       const inviteLink = `${window.location.origin}/premium/join-group?code=${inviteCode}&groupId=${groupId}`
       setInviteCode(inviteLink)
@@ -262,7 +262,7 @@ export default function GroupManagementPage() {
         {showInviteForm && (
           <div className="bg-white rounded-lg shadow-lg p-6 mb-6 border-2 border-green-200">
             <h2 className="text-xl font-bold text-gray-900 mb-4">Invite Members to Group</h2>
-            
+
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-semibold text-gray-700 mb-2">Invite Link</label>
@@ -281,7 +281,7 @@ export default function GroupManagementPage() {
                         : 'bg-gray-200 text-gray-700 hover:bg-gray-300'
                     }`}
                   >
-                    {copiedInvite ? '✓ Copied' : 'Copy'}
+                    {copiedInvite ? ' Copied' : 'Copy'}
                   </button>
                 </div>
                 <p className="text-xs text-gray-600 mt-2">Share this link to invite members to your group</p>
@@ -313,7 +313,7 @@ export default function GroupManagementPage() {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-lg p-6">
               <h2 className="text-xl font-bold text-gray-900 mb-4">Members ({groupData?.memberCount})</h2>
-              
+
               <div className="space-y-2">
                 {groupData?.members.map(member => (
                   <button
@@ -342,7 +342,7 @@ export default function GroupManagementPage() {
                   <p className="text-gray-600 mb-6">{selectedMember.email}</p>
 
                   <h3 className="text-lg font-semibold text-gray-900 mb-4">Feature Access</h3>
-                  
+
                   <div className="grid grid-cols-2 gap-3 mb-6">
                     {memberFeatures.map(feature => (
                       <button

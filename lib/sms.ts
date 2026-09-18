@@ -37,7 +37,7 @@ export async function sendEmergencySMS(
 
     await sendSMS(
       phoneNumber,
-      `🚨 EMERGENCY ALERT 🚨\n\n${message}${locationText}`
+      `EMERGENCY ALERT\n\n${message}${locationText}`
     )
   } catch (error) {
     console.error('SMS Error:', error)

@@ -140,7 +140,7 @@ export async function sendDoctorVerificationApprovedEmail(doctorName: string, do
 
   const html = `
     <div style="font-family: sans-serif; line-height: 1.6;">
-      <h2>✅ Doctor Credential Verification Approved</h2>
+      <h2>Doctor Credential Verification Approved</h2>
       <p>Hello ${doctorName},</p>
       <p>Congratulations! Your doctor credential verification has been <strong>APPROVED</strong> by our admin team.</p>
       <p>You now have full access to RemoDoc's doctor features including:</p>
@@ -161,7 +161,7 @@ export async function sendDoctorVerificationApprovedEmail(doctorName: string, do
   await transporter.sendMail({
     to: doctorEmail,
     from,
-    subject: '✅ Your Doctor Verification Has Been Approved',
+    subject: 'Your Doctor Verification Has Been Approved',
     text: `Your doctor credential verification has been approved! You now have access to all doctor features.`,
     html
   })
@@ -210,7 +210,7 @@ export async function sendAdminDoctorVerificationSubmittedEmail(adminEmail: stri
 
   const html = `
     <div style="font-family: sans-serif; line-height: 1.6;">
-      <h2>📋 New Doctor Credential Verification Submitted</h2>
+      <h2>New Doctor Credential Verification Submitted</h2>
       <p>Hello Admin,</p>
       <p>A new doctor credential verification request has been submitted and requires your review.</p>
       <p><strong>Doctor Details:</strong></p>

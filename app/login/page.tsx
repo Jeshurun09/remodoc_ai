@@ -74,13 +74,13 @@ export default function LoginPage() {
       <button
         onClick={toggleTheme}
         className={`absolute top-4 right-4 px-4 py-2 border rounded-lg text-lg transition-all duration-200 ${
-          isDark 
-            ? 'border-white/40 hover:bg-white/10 text-yellow-400 hover:text-yellow-300' 
+          isDark
+            ? 'border-white/40 hover:bg-white/10 text-yellow-400 hover:text-yellow-300'
             : 'border-gray-300 hover:bg-gray-100 text-yellow-500 hover:text-yellow-600'
         }`}
         title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       >
-        {isDark ? '🌙' : '☀️'}
+        {isDark ? 'Light' : 'Dark'}
       </button>
       <div className="max-w-md w-full surface rounded-lg shadow-xl p-8">
         <div className="text-center mb-8">

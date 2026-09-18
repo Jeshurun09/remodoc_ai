@@ -237,10 +237,10 @@ const redis = Redis.createClient();
 export async function getCachedDoctors(key: string) {
   const cached = await redis.get(key);
   if (cached) return JSON.parse(cached);
-  
+
   // Fetch from DB
   const doctors = await prisma.doctorAvailability.findMany({...});
-  
+
   // Cache for 5 minutes
   await redis.setex(key, 300, JSON.stringify(doctors));
   return doctors;
@@ -252,7 +252,7 @@ export async function getCachedDoctors(key: string) {
 Example optimizations already applied:
 
 ```typescript
-// ✓ Select only needed fields
+//  Select only needed fields
 const doctors = await prisma.doctorAvailability.findMany({
   select: {
     doctorId: true,
@@ -262,7 +262,7 @@ const doctors = await prisma.doctorAvailability.findMany({
   }
 });
 
-// ✓ Use pagination
+//  Use pagination
 const page = parseInt(req.query.page) || 1;
 const skip = (page - 1) * 50;
 const events = await prisma.healthTimeline.findMany({
@@ -271,7 +271,7 @@ const events = await prisma.healthTimeline.findMany({
   orderBy: { date: 'desc' }
 });
 
-// ✓ Filter at database level
+//  Filter at database level
 const triage = await prisma.triageQueue.findMany({
   where: {
     status: 'PENDING',
@@ -297,7 +297,7 @@ async function recordMetrics() {
   const onlineDoctors = await prisma.doctorAvailability.count({
     where: { isOnline: true }
   });
-  
+
   await prisma.systemHealthMetric.create({
     data: {
       metricName: 'total_users',
@@ -305,7 +305,7 @@ async function recordMetrics() {
       status: 'healthy'
     }
   });
-  
+
   // Record more metrics...
 }
 
@@ -323,7 +323,7 @@ async function checkCriticalCases() {
   const criticalCount = await prisma.triageQueue.count({
     where: { urgencyLevel: 'CRITICAL', status: 'PENDING' }
   });
-  
+
   if (criticalCount > 0) {
     // Send Slack/email alert
     await sendAlert(`${criticalCount} critical cases pending`);

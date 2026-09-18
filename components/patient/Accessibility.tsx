@@ -26,7 +26,7 @@ export default function Accessibility() {
 
     setIsListening(true)
     setVoiceEnabled(true)
-    
+
     // Mock voice recognition
     const recognition = new (window as any).webkitSpeechRecognition() || new (window as any).SpeechRecognition()
     recognition.continuous = true
@@ -114,7 +114,6 @@ export default function Accessibility() {
                 onClick={startVoiceNavigation}
                 className="px-6 py-3 bg-cyan-500 text-white rounded-lg hover:bg-cyan-600 flex items-center space-x-2"
               >
-                <span>🎤</span>
                 <span>Start Voice Navigation</span>
               </button>
             ) : (
@@ -122,7 +121,6 @@ export default function Accessibility() {
                 onClick={stopVoiceNavigation}
                 className="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 flex items-center space-x-2"
               >
-                <span>⏹️</span>
                 <span>Stop Listening</span>
               </button>
             )}

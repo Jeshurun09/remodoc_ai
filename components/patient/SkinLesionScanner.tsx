@@ -272,7 +272,7 @@ export default function SkinLesionScanner() {
 
               {analysis.recommendations && (
                 <div className="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg">
-                  <h4 className="font-semibold text-yellow-700 dark:text-yellow-300 mb-2">⚠️ Important:</h4>
+                  <h4 className="font-semibold text-yellow-700 dark:text-yellow-300 mb-2">Important:</h4>
                   <p className="text-yellow-600 dark:text-yellow-400">{analysis.recommendations}</p>
                 </div>
               )}

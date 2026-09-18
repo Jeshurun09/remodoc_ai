@@ -122,7 +122,7 @@ export default function IoTDevicePairing({ onDeviceConnected, onClose }: IoTDevi
             onClick={onClose}
             className="text-gray-400 hover:text-gray-600 transition-colors"
           >
-            ✕
+            
           </button>
         )}
       </div>
@@ -131,7 +131,7 @@ export default function IoTDevicePairing({ onDeviceConnected, onClose }: IoTDevi
       {error && (
         <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
           <p className="text-red-700 flex items-center gap-2">
-            <span className="text-xl">⚠️</span> {error}
+            {error}
           </p>
         </div>
       )}
@@ -140,7 +140,7 @@ export default function IoTDevicePairing({ onDeviceConnected, onClose }: IoTDevi
       {success && (
         <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
           <p className="text-green-700 flex items-center gap-2">
-            <span className="text-xl">✓</span> {success}
+            <span className="text-xl"></span> {success}
           </p>
         </div>
       )}
@@ -154,12 +154,11 @@ export default function IoTDevicePairing({ onDeviceConnected, onClose }: IoTDevi
         >
           {isScanning ? (
             <>
-              <span className="animate-spin">🔄</span>
+              <span className="animate-spin">...</span>
               Scanning for devices...
             </>
           ) : (
             <>
-              <span>📡</span>
               Scan for Bluetooth Devices
             </>
           )}
@@ -177,7 +176,7 @@ export default function IoTDevicePairing({ onDeviceConnected, onClose }: IoTDevi
                 className="flex items-center justify-between p-4 bg-white border border-gray-200 rounded-lg hover:shadow-md transition-shadow"
               >
                 <div className="flex items-center gap-3 flex-1">
-                  <span className="text-3xl">{getDeviceIcon(device.type)}</span>
+                  <span className="text-xs font-semibold uppercase tracking-wide text-gray-500">{getDeviceIcon(device.type)}</span>
                   <div>
                     <p className="font-semibold text-gray-900">{device.name}</p>
                     <p className="text-sm text-gray-600">{getDeviceTypeName(device.type)}</p>
@@ -210,7 +209,7 @@ export default function IoTDevicePairing({ onDeviceConnected, onClose }: IoTDevi
                 className="flex items-center justify-between p-4 bg-white border border-green-200 rounded-lg bg-gradient-to-r from-green-50 to-transparent"
               >
                 <div className="flex items-center gap-3 flex-1">
-                  <span className="text-3xl">✓</span>
+                  <span className="text-3xl"></span>
                   <div>
                     <p className="font-semibold text-gray-900">{device.name}</p>
                     <p className="text-sm text-gray-600">{getDeviceTypeName(device.type)}</p>
@@ -234,7 +233,7 @@ export default function IoTDevicePairing({ onDeviceConnected, onClose }: IoTDevi
 
       {/* Information */}
       <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg text-sm text-gray-700">
-        <p className="font-semibold mb-2 text-blue-900">💡 How it works:</p>
+        <p className="font-semibold mb-2 text-blue-900">How it works:</p>
         <ul className="list-disc list-inside space-y-1 text-blue-800">
           <li>Click "Scan for Bluetooth Devices" to find nearby health devices</li>
           <li>Select your device from the list and click "Connect"</li>

@@ -16,13 +16,13 @@ The IoT Health Sync feature enables patients to connect their Bluetooth-enabled 
 
 ## Features
 
-✅ **Web Bluetooth API Integration**: Direct connection to devices without app
-✅ **Multi-Device Support**: Connect multiple devices simultaneously
-✅ **Automatic Vitals Sync**: Real-time data collection from devices
-✅ **Device Management**: Add, remove, and configure devices
-✅ **Vitals History**: Track readings over time
-✅ **Battery Monitoring**: Monitor connected device battery levels
-✅ **Customizable Sync Intervals**: Set sync frequency (5-60 minutes)
+ **Web Bluetooth API Integration**: Direct connection to devices without app
+ **Multi-Device Support**: Connect multiple devices simultaneously
+ **Automatic Vitals Sync**: Real-time data collection from devices
+ **Device Management**: Add, remove, and configure devices
+ **Vitals History**: Track readings over time
+ **Battery Monitoring**: Monitor connected device battery levels
+ **Customizable Sync Intervals**: Set sync frequency (5-60 minutes)
 
 ## Technical Architecture
 
@@ -46,22 +46,22 @@ The IoT Health Sync feature enables patients to connect their Bluetooth-enabled 
 **IotDevice Model:**
 ```prisma
 model IotDevice {
-  id              String   @id @default(cuid()) @map("_id")
-  userId          String   // User who owns the device
-  deviceId        String   // Bluetooth device ID
-  name            String   // User-friendly name
-  type            String   // Device type (smartwatch, fitness_band, etc.)
-  macAddress      String?  // Bluetooth MAC address
-  manufacturer    String?  // Device manufacturer
-  isConnected     Boolean  // Current connection status
-  lastSync        DateTime // Last sync timestamp
-  syncInterval    Int      // Sync frequency in minutes (default: 5)
-  dataTypes       String   // JSON array of data types collected
-  battery         Int?     // Device battery percentage
-  firmwareVersion String?  // Device firmware version
-  timezone        String?  // Device timezone
-  createdAt       DateTime
-  updatedAt       DateTime
+  id String @id @default(cuid()) @map("_id")
+  userId String // User who owns the device
+  deviceId String // Bluetooth device ID
+  name String // User-friendly name
+  type String // Device type (smartwatch, fitness_band, etc.)
+  macAddress String? // Bluetooth MAC address
+  manufacturer String? // Device manufacturer
+  isConnected Boolean // Current connection status
+  lastSync DateTime // Last sync timestamp
+  syncInterval Int // Sync frequency in minutes (default: 5)
+  dataTypes String // JSON array of data types collected
+  battery Int? // Device battery percentage
+  firmwareVersion String? // Device firmware version
+  timezone String? // Device timezone
+  createdAt DateTime
+  updatedAt DateTime
 
   @@unique([userId, deviceId])
 }
@@ -70,18 +70,18 @@ model IotDevice {
 **VitalsData Model:**
 ```prisma
 model VitalsData {
-  id                      String   @id @default(cuid()) @map("_id")
-  userId                  String
-  heartRate               Int?
-  spO2                    Float?   // Oxygen saturation
-  bloodPressureSystolic   Int?
-  bloodPressureDiastolic  Int?
-  temperature             Float?
-  glucose                 Float?
-  deviceType              String?  // Device that recorded the reading
-  deviceName              String?
-  recordedAt              DateTime @default(now())
-  createdAt               DateTime @default(now())
+  id String @id @default(cuid()) @map("_id")
+  userId String
+  heartRate Int?
+  spO2 Float? // Oxygen saturation
+  bloodPressureSystolic Int?
+  bloodPressureDiastolic Int?
+  temperature Float?
+  glucose Float?
+  deviceType String? // Device that recorded the reading
+  deviceName String?
+  recordedAt DateTime @default(now())
+  createdAt DateTime @default(now())
 }
 ```
 
@@ -417,7 +417,7 @@ Specify which vitals to collect:
 ```javascript
 const dataTypes = [
   'heart_rate',
-  'blood_pressure', 
+  'blood_pressure',
   'temperature',
   // 'weight', 'glucose' - optional
 ]

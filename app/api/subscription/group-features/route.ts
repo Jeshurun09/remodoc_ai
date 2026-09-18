@@ -17,8 +17,8 @@ export async function POST(req: NextRequest) {
     const { groupId, memberId, features } = body
 
     if (!groupId || !memberId || !features) {
-      return NextResponse.json({ 
-        error: 'groupId, memberId, and features array are required' 
+      return NextResponse.json({
+        error: 'groupId, memberId, and features array are required'
       }, { status: 400 })
     }
 
@@ -41,8 +41,8 @@ export async function POST(req: NextRequest) {
     })
 
     if (!memberSubscription || memberSubscription.groupId !== groupId) {
-      return NextResponse.json({ 
-        error: 'Member is not in this group' 
+      return NextResponse.json({
+        error: 'Member is not in this group'
       }, { status: 400 })
     }
 
@@ -106,8 +106,8 @@ export async function GET(req: NextRequest) {
     })
 
     if (!memberSubscription || memberSubscription.groupId !== groupId) {
-      return NextResponse.json({ 
-        error: 'Member is not in this group' 
+      return NextResponse.json({
+        error: 'Member is not in this group'
       }, { status: 404 })
     }
 

@@ -115,7 +115,7 @@ export default function PremiumProfilePage() {
 
       const data = await res.json()
       alert(`Plan successfully changed to ${selectedNewPlan}${data.proratedAmount ? `. Charge: KES ${(data.proratedAmount / 100).toFixed(2)}` : ''}`)
-      
+
       // Refresh data
       window.location.reload()
     } catch (err) {
@@ -168,7 +168,7 @@ export default function PremiumProfilePage() {
             {/* Current Plan Card */}
             <div className="bg-white rounded-lg shadow-lg p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Current Plan</h2>
-              
+
               <div className={`${getPlanColor(premiumData?.currentPlan || 'FREE')} rounded-lg p-6 mb-6 text-center`}>
                 <p className="text-sm font-semibold mb-2 opacity-75">Current Subscription</p>
                 <p className="text-4xl font-bold mb-4">{premiumData?.currentPlan || 'FREE'}</p>
@@ -239,7 +239,7 @@ export default function PremiumProfilePage() {
             {/* Features Card */}
             <div className="bg-white rounded-lg shadow-lg p-8">
               <h2 className="text-2xl font-bold text-gray-900 mb-6">Available Features</h2>
-              
+
               <div className="space-y-3">
                 {customFeatures.map(feature => (
                   <div key={feature.name} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
@@ -252,7 +252,7 @@ export default function PremiumProfilePage() {
                         ? 'bg-green-100 text-green-700'
                         : 'bg-gray-200 text-gray-600'
                     }`}>
-                      {feature.allowed ? '✓ Enabled' : '✗ Disabled'}
+                      {feature.allowed ? ' Enabled' : ' Disabled'}
                     </div>
                   </div>
                 ))}
@@ -265,7 +265,7 @@ export default function PremiumProfilePage() {
             {/* Group Info Card */}
             <div className="bg-white rounded-lg shadow-lg p-6">
               <h3 className="text-lg font-bold text-gray-900 mb-4">Group Information</h3>
-              
+
               {premiumData?.isGroupMember ? (
                 <div className="space-y-3">
                   <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">

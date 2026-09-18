@@ -14,10 +14,10 @@ const plans: Record<string, { name: string; price: number }> = {
 }
 
 const paymentMethods = [
-  { id: 'stripe', name: 'Credit/Debit Card', icon: '💳' },
-  { id: 'paypal', name: 'PayPal', icon: '💳' },
-  { id: 'mpesa', name: 'M-Pesa', icon: '📱' },
-  { id: 'bank', name: 'Bank Transfer', icon: '🏦' }
+  { id: 'stripe', name: 'Credit/Debit Card', icon: 'Card' },
+  { id: 'paypal', name: 'PayPal', icon: 'PayPal' },
+  { id: 'mpesa', name: 'M-Pesa', icon: 'M-Pesa' },
+  { id: 'bank', name: 'Bank Transfer', icon: 'Bank' }
 ]
 
 function PaymentContent() {
@@ -25,7 +25,7 @@ function PaymentContent() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const planId = searchParams.get('plan') || 'individual'
-  
+
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('stripe')
   const [paymentDetails, setPaymentDetails] = useState({
     cardNumber: '',
@@ -157,7 +157,7 @@ function PaymentContent() {
 
       if (res.ok) {
         const data = await res.json()
-        
+
         if (selectedPaymentMethod === 'mpesa') {
           // For M-Pesa, show waiting message and poll for confirmation
           setMpesaCheckoutRequestId(data.checkoutRequestId)
@@ -199,7 +199,6 @@ function PaymentContent() {
       <div className="page-shell min-h-screen flex items-center justify-center">
         <div className="surface rounded-lg shadow-sm p-8 border subtle-border max-w-md">
           <div className="text-center">
-            <div className="text-6xl mb-4">📱</div>
             <h2 className="text-2xl font-bold text-cyan-500 mb-2">Payment Prompt Sent</h2>
             <p className="text-gray-600 mb-4">
               Check your phone for the M-Pesa payment prompt and enter your PIN to complete the transaction.
@@ -242,13 +241,13 @@ function PaymentContent() {
               <button
                 onClick={toggleTheme}
                 className={`px-4 py-2 border rounded-lg text-lg transition-all duration-200 ${
-                  isDark 
-                    ? 'border-white/40 hover:bg-white/10 text-yellow-400 hover:text-yellow-300' 
+                  isDark
+                    ? 'border-white/40 hover:bg-white/10 text-yellow-400 hover:text-yellow-300'
                     : 'border-gray-300 hover:bg-gray-100 text-yellow-500 hover:text-yellow-600'
                 }`}
                 title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
               >
-                {isDark ? '🌙' : '☀️'}
+                {isDark ? 'Light' : 'Dark'}
               </button>
               <Link
                 href="/subscribe"
@@ -410,12 +409,9 @@ function PaymentContent() {
                 <p className="text-sm text-blue-700 mb-4">
                   You will be securely redirected to PayPal to complete your payment. PayPal is a trusted payment platform used by millions worldwide.
                 </p>
-                <div className="flex items-center space-x-2">
-                  <div className="text-2xl">💳</div>
-                  <p className="text-sm font-semibold text-blue-700">
-                    Click "Pay" to proceed to PayPal
-                  </p>
-                </div>
+                <p className="text-sm font-semibold text-blue-700">
+                  Click "Pay" to proceed to PayPal
+                </p>
               </div>
             )}
 

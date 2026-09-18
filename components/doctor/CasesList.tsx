@@ -176,7 +176,7 @@ export default function CasesList() {
                 onClick={() => setSelectedCase(null)}
                 className="text-[var(--foreground)]/60 hover:text-[var(--foreground)] text-2xl"
               >
-                ✕
+                
               </button>
             </div>
             <div className="space-y-6 text-[var(--foreground)]">

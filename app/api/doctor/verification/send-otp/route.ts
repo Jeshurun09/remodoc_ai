@@ -21,7 +21,7 @@ export async function POST(req: NextRequest) {
 
     if (method === 'phone') {
       await prisma.phoneOtp.create({ data: { phone, code, expiresAt } })
-      
+
       try {
         await sendSMS(phone, `Your RemoDoc verification code is: ${code}. It expires in 10 minutes.`)
       } catch (smsErr) {
@@ -29,7 +29,7 @@ export async function POST(req: NextRequest) {
       }
     } else if (method === 'email') {
       await prisma.emailOtp.create({ data: { email, code, expiresAt } })
-      
+
       try {
         await sendEmail({
           to: email,

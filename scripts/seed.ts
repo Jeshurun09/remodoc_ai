@@ -11,7 +11,7 @@ if (!databaseUrl) {
 }
 
 async function resetDatabase() {
-  console.log('🧹 Clearing existing data (direct Mongo cleanup)...')
+  console.log('Clearing existing data (direct Mongo cleanup)...')
   if (!databaseUrl) throw new Error('DATABASE_URL is required')
   const client = new MongoClient(databaseUrl)
   const collections = [
@@ -48,7 +48,7 @@ async function resetDatabase() {
 }
 
 async function createHospitals() {
-  console.log('🏥 Creating hospitals...')
+  console.log('Creating hospitals...')
   const hospitals = [
     {
       name: 'Metro General Hospital',
@@ -110,7 +110,7 @@ async function createHospitals() {
 }
 
 async function createUsers() {
-  console.log('👥 Creating sample users...')
+  console.log('Creating sample users...')
 
   const password = await bcrypt.hash('Password123!', 10)
 
@@ -318,7 +318,7 @@ async function createMedicalData(
   patientProfileId: string,
   overrides: MedicalDataOverrides = {}
 ) {
-  console.log('📋 Creating medical records...')
+  console.log('Creating medical records...')
 
   const defaults: Required<MedicalDataOverrides> & {
     symptoms: string
@@ -538,7 +538,7 @@ async function createMedicalData(
   })
 
   // Create premium feature data
-  console.log('💎 Creating premium feature data...')
+  console.log('Creating premium feature data...')
 
   // Health Records
   for (const record of settings.healthRecords) {
@@ -582,7 +582,7 @@ async function createMedicalData(
     })
   }
 
-  console.log(`✅ Created appointment ${appointment.id} and linked records.`)
+  console.log(`Created appointment ${appointment.id} and linked records.`)
 }
 
 async function main() {
@@ -683,12 +683,12 @@ async function main() {
         }
       ]
     })
-    console.log('🎉 Mock data seeded successfully!')
+    console.log('Mock data seeded successfully!')
   } catch (err: any) {
     // Prisma requires replica set for transactions with MongoDB. If user runs a standalone server,
     // fall back to inserting documents directly via the MongoDB Node driver.
     if (err?.code === 'P2031') {
-      console.warn('⚠️ Prisma needs a replica set. Falling back to direct MongoDB inserts...')
+      console.warn('Prisma needs a replica set. Falling back to direct MongoDB inserts...')
       await seedViaMongoClient()
     } else {
       throw err
@@ -697,7 +697,7 @@ async function main() {
 }
 
 async function seedViaMongoClient() {
-  console.log('🧪 Seeding using MongoClient fallback...')
+  console.log('Seeding using MongoClient fallback...')
   if (!databaseUrl) throw new Error('DATABASE_URL is required')
   const client = new MongoClient(databaseUrl)
 
@@ -1021,7 +1021,7 @@ async function seedViaMongoClient() {
       }
     ])
 
-    console.log('✅ Fallback seed complete (MongoClient).')
+    console.log('Fallback seed complete (MongoClient).')
   } finally {
     await client.close()
   }
@@ -1029,7 +1029,7 @@ async function seedViaMongoClient() {
 
 main()
   .catch((error) => {
-    console.error('❌ Seeding failed:', error)
+    console.error('Seeding failed:', error)
     process.exit(1)
   })
   .finally(async () => {

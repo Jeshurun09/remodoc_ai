@@ -127,7 +127,7 @@ MPESA_INITIATOR_NAME=initiator
 MPESA_INITIATOR_PASSWORD=password
 
 # Environment & Callback
-MPESA_ENV=sandbox              # sandbox or production
+MPESA_ENV=sandbox # sandbox or production
 MPESA_CALLBACK_URL=http://localhost:3000/api/webhooks/mpesa
 ```
 
@@ -159,12 +159,12 @@ npx prisma studio
 
 ## Security Features
 
-✅ OAuth 2.0 token caching (expires after grant_type lifetime)
-✅ Safaricom signature verification for webhooks
-✅ Session authentication on all endpoints
-✅ Phone number validation and formatting
-✅ Timestamp-based request signing
-✅ Base64 password encoding per Safaricom spec
+ OAuth 2.0 token caching (expires after grant_type lifetime)
+ Safaricom signature verification for webhooks
+ Session authentication on all endpoints
+ Phone number validation and formatting
+ Timestamp-based request signing
+ Base64 password encoding per Safaricom spec
 
 ## Error Handling
 

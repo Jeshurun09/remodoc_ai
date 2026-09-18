@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
 
     // Fetch verified doctors first without user relation to avoid join issues
     const doctorProfiles = await prisma.doctorProfile.findMany({
-      where: { 
+      where: {
         verificationStatus: 'VERIFIED'
       }
     })
@@ -58,7 +58,7 @@ export async function GET(req: NextRequest) {
     const errorMessage = error?.message || 'Failed to fetch doctors'
     return NextResponse.json(
       { error: errorMessage },
-      { 
+      {
         status: 500,
         headers: { 'Content-Type': 'application/json' }
       }

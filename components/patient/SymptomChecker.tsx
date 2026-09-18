@@ -121,7 +121,7 @@ export default function SymptomChecker({ location }: SymptomCheckerProps) {
                 : 'bg-blue-500 text-white hover:bg-blue-600'
             }`}
           >
-            {listening ? '🛑 Stop Recording' : '🎤 Voice Input'}
+            {listening ? 'Stop Recording' : 'Voice Input'}
           </button>
           {transcript && (
             <button
@@ -150,7 +150,7 @@ export default function SymptomChecker({ location }: SymptomCheckerProps) {
             onClick={() => fileInputRef.current?.click()}
             className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
           >
-            📷 Upload Image
+            Upload Image
           </button>
           {imagePreview && (
             <div className="mt-4">
@@ -208,7 +208,7 @@ export default function SymptomChecker({ location }: SymptomCheckerProps) {
           {result.urgency === 'CRITICAL' || result.urgency === 'HIGH' && (
             <div className="bg-red-50 border border-red-200 rounded-lg p-4">
               <p className="text-red-800 font-semibold">
-                ⚠️ This may require immediate medical attention. Please seek emergency care or contact a healthcare provider.
+                This may require immediate medical attention. Please seek emergency care or contact a healthcare provider.
               </p>
             </div>
           )}

@@ -91,17 +91,17 @@ export default function NotificationsPanel() {
   const getNotificationIcon = (type: string) => {
     switch (type) {
       case 'APPOINTMENT':
-        return '📅';
+        return 'Appt';
       case 'PRESCRIPTION':
-        return '💊';
+        return 'Rx';
       case 'EMERGENCY':
-        return '🚨';
+        return 'Alert';
       case 'PAYMENT':
-        return '💳';
+        return 'Pay';
       case 'SYSTEM':
-        return '⚙️';
+        return 'Sys';
       default:
-        return '🔔';
+        return 'Note';
     }
   };
 
@@ -178,7 +178,7 @@ export default function NotificationsPanel() {
                 }`}
               >
                 <div className="flex items-start gap-3">
-                  <div className="text-2xl">
+                  <div className="text-xs font-semibold uppercase tracking-wide text-gray-500">
                     {getNotificationIcon(notification.type)}
                   </div>
                   <div className="flex-1 space-y-2">

@@ -45,7 +45,7 @@ export async function GET(req: NextRequest) {
         }
       }
     }>
-    
+
     const patients = await Promise.all(
       appointments.map(async (apt: AppointmentWithPatient) => {
         const unreadCount = await prisma.message.count({

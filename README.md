@@ -4,7 +4,7 @@ RemoDoc is an AI-powered telehealth web application that combines Gemini AI and 
 
 ## Features
 
-### 🩺 Patients Module
+### Patients Module
 - **Symptom Input**: Text, voice, or image input for symptoms
 - **AI Triage**: Gemini AI analyzes symptoms and provides likely conditions, urgency levels, and care advice
 - **Hospital Maps**: Find nearby hospitals with Google Maps integration
@@ -13,7 +13,7 @@ RemoDoc is an AI-powered telehealth web application that combines Gemini AI and 
 - **Offline Access**: Service worker and IndexedDB caching for offline functionality
 - **Emergency Beacon**: SMS-based emergency alert system
 
-### 👨‍⚕️ Doctors Module
+### Doctors Module
 - **Verified Login**: Secure authentication with role-based access
 - **Case Management**: Review and manage patient cases
 - **Chat Interface**: Communicate with patients
@@ -21,32 +21,32 @@ RemoDoc is an AI-powered telehealth web application that combines Gemini AI and 
 - **AI Feedback**: Review AI-generated symptom analyses
 - **Appointment Reminders**: Receive Twilio SMS reminders for scheduled visits
 
-### 🧠 Gemini AI Integration
+### Gemini AI Integration
 - Processes text and image data
 - Returns likely conditions, urgency levels, and care advice
 - Integrates GPS to show nearest hospitals
 - Logs all AI interactions for monitoring
 
-### 🗺️ Maps Integration
+### Maps Integration
 - Google Maps for hospital discovery and visualization
 - Directions links powered by Google Maps
 - Location-based hospital recommendations
 
-### 💳 Premium Subscriptions & Payments
+### Premium Subscriptions & Payments
 - **Multiple Payment Methods**: M-Pesa, Stripe (credit/debit), PayPal, Bank Transfer
 - **Flexible Plans**: Free, Student, Individual, Small Group, Family
 - **M-Pesa Integration**: STK Push for seamless mobile payments (perfect for African markets)
 - **Payment History**: Track all transactions and subscription status
 - **Auto-renewal**: Subscription management and expiration handling
 
-### 🧑‍💼 Admin Dashboard
+### Admin Dashboard
 - **Doctor Verification**: Verify and manage doctor registrations
 - **Hospital Management**: Add, edit, and manage hospital listings
 - **AI Logs**: Monitor AI usage and performance
 - **System Configuration**: Configure system settings
 - **Analytics**: View system statistics and insights
 
-### 🌐 Offline Mode
+### Offline Mode
 - Service worker for offline access
 - IndexedDB caching for reports, hospitals, and appointments
 - SMS-based emergency beacon
@@ -112,26 +112,26 @@ npm run dev
 ```
 remodoc/
 ├── app/
-│   ├── api/              # API routes
-│   ├── dashboard/        # Dashboard pages (patient, doctor, admin)
-│   ├── login/            # Login page
-│   ├── register/         # Registration page
-│   └── page.tsx          # Home page
+│ ├── api/ # API routes
+│ ├── dashboard/ # Dashboard pages (patient, doctor, admin)
+│ ├── login/ # Login page
+│ ├── register/ # Registration page
+│ └── page.tsx # Home page
 ├── components/
-│   ├── patient/          # Patient components
-│   ├── doctor/           # Doctor components
-│   └── admin/            # Admin components
+│ ├── patient/ # Patient components
+│ ├── doctor/ # Doctor components
+│ └── admin/ # Admin components
 ├── lib/
-│   ├── prisma.ts         # Prisma client
-│   ├── auth.ts           # NextAuth configuration
-│   ├── gemini.ts         # Gemini AI integration
-│   ├── maps.ts           # Geospatial utilities
-│   ├── sms.ts            # Twilio SMS integration
-│   └── offline.ts        # Offline storage utilities
+│ ├── prisma.ts # Prisma client
+│ ├── auth.ts # NextAuth configuration
+│ ├── gemini.ts # Gemini AI integration
+│ ├── maps.ts # Geospatial utilities
+│ ├── sms.ts # Twilio SMS integration
+│ └── offline.ts # Offline storage utilities
 ├── prisma/
-│   └── schema.prisma     # Database schema
+│ └── schema.prisma # Database schema
 └── public/
-    └── sw.js             # Service worker
+    └── sw.js # Service worker
 ```
 
 ## Usage

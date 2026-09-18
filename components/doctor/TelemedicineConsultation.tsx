@@ -108,7 +108,7 @@ export default function TelemedicineConsultation() {
     try {
       // Check if we're in a secure context (HTTPS or localhost)
       const isSecure = window.location.protocol === 'https:' || window.location.hostname === 'localhost'
-      
+
       if (!isSecure) {
         alert('Video calls require HTTPS. Please use a secure connection.')
         return
@@ -124,16 +124,16 @@ export default function TelemedicineConsultation() {
         video: { width: 640, height: 480 },
         audio: true
       })
-      
+
       if (videoRef.current) {
         videoRef.current.srcObject = stream
         setIsVideoActive(true)
       }
     } catch (error: any) {
       console.error('Error accessing camera/microphone:', error)
-      
+
       let errorMessage = 'Unable to access camera/microphone.'
-      
+
       if (error.name === 'NotAllowedError') {
         errorMessage = 'Camera/microphone access denied. Please allow permissions and try again.'
       } else if (error.name === 'NotFoundError') {
@@ -145,7 +145,7 @@ export default function TelemedicineConsultation() {
       } else if (error.name === 'SecurityError') {
         errorMessage = 'Camera/microphone access blocked due to security restrictions.'
       }
-      
+
       alert(errorMessage)
     }
   }
@@ -389,7 +389,7 @@ export default function TelemedicineConsultation() {
                   <div className="flex items-center justify-between">
                     <div>
                       <p className="text-blue-800 font-semibold">
-                        📞 Incoming video call from {invitation.initiator.name}
+                        Incoming video call from {invitation.initiator.name}
                       </p>
                       <p className="text-blue-600 text-sm">
                         Expires in {Math.max(0, Math.floor((new Date(invitation.expiresAt).getTime() - Date.now()) / 1000))} seconds

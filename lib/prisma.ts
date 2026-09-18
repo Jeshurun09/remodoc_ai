@@ -3,7 +3,7 @@ import { PrismaClient } from '@prisma/client'
 /**
  * Resolve and sanitize the MongoDB connection string.
  * Common Vercel misconfigurations that trigger:
- *   "the URL must start with the protocol `mongo`"
+ * "the URL must start with the protocol `mongo`"
  * include wrapping quotes, leading/trailing whitespace, or accidentally
  * pasting `DATABASE_URL=` into the value field.
  */

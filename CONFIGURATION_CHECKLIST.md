@@ -1,8 +1,8 @@
-# ⚙️ Configuration & Setup Checklist
+# Configuration & Setup Checklist
 
 ## Pre-Deployment Configurations
 
-### ✅ Phase 1: Environment Variables
+### Phase 1: Environment Variables
 
 **Step 1: Copy template**
 ```bash
@@ -11,7 +11,7 @@ cp env.example .env.local
 
 **Step 2: Update authentication (required)**
 ```bash
-NEXTAUTH_URL=https://yourdomain.com  # or http://localhost:3000 for dev
+NEXTAUTH_URL=https://yourdomain.com # or http://localhost:3000 for dev
 NEXTAUTH_SECRET=<generate with: openssl rand -base64 32>
 ```
 
@@ -40,19 +40,19 @@ PAYPAL_ENV=production # or sandbox for testing
 **Step 6: Configure M-Pesa (for customer & doctor payments)**
 ```bash
 # STK Push (customer payments)
-MPESA_CONSUMER_KEY=...         # From Safaricom Daraja
+MPESA_CONSUMER_KEY=... # From Safaricom Daraja
 MPESA_CONSUMER_SECRET=...
-MPESA_SHORTCODE=...            # Business shortcode
-MPESA_PASSKEY=...              # From Daraja
-MPESA_ENV=production           # or sandbox
+MPESA_SHORTCODE=... # Business shortcode
+MPESA_PASSKEY=... # From Daraja
+MPESA_ENV=production # or sandbox
 
 # B2C (doctor payouts)
-MPESA_B2C_CONSUMER_KEY=...     # B2C-specific credentials
+MPESA_B2C_CONSUMER_KEY=... # B2C-specific credentials
 MPESA_B2C_CONSUMER_SECRET=...
 MPESA_B2C_SECURITY_CREDENTIAL=... # Encrypted via Daraja
 MPESA_B2C_INITIATOR_NAME=...
 MPESA_B2C_SHORTCODE=...
-MPESA_WEBHOOK_SECRET=...       # For webhook verification
+MPESA_WEBHOOK_SECRET=... # For webhook verification
 MPESA_CALLBACK_URL=https://yourdomain.com/api/webhooks/mpesa
 ```
 
@@ -64,13 +64,13 @@ BANK_API_KEY=...
 
 **Step 8: Configure Payout Settings**
 ```bash
-PAYOUT_CONSULTATION_RATE=500    # KES per consultation
-PAYOUT_CURRENCY=KES             # Or your currency
+PAYOUT_CONSULTATION_RATE=500 # KES per consultation
+PAYOUT_CURRENCY=KES # Or your currency
 ```
 
 ---
 
-### ✅ Phase 2: Database Setup
+### Phase 2: Database Setup
 
 **Step 1: Generate Prisma client**
 ```bash
@@ -84,7 +84,7 @@ npx prisma db push
 
 **Expected output:**
 ```
-✔ Generated Prisma Client (v5.18.0)
+ Generated Prisma Client (v5.18.0)
 Your database is now in sync with your Prisma schema.
 ```
 
@@ -100,7 +100,7 @@ npx prisma studio
 
 ---
 
-### ✅ Phase 3: Provider Webhook Configuration
+### Phase 3: Provider Webhook Configuration
 
 #### Stripe
 1. Go to: https://dashboard.stripe.com/webhooks
@@ -129,7 +129,7 @@ npx prisma studio
 
 ---
 
-### ✅ Phase 4: Doctor Onboarding
+### Phase 4: Doctor Onboarding
 
 **Before doctors can receive payouts, they need to set up payout contact:**
 
@@ -169,7 +169,7 @@ PATCH /api/admin/doctors/[id]/payout-info
 
 ---
 
-### ✅ Phase 5: Testing
+### Phase 5: Testing
 
 **Step 1: Run integration tests**
 ```bash
@@ -178,7 +178,7 @@ npm run payouts:test
 
 **Expected output:**
 ```
-✅ Passed: 6 | ❌ Failed: 0
+ Passed: 6 | Failed: 0
 ```
 
 **Step 2: Test payment flow (manual)**
@@ -231,7 +231,7 @@ curl -X POST http://localhost:3000/api/webhooks/mpesa-b2c \
 
 ---
 
-### ✅ Phase 6: GitHub Actions Setup
+### Phase 6: GitHub Actions Setup
 
 **File:** `.github/workflows/payouts.yml`
 
@@ -252,20 +252,20 @@ curl -X POST http://localhost:3000/api/webhooks/mpesa-b2c \
 
 ---
 
-### ✅ Phase 7: API Routes Configuration
+### Phase 7: API Routes Configuration
 
 **Verify all routes are accessible:**
 
 ```bash
 # Admin routes (require auth)
-GET /api/admin/payouts              # List payouts
-POST /api/admin/payouts             # Create manual payout
-PATCH /api/admin/payouts/[id]       # Approve/trigger
-POST /api/admin/payouts/bulk        # Bulk operations
-GET /api/admin/payouts/export       # CSV export
+GET /api/admin/payouts # List payouts
+POST /api/admin/payouts # Create manual payout
+PATCH /api/admin/payouts/[id] # Approve/trigger
+POST /api/admin/payouts/bulk # Bulk operations
+GET /api/admin/payouts/export # CSV export
 
 # Doctor routes (require auth)
-GET /api/doctor/payouts             # View own payouts
+GET /api/doctor/payouts # View own payouts
 
 # Public routes (webhooks)
 POST /api/webhooks/stripe-payouts
@@ -273,31 +273,31 @@ POST /api/webhooks/paypal-payouts
 POST /api/webhooks/mpesa-b2c
 
 # Customer payment routes
-POST /api/payment                   # Initiate payment
-GET /api/webhooks/mpesa             # M-Pesa callback
+POST /api/payment # Initiate payment
+GET /api/webhooks/mpesa # M-Pesa callback
 ```
 
 ---
 
-### ✅ Phase 8: npm Scripts Available
+### Phase 8: npm Scripts Available
 
 Add these to your deployment pipeline:
 
 ```bash
-npm run dev                 # Start development server
-npm run build              # Build for production
-npm run start              # Start production server
-npm run lint               # Run ESLint
-npm run db:generate        # Generate Prisma client
-npm run db:push            # Push schema to database
-npm run db:studio          # Open Prisma Studio
-npm run payouts:calculate  # Calculate monthly payouts
-npm run payouts:test       # Run integration tests
+npm run dev # Start development server
+npm run build # Build for production
+npm run start # Start production server
+npm run lint # Run ESLint
+npm run db:generate # Generate Prisma client
+npm run db:push # Push schema to database
+npm run db:studio # Open Prisma Studio
+npm run payouts:calculate # Calculate monthly payouts
+npm run payouts:test # Run integration tests
 ```
 
 ---
 
-### ✅ Phase 9: Feature Gating Configuration
+### Phase 9: Feature Gating Configuration
 
 **Premium features enabled based on subscription plan:**
 
@@ -325,7 +325,7 @@ if (features.prescriptionManagement) {
 
 ---
 
-### ✅ Phase 10: Monitoring & Logging
+### Phase 10: Monitoring & Logging
 
 **Add application logging for:**
 
@@ -352,7 +352,7 @@ console.log('[PROVIDER] API call', { provider, action, result })
 
 ---
 
-### ✅ Phase 11: Environment-Specific Configurations
+### Phase 11: Environment-Specific Configurations
 
 **Development (.env.local)**
 ```bash
@@ -380,7 +380,7 @@ PAYPAL_ENV=production
 
 ---
 
-### ✅ Phase 12: Security Checklist
+### Phase 12: Security Checklist
 
 - [ ] `NEXTAUTH_SECRET` is secure (32+ chars, random)
 - [ ] All provider credentials stored in `.env.local` (never committed)
@@ -395,7 +395,7 @@ PAYPAL_ENV=production
 
 ---
 
-### ✅ Phase 13: Deployment Checklist
+### Phase 13: Deployment Checklist
 
 **Before going to production:**
 
@@ -417,7 +417,7 @@ PAYPAL_ENV=production
 
 ---
 
-### ✅ Phase 14: Post-Deployment
+### Phase 14: Post-Deployment
 
 **First week:**
 - Monitor webhook deliveries

@@ -98,7 +98,7 @@ export default function TriageSystem() {
 
             {triage.autoAssigned && (
               <div className="bg-green-50 p-3 rounded mt-3">
-                ✓ Auto-assigned to available doctor
+                 Auto-assigned to available doctor
                 {triage.estimatedWaitTime && (
                   <p className="text-sm">Estimated wait: {triage.estimatedWaitTime} minutes</p>
                 )}
@@ -107,7 +107,7 @@ export default function TriageSystem() {
 
             {triage.urgencyLevel === 'CRITICAL' && (
               <div className="bg-red-50 p-3 rounded mt-3 border border-red-200">
-                ⚠️ CRITICAL - Seek immediate medical attention or call emergency services
+                CRITICAL - Seek immediate medical attention or call emergency services
               </div>
             )}
           </div>

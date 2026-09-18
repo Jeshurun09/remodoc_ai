@@ -196,7 +196,7 @@ export default function StudentVerificationPage() {
         {/* Success Message */}
         {success && (
           <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-green-900 font-medium">✓ Verification successful! Your plan has been upgraded.</p>
+            <p className="text-green-900 font-medium"> Verification successful! Your plan has been upgraded.</p>
           </div>
         )}
 
@@ -451,10 +451,10 @@ export default function StudentVerificationPage() {
             <div className="mt-8 bg-blue-50 rounded-lg p-6 border border-blue-200">
               <h3 className="font-semibold text-blue-900 mb-3">Why Verify Your Student Status?</h3>
               <ul className="text-sm text-blue-900 space-y-2">
-                <li>✓ Get the <span className="font-semibold">Student Plan</span> at special pricing</li>
-                <li>✓ Access premium features at student rates</li>
-                <li>✓ Annual verification with automatic renewal</li>
-                <li>✓ Quick and secure verification process</li>
+                <li> Get the <span className="font-semibold">Student Plan</span> at special pricing</li>
+                <li> Access premium features at student rates</li>
+                <li> Annual verification with automatic renewal</li>
+                <li> Quick and secure verification process</li>
               </ul>
             </div>
           </>

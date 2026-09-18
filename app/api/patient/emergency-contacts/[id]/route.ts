@@ -112,7 +112,7 @@ export async function PUT(
     })
   } catch (error: any) {
     console.error('Error updating emergency contact:', error)
-    
+
     if (error.code === 'P2002') {
       return NextResponse.json(
         { error: 'This contact already exists for this patient' },

@@ -257,10 +257,10 @@ import { getUserFeatureAccess } from '@/lib/premium'
 
 const features = await getUserFeatureAccess(userId)
 // Returns: {
-//   aiSymptomChecker: true,
-//   appointmentBooking: true,
-//   messaging: true,
-//   ...
+// aiSymptomChecker: true,
+// appointmentBooking: true,
+// messaging: true,
+// ...
 // }
 ```
 
@@ -271,8 +271,8 @@ import { getPlanChangeHistory } from '@/lib/premium'
 
 const history = await getPlanChangeHistory(userId)
 // Returns: [{
-//   timestamp: Date,
-//   details: { fromPlan, toPlan, proratedAmount, timestamp }
+// timestamp: Date,
+// details: { fromPlan, toPlan, proratedAmount, timestamp }
 // }]
 ```
 

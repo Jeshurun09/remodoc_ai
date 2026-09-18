@@ -2,7 +2,7 @@
 
 Complete multi-method payment system for RemoDoc premium subscriptions.
 
-## 🎯 Overview
+## Overview
 
 RemoDoc now supports **4 payment methods**:
 
@@ -13,32 +13,32 @@ RemoDoc now supports **4 payment methods**:
 
 Users can choose their preferred payment method at checkout.
 
-## 💳 Payment Methods
+## Payment Methods
 
 ### M-Pesa (Safaricom)
 - **Region**: Kenya, Tanzania, Uganda (primarily)
 - **Flow**: STK Push → User enters PIN → Auto-polling → Activate
-- **Status**: ✅ Production Ready
+- **Status**: Production Ready
 - **Docs**: See `MPESA_SETUP.md`
 
 ### Stripe
 - **Region**: Global
 - **Flow**: Create Payment Intent → Client confirms → Webhook verifies → Activate
-- **Status**: ✅ Implementation Complete
+- **Status**: Implementation Complete
 - **Docs**: See `STRIPE_SETUP.md` (below)
 
 ### PayPal
 - **Region**: Global
 - **Flow**: Create Order → Redirect to PayPal → User approves → Capture → Activate
-- **Status**: ✅ Implementation Complete
+- **Status**: Implementation Complete
 - **Docs**: See `PAYPAL_SETUP.md` (below)
 
 ### Bank Transfer
 - **Region**: Global
 - **Flow**: Send details → Manual verification → Activate
-- **Status**: ✅ Implementation Complete
+- **Status**: Implementation Complete
 
-## 🚀 Setup Instructions
+## Setup Instructions
 
 ### 1. Get API Credentials
 
@@ -63,7 +63,7 @@ Users can choose their preferred payment method at checkout.
 
 ```bash
 npm install stripe @stripe/react-stripe-js @stripe/stripe-js
-npm install axios  # Already included
+npm install axios # Already included
 ```
 
 ### 3. Update `.env`
@@ -120,59 +120,59 @@ npm run dev
 # Select plan → Subscribe → Choose payment method → Test
 ```
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                 Payment Checkout Page                       │
-│  /subscribe/payment?plan=individual                         │
+│ Payment Checkout Page │
+│ /subscribe/payment?plan=individual │
 └─────────────────────────────────────────────────────────────┘
                             │
          ┌──────────────────┼──────────────────┐
-         │                  │                  │
-         ▼                  ▼                  ▼
-    [M-Pesa]          [Stripe]           [PayPal]
-         │                  │                  │
+         │ │ │
+         ▼ ▼ ▼
+    [M-Pesa] [Stripe] [PayPal]
+         │ │ │
          ├─ API: /api/payment
-         │    └─ Selects method
+         │ └─ Selects method
          │
-    M-Pesa Flow:           Stripe Flow:        PayPal Flow:
-    1. STK Push     1. Create Intent    1. Create Order
-    2. Phone Prompt 2. Client Form      2. Redirect
-    3. PIN Entry    3. Webhook          3. Approve
-    4. Poll DB      4. Activate         4. Capture
-    5. Redirect                         5. Redirect
-         │                  │                  │
+    M-Pesa Flow: Stripe Flow: PayPal Flow:
+    1. STK Push 1. Create Intent 1. Create Order
+    2. Phone Prompt 2. Client Form 2. Redirect
+    3. PIN Entry 3. Webhook 3. Approve
+    4. Poll DB 4. Activate 4. Capture
+    5. Redirect 5. Redirect
+         │ │ │
          └──────────────────┼──────────────────┘
                             ▼
          ┌──────────────────────────────────────┐
-         │    Database: PaymentTransaction      │
-         │    Status: pending → completed       │
+         │ Database: PaymentTransaction │
+         │ Status: pending → completed │
          └──────────────────────────────────────┘
                             │
                             ▼
          ┌──────────────────────────────────────┐
-         │  Subscription: Activate Premium      │
-         │  Plan: INDIVIDUAL                    │
-         │  Status: ACTIVE                      │
+         │ Subscription: Activate Premium │
+         │ Plan: INDIVIDUAL │
+         │ Status: ACTIVE │
          └──────────────────────────────────────┘
 ```
 
-## 📁 Files Created/Updated
+## Files Created/Updated
 
 | File | Method | Purpose |
 |------|--------|---------|
-| `lib/stripe.ts` | ✨ NEW | Stripe API integration |
-| `lib/paypal.ts` | ✨ NEW | PayPal API integration |
-| `app/api/payment/route.ts` | 📝 UPDATED | Route all payment methods |
-| `app/api/webhooks/stripe/route.ts` | ✨ NEW | Stripe webhook handler |
-| `app/api/webhooks/paypal/route.ts` | ✨ NEW | PayPal webhook handler |
-| `app/api/paypal/return/route.ts` | ✨ NEW | PayPal return handler |
-| `app/subscribe/payment/page.tsx` | 📝 UPDATED | Show all payment options |
-| `.env` | 📝 UPDATED | Add Stripe/PayPal credentials |
-| `package.json` | 📝 UPDATED | Add stripe dependencies |
+| `lib/stripe.ts` | NEW | Stripe API integration |
+| `lib/paypal.ts` | NEW | PayPal API integration |
+| `app/api/payment/route.ts` | UPDATED | Route all payment methods |
+| `app/api/webhooks/stripe/route.ts` | NEW | Stripe webhook handler |
+| `app/api/webhooks/paypal/route.ts` | NEW | PayPal webhook handler |
+| `app/api/paypal/return/route.ts` | NEW | PayPal return handler |
+| `app/subscribe/payment/page.tsx` | UPDATED | Show all payment options |
+| `.env` | UPDATED | Add Stripe/PayPal credentials |
+| `package.json` | UPDATED | Add stripe dependencies |
 
-## 🔄 Payment Flows
+## Payment Flows
 
 ### M-Pesa Flow
 ```
@@ -200,7 +200,7 @@ User clicks PayPal → /api/payment → createPayPalOrder()
   → Redirect to dashboard
 ```
 
-## 🧪 Testing
+## Testing
 
 ### Test Cards (Stripe)
 
@@ -212,49 +212,49 @@ User clicks PayPal → /api/payment → createPayPalOrder()
 
 ### Test Phone (M-Pesa)
 ```
-254712345678  # Sandbox success
-254787654321  # Sandbox cancel
+254712345678 # Sandbox success
+254787654321 # Sandbox cancel
 ```
 
 ### Test Credentials (PayPal)
 Use sandbox credentials from https://developer.paypal.com
 
-## 📊 Database Schema
+## Database Schema
 
 ### PaymentTransaction (Enhanced)
 ```prisma
 model PaymentTransaction {
-  id                String   @id @default(cuid())
-  userId            String
-  transactionId     String   @unique
-  amount            Float
-  currency          String   # KES, USD, etc
-  status            String   # pending, completed, failed
-  method            String   # mpesa, stripe, paypal, bank
-  phoneNumber       String?  # M-Pesa phone
-  merchantRequestId String?  # M-Pesa request
-  checkoutRequestId String?  # M-Pesa checkout or Stripe intent
-  receiptNumber     String?  # M-Pesa receipt
-  plan              String
-  description       String?
-  metadata          String?  # JSON: {paypalOrderId, stripeCustomer, etc}
-  createdAt         DateTime
-  updatedAt         DateTime
-  user              User @relation("UserPayments", fields: [userId], references: [id])
+  id String @id @default(cuid())
+  userId String
+  transactionId String @unique
+  amount Float
+  currency String # KES, USD, etc
+  status String # pending, completed, failed
+  method String # mpesa, stripe, paypal, bank
+  phoneNumber String? # M-Pesa phone
+  merchantRequestId String? # M-Pesa request
+  checkoutRequestId String? # M-Pesa checkout or Stripe intent
+  receiptNumber String? # M-Pesa receipt
+  plan String
+  description String?
+  metadata String? # JSON: {paypalOrderId, stripeCustomer, etc}
+  createdAt DateTime
+  updatedAt DateTime
+  user User @relation("UserPayments", fields: [userId], references: [id])
 }
 ```
 
-## 🔐 Security
+## Security
 
-✅ OAuth tokens cached with TTL
-✅ Webhook signatures verified
-✅ Session authentication required
-✅ Credentials in environment only
-✅ HTTPS required for production
-✅ Idempotent webhook handling
-✅ PCI compliance (no card storage)
+ OAuth tokens cached with TTL
+ Webhook signatures verified
+ Session authentication required
+ Credentials in environment only
+ HTTPS required for production
+ Idempotent webhook handling
+ PCI compliance (no card storage)
 
-## 📈 Monitoring
+## Monitoring
 
 Track these metrics:
 - Payment success rate by method
@@ -263,7 +263,7 @@ Track these metrics:
 - Error rates and reasons
 - User conversion by payment method
 
-## 🚨 Troubleshooting
+## Troubleshooting
 
 | Issue | Solution |
 |-------|----------|
@@ -273,27 +273,27 @@ Track these metrics:
 | Transaction not found in webhook | Webhook arriving before DB write (add 100ms delay) |
 | Credentials invalid | Verify test vs production keys |
 
-## 📝 Next Steps
+## Next Steps
 
-1. ✅ Configure all payment credentials
-2. ✅ Update .env with API keys
-3. ✅ Run database migrations
-4. ✅ Test with sandbox credentials
-5. ✅ Add error handling and logging
-6. ✅ Send payment receipts via email
-7. ✅ Add payment history page
-8. ✅ Implement refund handling
-9. ✅ Add fraud detection
-10. ✅ Go live with production credentials
+1. Configure all payment credentials
+2. Update .env with API keys
+3. Run database migrations
+4. Test with sandbox credentials
+5. Add error handling and logging
+6. Send payment receipts via email
+7. Add payment history page
+8. Implement refund handling
+9. Add fraud detection
+10. Go live with production credentials
 
-## 📚 Documentation
+## Documentation
 
 - `MPESA_SETUP.md` - M-Pesa detailed setup
 - `STRIPE_SETUP.md` - Stripe detailed setup
 - `PAYPAL_SETUP.md` - PayPal detailed setup
 - `PAYMENT_ARCHITECTURE.md` - System architecture
 
-## 🎯 Success Criteria
+## Success Criteria
 
 - [x] All 4 payment methods available
 - [x] Users can select preferred method
@@ -308,5 +308,5 @@ Track these metrics:
 
 ---
 
-**Status**: ✅ Multi-Method Payment System Complete
+**Status**: Multi-Method Payment System Complete
 **Last Updated**: November 30, 2025

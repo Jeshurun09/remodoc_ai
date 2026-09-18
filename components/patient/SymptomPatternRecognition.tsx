@@ -153,7 +153,7 @@ export default function SymptomPatternRecognition() {
           {pattern && (
             <div className="mt-6 space-y-4">
               <h3 className="text-xl font-bold text-cyan-500">Pattern Analysis</h3>
-              
+
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-4 bg-cyan-50 dark:bg-cyan-900/20 rounded-lg">
                   <p className="text-sm text-gray-600 dark:text-gray-400">Pattern Type</p>
