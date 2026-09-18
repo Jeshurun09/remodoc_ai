@@ -2,6 +2,7 @@ import { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { prisma } from './prisma'
 import bcrypt from 'bcryptjs'
+import { isDbUnavailable } from './errors'
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -59,6 +60,11 @@ export const authOptions: NextAuthOptions = {
             patientProfile: user.patientProfile
           }
         } catch (error) {
+          if (isDbUnavailable(error)) {
+            console.error('[NextAuth Authorize] Database unavailable:', error)
+            throw new Error('DatabaseUnavailable')
+          }
+
           // Re-throw errors so they're handled properly by NextAuth
           // NextAuth will pass the error message to the client
           if (error instanceof Error) {
@@ -157,11 +163,11 @@ export const authOptions: NextAuthOptions = {
 
         // Only set these if they exist
         if (token.doctorProfile) {
-          session.user.doctorProfile = token.doctorProfile as any
+          session.user.doctorProfile = token.doctorProfile as NonNullable<typeof session.user.doctorProfile>
         }
 
         if (token.patientProfile) {
-          session.user.patientProfile = token.patientProfile as any
+          session.user.patientProfile = token.patientProfile as NonNullable<typeof session.user.patientProfile>
         }
 
         return session
@@ -202,7 +208,7 @@ export const authOptions: NextAuthOptions = {
         console.warn('[NextAuth Warning]', code)
       }
     },
-    debug(code, metadata) {
+    debug() {
       // Suppress debug logs
     },
   },

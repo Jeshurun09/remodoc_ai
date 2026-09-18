@@ -32,7 +32,11 @@ export default function LoginPage() {
       })
 
       if (result?.error) {
-        setError(result.error || 'Invalid email or password')
+        setError(
+          result.error === 'DatabaseUnavailable'
+            ? 'The service is temporarily unavailable. Please try again after the database connection is restored.'
+            : result.error || 'Invalid email or password'
+        )
       } else if (result?.ok) {
         // Store remember me preference
         if (rememberMe && typeof window !== 'undefined') {
@@ -158,7 +162,7 @@ export default function LoginPage() {
 
         <div className="mt-6 text-center text-[var(--foreground)]">
           <p className="text-sm">
-            Don't have an account?{' '}
+            Don&apos;t have an account?{' '}
             <a href="/register" className="text-blue-600 hover:text-blue-700 font-medium">
               Register
             </a>

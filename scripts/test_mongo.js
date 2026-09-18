@@ -1,9 +1,10 @@
 const { MongoClient } = require('mongodb')
 const fs = require('fs')
-// Load .env manually if dotenv is not installed
-try {
-  const env = fs.readFileSync('.env', 'utf8')
-  env.split(/\r?\n/).forEach(line => {
+// Load .env.local first, matching Next.js precedence, then fill missing values from .env.
+for (const envFile of ['.env.local', '.env']) {
+  try {
+    const env = fs.readFileSync(envFile, 'utf8')
+    env.split(/\r?\n/).forEach(line => {
     const m = line.match(/^\s*([A-Z0-9_]+)=(.*)$/i)
     if (m) {
       const key = m[1]
@@ -14,9 +15,10 @@ try {
       }
       if (!process.env[key]) process.env[key] = val
     }
-  })
-} catch (e) {
-  // ignore if .env not present
+    })
+  } catch (e) {
+    // Ignore missing env files.
+  }
 }
 
 ;(async () => {
