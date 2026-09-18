@@ -28,7 +28,7 @@ export default function LoginPage() {
         email,
         password,
         redirect: false,
-        callbackUrl: '/dashboard',
+        callbackUrl: `${window.location.origin}/dashboard`,
       })
 
       if (result?.error) {
